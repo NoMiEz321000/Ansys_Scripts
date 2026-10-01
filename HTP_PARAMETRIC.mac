@@ -1,0 +1,627 @@
+! ================================================================
+!  BLOCK 1: PARAMETRIC INPUT VARIABLES 
+! ================================================================
+! Test git next round experiment branch new chamge?
+CONFIG = 1  ! 1 = Config A (14-3-8), 2 = Config B (9-2-8), 3 = Config C (7-2-6)
+
+! --- FIXED MACRO-GEOMETRY [mm] (DO NOT OPTIMIZE) ---
+SPAN    = 3978
+C_ROOT  = 3090
+C_TIP   = 1860
+DIHED   = 7
+TC      = 0.12
+
+! --- TOPOLOGICAL LAYOUT SELECTOR ---
+*IF,CONFIG,EQ,1,THEN
+    N_RIB  = 14
+    N_SPAR = 3
+    N_STR  = 8
+    N_CUT  = 5
+*ELSEIF,CONFIG,EQ,2
+    N_RIB  = 9
+    N_SPAR = 2
+    N_STR  = 8
+    N_CUT  = 5
+*ELSEIF,CONFIG,EQ,3
+    N_RIB  = 7
+    N_SPAR = 2
+    N_STR  = 6
+    N_CUT  = 3
+*ENDIF
+
+! ================================================================
+! DESIGN VARIABLES (DVs) FOR SIZING OPTIMIZATION
+! (These are Initial Guesses. The Optimizer will iterate these values)
+! ================================================================
+
+! --- Thicknesses [mm] ---
+T_SKIN     = 2.5    ! Composite skin thickness
+T_SPAR_WEB = 3.0    ! Spar web thickness
+T_RIB_WEB  = 2.0    ! Rib web thickness
+
+! --- Hat-Section Stringer Dimensions [mm] ---
+STR_H   = 40        ! Stringer Height
+STR_BW  = 50        ! Stringer Base Width
+STR_T   = 3.0       ! Stringer Thickness
+
+! --- Spar Flange Dimensions [mm] ---
+SPAR_FW = 50.0      ! Spar Flange Width
+SPAR_FT = 4.0       ! Spar Flange Thickness
+
+! ================================================================
+! MESH & MICRO-DETAILS CONSTANTS
+! ================================================================
+ESIZE_V = 100
+HOLE_RATIO = 0.50   ! Lightening hole diameter is 50% of local rib height
+
+! ================================================================
+! MATERIAL PROPERTIES (Unit System: N, mm, tonne, MPa)
+! ================================================================
+
+! --- Material 1: Al 7075-T6 (Internal Framework) ---
+EX_AL   = 71700     ! Young's Modulus [MPa]
+PRXY_AL = 0.33      ! Poisson's Ratio
+DENS_AL = 2.81e-9   ! Density [tonne/mm^3]
+SY_AL   = 480       ! Tensile Yield Strength [MPa]
+
+! --- Material 2: Equivalent Isotropic Composite (Skins) ---
+EX_COMP = 50000     ! Young's Modulus [MPa]
+PRXY_CO = 0.28      ! Poisson's Ratio
+DENS_CO = 1.6e-9    ! Density [tonne/mm^3]
+
+PI = ACOS(-1)
+DIHED_R = DIHED*PI/180
+
+! ================================================================
+!  BLOCK 2: STATION CALCULATION & AIRFOIL
+! ================================================================
+RIB_SPC = SPAN/(N_RIB - 1)
+*DIM,Y_STA,ARRAY,N_RIB
+*DIM,C_STA,ARRAY,N_RIB
+*DIM,Z_OFF,ARRAY,N_RIB
+
+*DO,I,1,N_RIB
+    Y_STA(I) = (I-1)*RIB_SPC
+    C_STA(I) = C_ROOT + (C_TIP - C_ROOT)*Y_STA(I)/SPAN
+    Z_OFF(I) = Y_STA(I)*TAN(DIHED_R)
+*ENDDO
+
+! Define topological points for Upper Surface
+N_UP = 25
+*DIM,XC_UP,ARRAY,N_UP
+XC_UP(1)  = 0.00, 0.02, 0.05, 0.08, 0.10, 0.12, 0.15, 0.18
+XC_UP(9)  = 0.21, 0.25, 0.28, 0.31, 0.35, 0.40, 0.45, 0.50
+XC_UP(17) = 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90
+XC_UP(25) = 0.98
+
+*DIM,IS_SPAR,ARRAY,N_UP
+*DIM,IS_STR,ARRAY,N_UP
+*DO,I,1,N_UP
+    IS_SPAR(I) = 0
+    IS_STR(I) = 0
+*ENDDO
+
+*IF,CONFIG,EQ,1,THEN
+    IS_SPAR(7) = 1  ! 0.15
+    IS_SPAR(16) = 1 ! 0.50
+    IS_SPAR(20) = 1 ! 0.70
+    IS_STR(10) = 1  ! 0.25
+    IS_STR(13) = 1  ! 0.35
+    IS_STR(15) = 1  ! 0.45
+    IS_STR(18) = 1  ! 0.60
+*ELSEIF,CONFIG,EQ,2,THEN
+    IS_SPAR(7) = 1
+    IS_SPAR(16) = 1
+    IS_STR(10) = 1
+    IS_STR(13) = 1
+    IS_STR(15) = 1
+    IS_STR(18) = 1
+*ELSEIF,CONFIG,EQ,3,THEN
+    IS_SPAR(7) = 1
+    IS_SPAR(16) = 1
+    IS_STR(10) = 1
+    IS_STR(15) = 1
+    IS_STR(18) = 1
+*ENDIF
+
+! Construct Full Profile (Upper + Lower)
+N_PROF = 2*N_UP - 1
+*DIM,XC_FRAC,ARRAY,N_PROF
+*DIM,Y_SGN,ARRAY,N_PROF
+*DIM,PROF_SPAR,ARRAY,N_PROF
+*DIM,PROF_STR,ARRAY,N_PROF
+
+! Upper Surface (LE to TE)
+*DO,I,1,N_UP
+    XC_FRAC(I) = XC_UP(I)
+    Y_SGN(I) = 1.0
+    PROF_SPAR(I) = IS_SPAR(I)
+    PROF_STR(I) = IS_STR(I)
+*ENDDO
+
+! Lower Surface (TE to LE)
+IDX = N_UP
+*DO,I,N_UP,2,-1
+    IDX = IDX + 1
+    XC_FRAC(IDX) = XC_UP(I)
+    Y_SGN(IDX) = -1.0
+    PROF_SPAR(IDX) = IS_SPAR(I)
+    PROF_STR(IDX) = IS_STR(I)
+*ENDDO
+
+! NACA Polynomial Thickness
+*DIM,YT_FRAC,ARRAY,N_PROF
+TSCALE = TC/0.20
+*DO,J,1,N_PROF
+    XF = XC_FRAC(J)
+    *IF,XF,GT,0,THEN
+        T1 = 0.29690*SQRT(XF)
+        T2 = 0.12600*XF
+        T3 = 0.35160*(XF**2)
+        T4 = 0.28430*(XF**3)
+        T5 = 0.10150*(XF**4)
+        YT_FRAC(J) = TSCALE*(T1 - T2 - T3 + T4 - T5)
+    *ELSE
+        YT_FRAC(J) = 0.0
+    *ENDIF
+*ENDDO
+
+! ================================================================
+!  BLOCK 3: SPAR-AWARE HOLE BAY DEFINITION
+! ================================================================
+*DIM, BAY_START, ARRAY, N_SPAR
+*DIM, BAY_END, ARRAY, N_SPAR
+*DIM, BAY_HOLES, ARRAY, N_SPAR
+
+SPAR_CNT = 0
+PREV_XC = 0.0
+*DO,J,1,N_UP
+    *IF, IS_SPAR(J), EQ, 1, THEN
+        SPAR_CNT = SPAR_CNT + 1
+        *IF, SPAR_CNT, EQ, 1, THEN
+            BAY_START(1) = 0.0
+            BAY_END(1) = XC_UP(J)
+            BAY_HOLES(1) = 1
+            PREV_XC = XC_UP(J)
+        *ELSEIF, SPAR_CNT, EQ, 2, THEN
+            BAY_START(2) = PREV_XC
+            BAY_END(2) = XC_UP(J)
+            *IF, CONFIG, EQ, 1, THEN
+                BAY_HOLES(2) = 5
+            *ELSE
+                BAY_HOLES(2) = N_CUT
+            *ENDIF
+            PREV_XC = XC_UP(J)
+        *ELSEIF, SPAR_CNT, EQ, 3, THEN
+            BAY_START(3) = PREV_XC
+            BAY_END(3) = XC_UP(J)
+            BAY_HOLES(3) = 1
+        *ENDIF
+    *ENDIF
+*ENDDO
+
+! ================================================================
+!  BLOCK 4: KEYPOINTS & LINE GENERATION
+! ================================================================
+/PREP7
+*DO,I,1,N_RIB
+    Y_I = Y_STA(I)
+    C_I = C_STA(I)
+    Z_I = Z_OFF(I)
+    KP_BASE = (I-1)*100
+    *DO,J,1,N_PROF
+        X_KP = XC_FRAC(J)*C_I
+        Z_KP = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        K, KP_BASE + J, X_KP, Y_I, Z_KP
+    *ENDDO
+*ENDDO
+
+! --- Create Upper Stringer Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, PROF_STR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_STR_UPPER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Lower Stringer Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,N_UP+1,N_PROF
+        *IF, PROF_STR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_STR_LOWER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Upper Spar Flange Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_FLANGE_UPPER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Lower Spar Flange Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,N_UP+1,N_PROF
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_FLANGE_LOWER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! ================================================================
+!  BLOCK 5: AREA GENERATION (RIBS -> HOLES -> SKINS -> SPARS)
+! ================================================================
+! --- Ribs (Solid first) ---
+*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+*DO,I,1,N_RIB
+    KB = (I-1)*100
+    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+    *DO,J,1,N_PROF-1
+        L, KB+J, KB+J+1
+    *ENDDO
+    L, KB+N_PROF, KB+1
+    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    AL, ALL
+*ENDDO
+*GET, A_MAX_POST, AREA, 0, NUM, MAXD
+ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+CM, COMP_RIBS, AREA
+ALLSEL, ALL
+
+! --- Cut Rib Holes ---
+! Set SKIP_HOLES = 1 to disable hole cutting for debugging, 0 to enable
+SKIP_HOLES = 1
+
+*IF, SKIP_HOLES, EQ, 0, THEN
+
+*DO,I,1,N_RIB
+    ALLSEL, ALL
+    ASEL, S, LOC, Y, Y_STA(I)-0.5, Y_STA(I)+0.5
+    *GET, N_AREAS_SEL, AREA, 0, COUNT
+    *IF, N_AREAS_SEL, GT, 0, THEN
+        *GET, AR_RIB, AREA, 0, NUM, MAX
+        ALLSEL, ALL
+        
+        WPCSYS, -1, 0
+        WPROTA, 0, 90, 0
+        WPOFFS, 0, 0, -Y_STA(I)
+        
+        C_I = C_STA(I)
+        Z_I = Z_OFF(I)
+        X_STA = 0  ! X_OFF is not defined, defaulting to 0
+
+        *GET, A_MAX_BEFORE_HOLES, AREA, 0, NUM, MAXD
+        
+        *DO, B, 1, N_SPAR
+            *IF, BAY_HOLES(B), GT, 0, THEN
+                BAY_W = BAY_END(B) - BAY_START(B)
+                CELL_W = BAY_W / BAY_HOLES(B)
+                *DO, H, 1, BAY_HOLES(B)
+                    XC_HOLE = BAY_START(B) + (H - 0.5)*CELL_W
+                    XF_H = XC_HOLE
+                    YT_H = 0.0
+                    *IF, XF_H, GT, 0, THEN
+                        YT_H = TC*(0.29690*SQRT(XF_H) - 0.12600*XF_H - 0.35160*(XF_H**2) + 0.28430*(XF_H**3) - 0.10150*(XF_H**4))
+                    *ENDIF
+                    
+                    ! Make hole slightly smaller (0.65 instead of 0.70) to prevent meshing slivers
+                    R_HOLE = HOLE_RATIO * YT_H * C_I * 0.65
+                    MAX_R = 0.45 * CELL_W * C_I
+                    *IF, R_HOLE, GT, MAX_R, THEN
+                        R_HOLE = MAX_R
+                    *ENDIF
+                    
+                    ! Create circular area for hole
+                    CYL4, XC_HOLE*C_I + X_STA, Z_I, R_HOLE
+                *ENDDO
+            *ENDIF
+        *ENDDO
+
+        *GET, A_MAX_AFTER_HOLES, AREA, 0, NUM, MAXD
+        *IF, A_MAX_AFTER_HOLES, GT, A_MAX_BEFORE_HOLES, THEN
+            ASEL, S, AREA, , A_MAX_BEFORE_HOLES+1, A_MAX_AFTER_HOLES
+            CM, HOLE_AREAS, AREA
+            ALLSEL, ALL
+            ASBA, AR_RIB, HOLE_AREAS, , DELETE, DELETE
+        *ENDIF
+        
+        WPCSYS, -1, 0
+    *ENDIF
+*ENDDO
+ALLSEL, ALL
+*ENDIF
+
+! Rebuild COMP_RIBS
+*GET, A_MAX_POST, AREA, 0, NUM, MAXD
+ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+CM, COMP_RIBS, AREA
+
+! --- Skins ---
+*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_PROF-1
+        A, KB1+J, KB2+J, KB2+J+1, KB1+J+1
+    *ENDDO
+    A, KB1+N_PROF, KB2+N_PROF, KB2+1, KB1+1
+*ENDDO
+*GET, A_MAX_POST, AREA, 0, NUM, MAXD
+ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+CM, COMP_SKINS, AREA
+ALLSEL, ALL
+
+! --- Spar Webs ---
+*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, IS_SPAR(J), EQ, 1, THEN
+            *IF, J, EQ, 1, THEN
+                J_LOW = 1
+            *ELSEIF, J, EQ, N_UP, THEN
+                J_LOW = N_UP
+            *ELSE
+                J_LOW = N_PROF - J + 2
+            *ENDIF
+            A, KB1+J, KB2+J, KB2+J_LOW, KB1+J_LOW
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, A_MAX_POST, AREA, 0, NUM, MAXD
+ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+CM, COMP_SPARS, AREA
+ALLSEL, ALL
+
+! Merge topology
+NUMMRG, ALL, 1.0E-4
+NUMCMP, ALL
+
+! ================================================================
+!  BLOCK 7: ELEMENT TYPES, MATERIALS & SECTIONS
+! ================================================================
+ET, 1, SHELL181
+KEYOPT, 1, 3, 2
+
+ET, 2, BEAM188
+KEYOPT, 2, 3, 3
+
+MP, EX, 1, EX_AL
+MP, PRXY, 1, PRXY_AL
+MP, DENS, 1, DENS_AL
+
+MP, EX, 2, EX_COMP
+MP, PRXY, 2, PRXY_CO
+MP, DENS, 2, DENS_CO
+
+SECTYPE, 1, SHELL
+SECDATA, T_RIB_WEB, 1
+
+SECTYPE, 2, SHELL
+SECDATA, T_SPAR_WEB, 1
+
+SECTYPE, 3, SHELL
+SECDATA, T_SKIN, 2
+
+SECTYPE, 4, BEAM, I
+SECDATA, STR_BW, STR_BW, STR_H, STR_T, STR_T, STR_T
+SECOFFSET, USER, -STR_H/2, 0  ! Negative Y-offset shifts the section inwards flush with skin
+
+SECTYPE, 5, BEAM, RECT
+SECDATA, SPAR_FW, SPAR_FT
+SECOFFSET, USER, -SPAR_FT/2, 0 ! Negative Y-offset shifts the section inwards flush with skin
+
+! ================================================================
+!  SAVE DB FOR GEOMETRY INSPECTION
+! ================================================================
+SAVE, 'HTP_PARAMETRIC', 'db'
+
+! ================================================================
+!  BLOCK 8: MESHING
+! ================================================================
+ESIZE_V = 100
+ESIZE, ESIZE_V
+
+! Skins
+CMSEL, S, COMP_SKINS
+AATT, 2, , 1, , 3
+MSHAPE, 0, 2D
+MSHKEY, 1
+AMESH, ALL
+
+! Spar Webs
+CMSEL, S, COMP_SPARS
+AATT, 1, , 1, , 2
+MSHAPE, 0, 2D
+MSHKEY, 1
+AMESH, ALL
+
+! Refine hole lines
+CMSEL, S, COMP_RIBS
+LSLA, S
+CMSEL, S, COMP_SKINS
+LSLA, U
+CMSEL, S, COMP_SPARS
+LSLA, U
+LESIZE, ALL, , , 6
+ALLSEL, ALL
+
+! Ribs
+! Set SKIP_RIB_MESH = 1 to disable rib meshing for debugging, 0 to enable
+SKIP_RIB_MESH = 1
+
+*IF, SKIP_RIB_MESH, EQ, 0, THEN
+    CMSEL, S, COMP_RIBS
+    AATT, 1, , 1, , 1
+    MSHAPE, 1, 2D
+    MSHKEY, 0
+    SMRTSIZE, 5
+    AMESH, ALL
+    SMRTSIZE, OFF
+*ENDIF
+MSHAPE, 0, 2D
+
+! Orient and Mesh Beams
+*DIM, COMP_LIST, STRING, 24, 4
+COMP_LIST(1,1) = 'COMP_STR_UPPER'
+COMP_LIST(1,2) = 'COMP_STR_LOWER'
+COMP_LIST(1,3) = 'COMP_FLANGE_UPPER'
+COMP_LIST(1,4) = 'COMP_FLANGE_LOWER'
+
+K_OR = 90000
+*DO, C_IDX, 1, 4
+    CMSEL, S, %COMP_LIST(1,C_IDX)%
+    *GET, LNUM, LINE, 0, NUM, MIN
+    *DOWHILE, LNUM
+        *GET, KP1, LINE, LNUM, KP, 1
+        *GET, X_KP, KP, KP1, LOC, X
+        *GET, Y_KP, KP, KP1, LOC, Y
+        *GET, Z_KP, KP, KP1, LOC, Z
+        
+        C_I = C_ROOT + (C_TIP - C_ROOT)*Y_KP/SPAN
+        X_FRAC = X_KP / C_I
+        
+        *IF, X_FRAC, GT, 0, THEN
+            DYDX = TC * (0.14845/SQRT(X_FRAC) - 0.12600 - 0.70320*X_FRAC + 0.85290*(X_FRAC**2) - 0.40600*(X_FRAC**3))
+        *ELSE
+            DYDX = 10.0
+        *ENDIF
+        
+        ! Normal Calculation (NX, NZ) pointing OUTWARD
+        *IF, C_IDX, EQ, 1, OR, C_IDX, EQ, 3, THEN
+            ! UPPER surface
+            NX = -DYDX
+            NZ = 1.0
+        *ELSE
+            ! LOWER surface
+            NX = DYDX
+            NZ = -1.0
+        *ENDIF
+        
+        ! Normalize
+        MAG = SQRT(NX**2 + NZ**2)
+        NX = NX / MAG
+        NZ = NZ / MAG
+        
+        ! Orientation Node (Z_local = X_local x Y_local)
+        ! X_local is +Y_global (spanwise line direction)
+        ! Y_local is Normal (NX, 0, NZ)
+        ! So Z_local = (NZ, 0, -NX)
+        
+        K_OR = K_OR + 1
+        K, K_OR, X_KP + NZ*10, Y_KP, Z_KP - NX*10
+        
+        SEC_NUM = 4
+        *IF, C_IDX, GE, 3, THEN
+            SEC_NUM = 5
+        *ENDIF
+        
+        LSEL, S, LINE, , LNUM
+        LATT, 1, , 2, , K_OR, , SEC_NUM
+        LMESH, LNUM
+        
+        CMSEL, S, %COMP_LIST(1,C_IDX)%
+        *GET, LNUM, LINE, LNUM, NXTH
+    *ENDDO
+*ENDDO
+ALLSEL, ALL
+
+! ================================================================
+!  DISPLAY SETTINGS
+! ================================================================
+/VIEW, 1, 1, 1, 1  ! Set isometric view
+/ESHAPE, 1         ! Turn on 3D element shape rendering (crucial for beams)
+EPLOT              ! Plot elements
+
+! Merge nodes with generous tolerance to weld all unmerged topologies
+ALLSEL, ALL
+NUMMRG, NODE, 1.0
+NUMCMP, NODE
+
+/GRAPHICS, POWER
+/ESHAPE, 1
+/EDGE, 1, 1
+EPLOT
+
+! ================================================================
+!  BLOCK 9: BOUNDARY CONDITIONS & LOADS
+! ================================================================
+/SOLU
+ANTYPE, 0  ! Static Analysis
+
+! Fix root
+CSYS, 0
+NSEL, S, LOC, Y, -1, 1
+D, ALL, ALL, 0
+ALLSEL, ALL
+
+! Distributed Load (Simulating balancing tail load, 5 kPa)
+SFA, COMP_SKINS, 1, PRES, 0.005
+
+! ================================================================
+!  BLOCK 10: SOLVE & POST-PROCESS
+! ================================================================
+SOLVE
+FINISH
+
+/POST1
+SET, LAST
+/ESHAPE, 1
+EPLOT
+
+! Max Von Mises Stress
+NSORT, S, EQV, 0, 0, ALL
+*GET, SMAX, SORT, 0, MAX
+
+! Tip Deflection
+NSEL, S, LOC, Y, SPAN-50, SPAN+50
+*GET, N_TIP, NODE, 0, NUM, MAX
+*GET, TIP_UZ, NODE, N_TIP, U, Z
+ALLSEL, ALL
+
+*CFOPEN, HTP_Results, txt
+*VWRITE, CONFIG, SMAX, TIP_UZ
+('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
+*CFCLOS
