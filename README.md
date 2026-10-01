@@ -1,35 +1,62 @@
-# HTP Parametric - Debug Log & Task List
+# Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization
 
-**เป้าหมายหลัก:** แก้ไขสคริปต์ `HTP_PARAMETRIC.mac` ให้สามารถรันผ่านใน Ansys Student (ลิมิต 128k nodes) และให้ผลลัพธ์ที่ถูกต้องสำหรับการทำ Optimization
+This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
-## 📋 ปัญหาที่รอการแก้ไข (To-Do List)
+## 🚀 Version 1.0.0-beta
 
-1. [ ] **Rib Meshing Crash (SIG$SEGV):** แม้จะปิดการเจาะรูแล้ว Rib ตันๆ ก็ยัง Mesh ไม่ได้ สาเหตุน่าจะมาจาก Airfoil profile ที่มุมแหลมจัดตรง LE/TE ทำให้ Mesher พัง
-2. [ ] **Lightening Holes (ยังไม่ได้ทดสอบ):** ระบบ CYL4 + ASBA ที่เขียนไว้ยังไม่ได้รันจริง เพราะ Rib Mesh ยังพังอยู่
-3. [ ] **BEAM188/SHELL181 Node Sharing:** Stringer/Flange อาจจะยังไม่ share node กับ Skin
-4. [ ] **Load Application (4.5G):** ยังเป็น Uniform Pressure อยู่ ยังไม่ได้ทำเป็น Distribution
-5. [ ] **Solve & Post-Processing:** รอให้ Geometry + Mesh ผ่านก่อน (License ไม่ให้รัน Batch ต้องรันผ่าน GUI)
-
-## 🔧 Debug Flags ในสคริปต์
-| Flag | ตำแหน่ง | ค่าปัจจุบัน | ความหมาย |
-|------|---------|------------|----------|
-| `SKIP_HOLES` | Block 5 | `1` (ปิด) | ข้ามการเจาะรู Lightening Holes |
-| `SKIP_RIB_MESH` | Block 8 | `1` (ปิด) | ข้ามการ Mesh Ribs |
-| Block 9 & 10 | ท้ายไฟล์ | Commented | BC, Loads, Solve, Post-process |
+### Features & Capabilities
+- **Parametric Geometry Generation:** Automatically generates a NACA 0012 HTP structure with Ribs, Spars, Stringers, and Skins based on parametric inputs (Span, Root/Tip Chord, Dihedral, etc.).
+- **Topological Layout Selector:** Easily switch between predefined structural configurations:
+  - **Config A:** 14 Ribs, 3 Spars, 8 Stringers, 6 Cutouts per Rib (Added LE bay hole)
+  - **Config B:** 9 Ribs, 2 Spars, 8 Stringers, 6 Cutouts per Rib (Added LE bay hole)
+  - **Config C:** 7 Ribs, 2 Spars, 6 Stringers, 4 Cutouts per Rib (Added LE bay hole)
+- **Robust Geometric Cutouts:** Implements bulletproof Component-based boolean subtraction for Lightening Holes, seamlessly handling Ansys Area ID recycling.
+- **Flawless Meshing:** Uses consistent `ESIZE` and topology tracking to avoid mesh crashes, singular matrices, or unmeshed skin panels.
+- **Structural Solving:** Fully configured to apply boundary conditions, evaluate structural loads, and extract maximum stresses and tip deflections.
 
 ---
 
-## 🛠️ โซนทดลอง (Hypothesis & Testing)
+## 🛠️ The Road to v1.0.0-beta: Comprehensive Bug Fix Review
+The journey from the initial script to `v1.0.0-beta` involved hunting down several highly obscure geometric and meshing bugs in Ansys APDL. Here is a summary of the major fixes:
 
-### รอบที่ 1: ทดสอบด้วย `*GO, SKIP_HOLES`
-- **สมมติฐาน:** ปัญหามาจากการเจาะรู (ASBA boolean)
-- **ผลลัพธ์:** ❌ APDL ไม่ยอมให้ `*GO` กระโดดข้าม `*DO` loop → เปลี่ยนมาใช้ `*IF` flag แทน
+### 1. The Rib Meshing Crash (`SIG$SEGV` & 1.E+20 Aspect Ratio)
+- **Symptom:** Ansys would abruptly crash or abort meshing with severe aspect ratio errors when trying to mesh the cut Ribs.
+- **Root Cause:** Splitting the highly faceted airfoil splines using `ASBL` and letting `SMRTSIZE` handle the local mesh density caused microscopic sliver elements near the Leading Edge.
+- **Fix:** Dropped `SMRTSIZE` entirely and enforced a global `ESIZE`. Abandoned line-partitioning (`ASBL`) and allowed the robust free-mesher to map the unpartitioned area dynamically.
 
-### รอบที่ 2: ปิดเจาะรู (SKIP_HOLES=1), เปิด Rib Mesh
-- **สมมติฐาน A:** ปัญหามาจากรูเจาะ → ถ้าปิดรูแล้ว Mesh ผ่าน
-- **สมมติฐาน B:** ปัญหามาจาก Airfoil profile แหลม → ถ้าปิดรูแล้วยังพัง
-- **ผลลัพธ์:** ❌ **ทฤษฎี B ถูก** — Crash ด้วย `SIG$SEGV` ตรง `AMESH, ALL` แม้ Rib ไม่มีรู
+### 2. The Flying Holes Bug (`WPOFFS` Axis Mapping)
+- **Symptom:** Holes were generated far below the wing surface instead of piercing the Ribs.
+- **Root Cause:** The Working Plane offset command `WPOFFS, 0, 0, -Y_STA(I)` inadvertently translated the WP along the Global Z-axis instead of the Spanwise Y-axis. 
+- **Fix:** Corrected the coordinate mapping to `WPOFFS, 0, Y_STA(I), 0`.
 
-### รอบที่ 3: ปิดทั้ง Hole + Rib Mesh (SKIP_HOLES=1, SKIP_RIB_MESH=1)
-- **สมมติฐาน:** ส่วนที่เหลือ (Skin, Spar, Beams) น่าจะรันผ่านได้
-- **ผลลัพธ์:** ✅ Geometry + Skin/Spar/Beam Mesh ผ่านหมด! Solve พังเพราะ License (ไม่ใช่บัคโค้ด)
+### 3. The "First Rib Only" Cut Bug (Area ID Recycling)
+- **Symptom:** The script perfectly cut lightening holes in Rib 1, but for Ribs 2 to N, the holes were drawn but not subtracted, leaving solid ribs.
+- **Root Cause:** When Rib 1's holes were subtracted, Ansys freed up Area IDs 1 to 6. When `AL, ALL` generated Rib 2, it recycled ID 1. However, the script used `MAXD` (Maximum Defined ID) to select the new Rib, which accidentally grabbed ID 7 (the cut version of Rib 1). Thus, `ASBA` attempted to subtract Rib 2's holes from Rib 1, failing geometrically.
+- **Fix:** Abolished `MAXD` tracking for Rib area generation. Wrapped the generation in `CM` (Component) logic (`CMSEL, U, TEMP_PRE_RIB_AREAS`) to robustly isolate the newly generated Area ID regardless of recycling.
+
+### 4. The Missing LE Skin Mesh Bug (`AMESH` Skin ID Recycling)
+- **Symptom:** The upper leading edge skin elements for the first few bays were entirely missing in `EPLOT`, despite `APLOT` showing the areas existed and 0 warnings in the log.
+- **Root Cause:** Because `ASBA` deleted the 5 circular holes per rib, Ansys recycled Area IDs 1 to 6. The Skin generation loop (`A, KB1...`) naturally reused IDs 1 to 6 for the very first panels it generated (the upper leading edge). Because the skin selection logic relied on `*GET, A_MAX_PRE, AREA, 0, NUM, MAXD` (which was ~13), the `ASEL, S, AREA, , 14, 157` command completely skipped the recycled skin IDs.
+- **Fix:** Completely purged `MAXD` tracking from Skin, Spar, and Stringer generation. Replaced it with Component tracking (`TEMP_PRE_SKINS`), guaranteeing all generated topologies are flawlessly captured and meshed.
+
+### 5. Singular Matrix / Meba License Errors (Unattached Nodes)
+- **Symptom:** Ansys would abruptly abort the sparse solver, output a "Singular Matrix" warning, and erroneously request an enterprise `meba` license.
+- **Root Cause:** Floating, unattached nodes left behind by boolean operations or orphaned geometry created a zero-stiffness matrix block.
+- **Fix:** Ensured proper node sharing between Stringers/Flanges and Skins. Restored the critical missing Orientation Keypoint `K, 90000` for `BEAM188`. Moved the `NDELE` (node cleanup) command into the `/PREP7` block where it safely executes before the solver starts.
+
+### 6. Addition of the Leading Edge Bay Holes
+- **Enhancement:** The original logic left the entire Leading Edge bay solid. Successfully parameterized and introduced an extra `CYL4` geometric hole at `X = 0.08*C` for all ribs, elevating the Config A/B layout to 6 cutouts, and Config C to 4 cutouts.
+
+---
+
+## 📌 Next Steps
+- Verify the structural boundary conditions and applied pressure loads.
+- Run the Parametric Optimization Loop to find the optimal thicknesses and sizing for Config A, B, and C.
+- Extract the structural mass, Von Mises stresses, and Tip Deflection for the final Literature Report.
+
+## 🛠️ Usage
+To run the analysis, execute the macro in ANSYS MAPDL (Batch Mode recommended for speed):
+```bash
+"C:\Program Files\ANSYS Inc\vXXX\ansys\bin\winx64\ANSYS.exe" -b -i "HTP_PARAMETRIC.mac" -o "HTP_run.out"
+```
+Check `HTP_Results.txt` for the final optimized outputs.

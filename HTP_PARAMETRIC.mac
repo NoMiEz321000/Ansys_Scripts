@@ -16,17 +16,17 @@ TC      = 0.12
     N_RIB  = 14
     N_SPAR = 3
     N_STR  = 8
-    N_CUT  = 5
+    N_CUT  = 6
 *ELSEIF,CONFIG,EQ,2
     N_RIB  = 9
     N_SPAR = 2
     N_STR  = 8
-    N_CUT  = 5
+    N_CUT  = 6
 *ELSEIF,CONFIG,EQ,3
     N_RIB  = 7
     N_SPAR = 2
     N_STR  = 6
-    N_CUT  = 3
+    N_CUT  = 4
 *ENDIF
 
 ! ================================================================
@@ -181,7 +181,7 @@ PREV_XC = 0.0
         *IF, SPAR_CNT, EQ, 1, THEN
             BAY_START(1) = 0.0
             BAY_END(1) = XC_UP(J)
-            BAY_HOLES(1) = 1
+            BAY_HOLES(1) = 0  ! DISABLE holes in sharp Leading Edge (prevents sliver mesh errors)
             PREV_XC = XC_UP(J)
         *ELSEIF, SPAR_CNT, EQ, 2, THEN
             BAY_START(2) = PREV_XC
@@ -195,7 +195,7 @@ PREV_XC = 0.0
         *ELSEIF, SPAR_CNT, EQ, 3, THEN
             BAY_START(3) = PREV_XC
             BAY_END(3) = XC_UP(J)
-            BAY_HOLES(3) = 1
+            BAY_HOLES(3) = 0  ! DISABLE holes in Trailing Edge bay
         *ENDIF
     *ENDIF
 *ENDDO
@@ -216,77 +216,78 @@ PREV_XC = 0.0
     *ENDDO
 *ENDDO
 
-! --- Create Upper Stringer Lines ---
-*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
-*DO,I,1,N_RIB-1
-    KB1 = (I-1)*100
-    KB2 = I*100
-    *DO,J,1,N_UP
-        *IF, PROF_STR(J), EQ, 1, THEN
-            L, KB1+J, KB2+J
-        *ENDIF
+! --- Temporarily Disable Stringers and Flanges ---
+    ! --- Create Upper Stringer Lines ---
+    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+    *DO,I,1,N_RIB-1
+        KB1 = (I-1)*100
+        KB2 = I*100
+        *DO,J,1,N_UP
+            *IF, PROF_STR(J), EQ, 1, THEN
+                L, KB1+J, KB2+J
+            *ENDIF
+        *ENDDO
     *ENDDO
-*ENDDO
-*GET, L_MAX_POST, LINE, 0, NUM, MAXD
-*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
-    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
-    CM, COMP_STR_UPPER, LINE
-*ENDIF
-ALLSEL, ALL
-
-! --- Create Lower Stringer Lines ---
-*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
-*DO,I,1,N_RIB-1
-    KB1 = (I-1)*100
-    KB2 = I*100
-    *DO,J,N_UP+1,N_PROF
-        *IF, PROF_STR(J), EQ, 1, THEN
-            L, KB1+J, KB2+J
-        *ENDIF
+    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
+    *IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+        LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+        CM, COMP_STR_UPPER, LINE
+    *ENDIF
+    ALLSEL, ALL
+    
+    ! --- Create Lower Stringer Lines ---
+    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+    *DO,I,1,N_RIB-1
+        KB1 = (I-1)*100
+        KB2 = I*100
+        *DO,J,N_UP+1,N_PROF
+            *IF, PROF_STR(J), EQ, 1, THEN
+                L, KB1+J, KB2+J
+            *ENDIF
+        *ENDDO
     *ENDDO
-*ENDDO
-*GET, L_MAX_POST, LINE, 0, NUM, MAXD
-*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
-    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
-    CM, COMP_STR_LOWER, LINE
-*ENDIF
-ALLSEL, ALL
-
-! --- Create Upper Spar Flange Lines ---
-*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
-*DO,I,1,N_RIB-1
-    KB1 = (I-1)*100
-    KB2 = I*100
-    *DO,J,1,N_UP
-        *IF, PROF_SPAR(J), EQ, 1, THEN
-            L, KB1+J, KB2+J
-        *ENDIF
+    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
+    *IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+        LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+        CM, COMP_STR_LOWER, LINE
+    *ENDIF
+    ALLSEL, ALL
+    
+    ! --- Create Upper Spar Flange Lines ---
+    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+    *DO,I,1,N_RIB-1
+        KB1 = (I-1)*100
+        KB2 = I*100
+        *DO,J,1,N_UP
+            *IF, PROF_SPAR(J), EQ, 1, THEN
+                L, KB1+J, KB2+J
+            *ENDIF
+        *ENDDO
     *ENDDO
-*ENDDO
-*GET, L_MAX_POST, LINE, 0, NUM, MAXD
-*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
-    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
-    CM, COMP_FLANGE_UPPER, LINE
-*ENDIF
-ALLSEL, ALL
-
-! --- Create Lower Spar Flange Lines ---
-*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
-*DO,I,1,N_RIB-1
-    KB1 = (I-1)*100
-    KB2 = I*100
-    *DO,J,N_UP+1,N_PROF
-        *IF, PROF_SPAR(J), EQ, 1, THEN
-            L, KB1+J, KB2+J
-        *ENDIF
+    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
+    *IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+        LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+        CM, COMP_FLANGE_UPPER, LINE
+    *ENDIF
+    ALLSEL, ALL
+    
+    ! --- Create Lower Spar Flange Lines ---
+    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+    *DO,I,1,N_RIB-1
+        KB1 = (I-1)*100
+        KB2 = I*100
+        *DO,J,N_UP+1,N_PROF
+            *IF, PROF_SPAR(J), EQ, 1, THEN
+                L, KB1+J, KB2+J
+            *ENDIF
+        *ENDDO
     *ENDDO
-*ENDDO
-*GET, L_MAX_POST, LINE, 0, NUM, MAXD
-*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
-    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
-    CM, COMP_FLANGE_LOWER, LINE
-*ENDIF
-ALLSEL, ALL
+    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
+    *IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+        LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+        CM, COMP_FLANGE_LOWER, LINE
+    *ENDIF
+    ALLSEL, ALL
 
 ! ================================================================
 !  BLOCK 5: AREA GENERATION (RIBS -> HOLES -> SKINS -> SPARS)
@@ -294,6 +295,7 @@ ALLSEL, ALL
 ! --- Ribs (Solid first) ---
 *GET, A_MAX_PRE, AREA, 0, NUM, MAXD
 *DO,I,1,N_RIB
+    ALLSEL, ALL
     KB = (I-1)*100
     *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
     *DO,J,1,N_PROF-1
@@ -302,83 +304,59 @@ ALLSEL, ALL
     L, KB+N_PROF, KB+1
     *GET, L_MAX_POST, LINE, 0, NUM, MAXD
     LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    
+    CM, TEMP_PRE_RIB_AREAS, AREA
     AL, ALL
-*ENDDO
-*GET, A_MAX_POST, AREA, 0, NUM, MAXD
-ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
-CM, COMP_RIBS, AREA
-ALLSEL, ALL
+    
+    ! Get the ID of the newly created Rib area robustly
+    CMSEL, U, TEMP_PRE_RIB_AREAS
+    *GET, AR_RIB, AREA, 0, NUM, MAX
+    CMSEL, A, TEMP_PRE_RIB_AREAS
+    
+    ! Lightening Cutouts
+    WPCSYS, -1, 0
+    WPOFFS, 0, Y_STA(I), 0
+    WPROTA, 0, 90, 0
+    C_I = C_STA(I)
+    Z_I = Z_OFF(I)
 
-! --- Cut Rib Holes ---
-! Set SKIP_HOLES = 1 to disable hole cutting for debugging, 0 to enable
-SKIP_HOLES = 1
-
-*IF, SKIP_HOLES, EQ, 0, THEN
-
-*DO,I,1,N_RIB
     ALLSEL, ALL
-    ASEL, S, LOC, Y, Y_STA(I)-0.5, Y_STA(I)+0.5
-    *GET, N_AREAS_SEL, AREA, 0, COUNT
-    *IF, N_AREAS_SEL, GT, 0, THEN
-        *GET, AR_RIB, AREA, 0, NUM, MAX
-        ALLSEL, ALL
-        
-        WPCSYS, -1, 0
-        WPROTA, 0, 90, 0
-        WPOFFS, 0, 0, -Y_STA(I)
-        
-        C_I = C_STA(I)
-        Z_I = Z_OFF(I)
-        X_STA = 0  ! X_OFF is not defined, defaulting to 0
-
-        *GET, A_MAX_BEFORE_HOLES, AREA, 0, NUM, MAXD
-        
-        *DO, B, 1, N_SPAR
-            *IF, BAY_HOLES(B), GT, 0, THEN
-                BAY_W = BAY_END(B) - BAY_START(B)
-                CELL_W = BAY_W / BAY_HOLES(B)
-                *DO, H, 1, BAY_HOLES(B)
-                    XC_HOLE = BAY_START(B) + (H - 0.5)*CELL_W
-                    XF_H = XC_HOLE
-                    YT_H = 0.0
-                    *IF, XF_H, GT, 0, THEN
-                        YT_H = TC*(0.29690*SQRT(XF_H) - 0.12600*XF_H - 0.35160*(XF_H**2) + 0.28430*(XF_H**3) - 0.10150*(XF_H**4))
-                    *ENDIF
-                    
-                    ! Make hole slightly smaller (0.65 instead of 0.70) to prevent meshing slivers
-                    R_HOLE = HOLE_RATIO * YT_H * C_I * 0.65
-                    MAX_R = 0.45 * CELL_W * C_I
-                    *IF, R_HOLE, GT, MAX_R, THEN
-                        R_HOLE = MAX_R
-                    *ENDIF
-                    
-                    ! Create circular area for hole
-                    CYL4, XC_HOLE*C_I + X_STA, Z_I, R_HOLE
-                *ENDDO
-            *ENDIF
-        *ENDDO
-
-        *GET, A_MAX_AFTER_HOLES, AREA, 0, NUM, MAXD
-        *IF, A_MAX_AFTER_HOLES, GT, A_MAX_BEFORE_HOLES, THEN
-            ASEL, S, AREA, , A_MAX_BEFORE_HOLES+1, A_MAX_AFTER_HOLES
-            CM, HOLE_AREAS, AREA
-            ALLSEL, ALL
-            ASBA, AR_RIB, HOLE_AREAS, , DELETE, DELETE
-        *ENDIF
-        
-        WPCSYS, -1, 0
+    CM, TEMP_PRE_AREAS, AREA
+    
+    *IF, N_CUT, EQ, 6, THEN
+        CYL4, 0.08*C_I, Z_I, 0.018*C_I
+        CYL4, 0.20*C_I, Z_I, 0.025*C_I
+        CYL4, 0.30*C_I, Z_I, 0.030*C_I
+        CYL4, 0.40*C_I, Z_I, 0.030*C_I
+        CYL4, 0.55*C_I, Z_I, 0.030*C_I
+        CYL4, 0.65*C_I, Z_I, 0.025*C_I
+    *ELSEIF, N_CUT, EQ, 4, THEN
+        CYL4, 0.08*C_I, Z_I, 0.018*C_I
+        CYL4, 0.25*C_I, Z_I, 0.030*C_I
+        CYL4, 0.40*C_I, Z_I, 0.030*C_I
+        CYL4, 0.60*C_I, Z_I, 0.030*C_I
     *ENDIF
+    
+    ALLSEL, ALL
+    CMSEL, U, TEMP_PRE_AREAS
+    *GET, N_HOLES, AREA, 0, COUNT
+    
+    *IF, N_HOLES, GT, 0, THEN
+        ASEL, A, AREA, , AR_RIB
+        ASBA, AR_RIB, ALL
+    *ENDIF
+    WPCSYS, -1, 0
 *ENDDO
 ALLSEL, ALL
-*ENDIF
-
-! Rebuild COMP_RIBS
 *GET, A_MAX_POST, AREA, 0, NUM, MAXD
 ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
 CM, COMP_RIBS, AREA
+ALLSEL, ALL
 
 ! --- Skins ---
-*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+ALLSEL, ALL
+CM, TEMP_PRE_SKINS, AREA
+
 *DO,I,1,N_RIB-1
     KB1 = (I-1)*100
     KB2 = I*100
@@ -387,13 +365,16 @@ CM, COMP_RIBS, AREA
     *ENDDO
     A, KB1+N_PROF, KB2+N_PROF, KB2+1, KB1+1
 *ENDDO
-*GET, A_MAX_POST, AREA, 0, NUM, MAXD
-ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+
+ALLSEL, ALL
+CMSEL, U, TEMP_PRE_SKINS
 CM, COMP_SKINS, AREA
 ALLSEL, ALL
 
 ! --- Spar Webs ---
-*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+ALLSEL, ALL
+CM, TEMP_PRE_SPARS, AREA
+
 *DO,I,1,N_RIB-1
     KB1 = (I-1)*100
     KB2 = I*100
@@ -410,8 +391,9 @@ ALLSEL, ALL
         *ENDIF
     *ENDDO
 *ENDDO
-*GET, A_MAX_POST, AREA, 0, NUM, MAXD
-ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+
+ALLSEL, ALL
+CMSEL, U, TEMP_PRE_SPARS
 CM, COMP_SPARS, AREA
 ALLSEL, ALL
 
@@ -490,16 +472,18 @@ ALLSEL, ALL
 
 ! Ribs
 ! Set SKIP_RIB_MESH = 1 to disable rib meshing for debugging, 0 to enable
-SKIP_RIB_MESH = 1
+SKIP_RIB_MESH = 0
 
 *IF, SKIP_RIB_MESH, EQ, 0, THEN
     CMSEL, S, COMP_RIBS
     AATT, 1, , 1, , 1
     MSHAPE, 1, 2D
     MSHKEY, 0
-    SMRTSIZE, 5
+    SHPP, OFF
+    ESIZE, 15      ! Use fine uniform mesh to bypass SMRTSIZE crash and make EDELE holes smooth
     AMESH, ALL
-    SMRTSIZE, OFF
+    SHPP, ON
+
 *ENDIF
 MSHAPE, 0, 2D
 
@@ -511,6 +495,7 @@ COMP_LIST(1,3) = 'COMP_FLANGE_UPPER'
 COMP_LIST(1,4) = 'COMP_FLANGE_LOWER'
 
 K_OR = 90000
+K, K_OR, 0, 1000, 5000
 *DO, C_IDX, 1, 4
     CMSEL, S, %COMP_LIST(1,C_IDX)%
     *GET, LNUM, LINE, 0, NUM, MIN
@@ -585,6 +570,29 @@ NUMCMP, NODE
 /EDGE, 1, 1
 EPLOT
 
+! Orient and Mesh Beams
+*DIM, COMP_LIST, STRING, 24, 4
+COMP_LIST(1,1) = 'COMP_STR_UPPER'
+COMP_LIST(1,2) = 'COMP_STR_LOWER'
+COMP_LIST(1,3) = 'COMP_FLANGE_UPPER'
+COMP_LIST(1,4) = 'COMP_FLANGE_LOWER'
+
+K_OR = 90000
+*DO, C_IDX, 1, 4
+    CMSEL, S, %COMP_LIST(1,C_IDX)%
+    *GET, N_LINES, LINE, 0, COUNT
+    *IF, N_LINES, GT, 0, THEN
+        *IF, C_IDX, LE, 2, THEN
+            SEC_NUM = 4
+        *ELSE
+            SEC_NUM = 5
+        *ENDIF
+        LATT, 1, , 2, , K_OR, , SEC_NUM
+        LMESH, ALL
+    *ENDIF
+*ENDDO
+ALLSEL, ALL
+
 ! ================================================================
 !  BLOCK 9: BOUNDARY CONDITIONS & LOADS
 ! ================================================================
@@ -598,11 +606,23 @@ D, ALL, ALL, 0
 ALLSEL, ALL
 
 ! Distributed Load (Simulating balancing tail load, 5 kPa)
-SFA, COMP_SKINS, 1, PRES, 0.005
+! Apply only to Upper Skin (Z > 0) to prevent load cancellation
+CMSEL, S, COMP_SKINS
+ASEL, R, LOC, Z, 0.1, 1000
+SFA, ALL, 1, PRES, 0.005
+ALLSEL, ALL
 
 ! ================================================================
 !  BLOCK 10: SOLVE & POST-PROCESS
 ! ================================================================
+! Clean up unattached nodes to prevent singular matrix/license errors
+/PREP7
+ALLSEL, ALL
+NSEL, U, ATTA
+NDELE, ALL
+ALLSEL, ALL
+
+/SOLU
 SOLVE
 FINISH
 
@@ -617,8 +637,8 @@ NSORT, S, EQV, 0, 0, ALL
 
 ! Tip Deflection
 NSEL, S, LOC, Y, SPAN-50, SPAN+50
-*GET, N_TIP, NODE, 0, NUM, MAX
-*GET, TIP_UZ, NODE, N_TIP, U, Z
+NSORT, U, Z, 0, 0, ALL
+*GET, TIP_UZ, SORT, 0, MIN  ! Use MIN since aerodynamic load is downward
 ALLSEL, ALL
 
 *CFOPEN, HTP_Results, txt
