@@ -1,4 +1,4 @@
-! ================================================================
+﻿! ================================================================
 !  BLOCK 1: PARAMETRIC INPUT VARIABLES 
 ! ================================================================
 ! Test git next round experiment branch new chamge?
@@ -40,8 +40,9 @@ T_SPAR_WEB = 3.0    ! Spar web thickness
 T_RIB_WEB  = 2.0    ! Rib web thickness
 
 ! --- Hat-Section Stringer Dimensions [mm] ---
-STR_H   = 40        ! Stringer Height
-STR_BW  = 50        ! Stringer Base Width
+STR_H   = 50        ! Stringer Height (W4)
+STR_W3  = 40        ! Stringer Crown Width (W3)
+STR_BRIM = 15       ! Stringer Brim Width (W1, W2)
 STR_T   = 3.0       ! Stringer Thickness
 
 ! --- Spar Flange Dimensions [mm] ---
@@ -427,9 +428,9 @@ SECDATA, T_SPAR_WEB, 1
 SECTYPE, 3, SHELL
 SECDATA, T_SKIN, 2
 
-SECTYPE, 4, BEAM, I
-SECDATA, STR_BW, STR_BW, STR_H, STR_T, STR_T, STR_T
-SECOFFSET, USER, -STR_H/2, 0  ! Negative Y-offset shifts the section inwards flush with skin
+SECTYPE, 4, BEAM, HATS
+SECDATA, STR_BRIM, STR_BRIM, STR_W3, STR_H, STR_T, STR_T, STR_T, STR_T, STR_T
+SECOFFSET, USER, 0, 0    ! Visually flush with skin (brims at node plane)
 
 SECTYPE, 5, BEAM, RECT
 SECDATA, SPAR_FW, SPAR_FT
@@ -504,107 +505,74 @@ D_OR = 100                         ! orientation KP distance [mm]
     *GET, LNUM, LINE, 0, NUM, MIN
     *DOWHILE, LNUM
         *IF, C_IDX, LE, 2, THEN
-            ! ================= OLD STRINGER LOGIC (UNTOUCHED) =================
-            SEC_NUM = 4
-            *GET, KP1, LINE, LNUM, KP, 1
-            *GET, X_KP, KP, KP1, LOC, X
-            *GET, Y_KP, KP, KP1, LOC, Y
-            *GET, Z_KP, KP, KP1, LOC, Z
-            
-            C_I = C_ROOT + (C_TIP - C_ROOT)*Y_KP/SPAN
-            X_FRAC = X_KP / C_I
-            
-            *IF, X_FRAC, GT, 0, THEN
-                DYDX = TC * (0.14845/SQRT(X_FRAC) - 0.12600 - 0.70320*X_FRAC + 0.85290*(X_FRAC**2) - 0.40600*(X_FRAC**3))
-            *ELSE
-                DYDX = 10.0
-            *ENDIF
-            
-            *IF, C_IDX, EQ, 1, THEN
-                NX = -DYDX
-                NZ = 1.0
-            *ELSE
-                NX = DYDX
-                NZ = -1.0
-            *ENDIF
-            
-            MAG = SQRT(NX**2 + NZ**2)
-            NX = NX / MAG
-            NZ = NZ / MAG
-            
-            K_OR = K_OR + 1
-            K, K_OR, X_KP + NZ*10, Y_KP, Z_KP - NX*10
-            
-            LSEL, S, LINE, , LNUM
-            LATT, 1, , 2, , K_OR, , SEC_NUM
-            LMESH, LNUM
+            SEC_NUM = 4    ! Stringer
         *ELSE
-            ! ================= NEW SPAR FLANGE LOGIC =================
-            SEC_NUM = 5
-            *GET, KP1, LINE, LNUM, KP, 1
-            *GET, KP2, LINE, LNUM, KP, 2
-            *GET, X1, KP, KP1, LOC, X
-            *GET, Y1, KP, KP1, LOC, Y
-            *GET, Z1, KP, KP1, LOC, Z
-            *GET, X2, KP, KP2, LOC, X
-            *GET, Y2, KP, KP2, LOC, Y
-            *GET, Z2, KP, KP2, LOC, Z
-
-            ! Spanwise line direction L
-            LX = X2-X1
-            LY = Y2-Y1
-            LZ = Z2-Z1
-            LMAG = SQRT(LX**2+LY**2+LZ**2)
-            LX = LX/LMAG
-            LY = LY/LMAG
-            LZ = LZ/LMAG
-
-            ! Chordwise skin tangent T at the rib station of KP1
-            C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
-            XF  = X1/C_I
-            *IF, XF, GT, 1.0E-4, THEN
-                T1 = 0.14845/SQRT(XF) - 0.12600
-                T2 = -0.70320*XF + 0.85290*(XF**2)
-                T3 = -0.40600*(XF**3)
-                DYT = TSCALE*(T1 + T2 + T3)
-            *ELSE
-                DYT = 0.0              ! LE guard (no spar/stringer at x=0)
-            *ENDIF
-            
-            *IF, C_IDX, EQ, 3, THEN
-                SGN = 1.0              ! upper surface
-            *ELSE
-                SGN = -1.0             ! lower surface
-            *ENDIF
-            
-            TX = 1.0
-            TY = 0.0
-            TZ = SGN*DYT
-
-            ! Skin normal n = L x T
-            NX = LY*TZ-LZ*TY
-            NY = LZ*TX-LX*TZ
-            NZ = LX*TY-LY*TX
-            NMAG = SQRT(NX**2+NY**2+NZ**2)
-            NX = NX/NMAG
-            NY = NY/NMAG
-            NZ = NZ/NMAG
-            
-            ! Force n to point INTO the airfoil box
-            *IF, SGN*NZ, GT, 0, THEN
-                NX = -NX
-                NY = -NY
-                NZ = -NZ
-            *ENDIF
-
-            ! Orientation KP: midpoint + D_OR*n  -> element z = n
-            K_OR = K_OR + 1
-            K, K_OR, (X1+X2)/2+D_OR*NX, (Y1+Y2)/2+D_OR*NY, (Z1+Z2)/2+D_OR*NZ
-
-            LSEL, S, LINE, , LNUM
-            LATT, 1, , 2, , K_OR, , SEC_NUM
-            LMESH, LNUM
+            SEC_NUM = 5    ! Spar Flange
         *ENDIF
+        
+        *GET, KP1, LINE, LNUM, KP, 1
+        *GET, KP2, LINE, LNUM, KP, 2
+        *GET, X1, KP, KP1, LOC, X
+        *GET, Y1, KP, KP1, LOC, Y
+        *GET, Z1, KP, KP1, LOC, Z
+        *GET, X2, KP, KP2, LOC, X
+        *GET, Y2, KP, KP2, LOC, Y
+        *GET, Z2, KP, KP2, LOC, Z
+
+        ! Spanwise line direction L
+        LX = X2-X1
+        LY = Y2-Y1
+        LZ = Z2-Z1
+        LMAG = SQRT(LX**2+LY**2+LZ**2)
+        LX = LX/LMAG
+        LY = LY/LMAG
+        LZ = LZ/LMAG
+
+        ! Chordwise skin tangent T at the rib station of KP1
+        C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+        XF  = X1/C_I
+        *IF, XF, GT, 1.0E-4, THEN
+            T1 = 0.14845/SQRT(XF) - 0.12600
+            T2 = -0.70320*XF + 0.85290*(XF**2)
+            T3 = -0.40600*(XF**3)
+            DYT = TSCALE*(T1 + T2 + T3)
+        *ELSE
+            DYT = 0.0              ! LE guard (no spar/stringer at x=0)
+        *ENDIF
+        
+        *IF, C_IDX, EQ, 1, OR, C_IDX, EQ, 3, THEN
+            SGN = 1.0              ! upper surface
+        *ELSE
+            SGN = -1.0             ! lower surface
+        *ENDIF
+        
+        TX = 1.0
+        TY = 0.0
+        TZ = SGN*DYT
+
+        ! Skin normal n = L x T
+        NX = LY*TZ-LZ*TY
+        NY = LZ*TX-LX*TZ
+        NZ = LX*TY-LY*TX
+        NMAG = SQRT(NX**2+NY**2+NZ**2)
+        NX = NX/NMAG
+        NY = NY/NMAG
+        NZ = NZ/NMAG
+        
+        ! Force n to point INTO the airfoil box
+        *IF, SGN*NZ, GT, 0, THEN
+            NX = -NX
+            NY = -NY
+            NZ = -NZ
+        *ENDIF
+
+        ! Orientation KP: midpoint + D_OR*n  -> element z = n
+        K_OR = K_OR + 1
+        K, K_OR, (X1+X2)/2+D_OR*NX, (Y1+Y2)/2+D_OR*NY, (Z1+Z2)/2+D_OR*NZ
+
+        LSEL, S, LINE, , LNUM
+        LATT, 1, , 2, , K_OR, , SEC_NUM
+        LMESH, LNUM
         
         CMSEL, S, %COMP_LIST(1,C_IDX)%
         *GET, LNUM, LINE, LNUM, NXTH
@@ -681,3 +649,4 @@ ALLSEL, ALL
 *VWRITE, CONFIG, SMAX, TIP_UZ
 ('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
 *CFCLOS
+
