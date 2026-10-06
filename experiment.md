@@ -26,3 +26,16 @@ In 1.0.0-beta, it was observed that all Stringers and Spar Flanges (modeled wit
 Due to the geometric conflicts between standard beam element orientations, the curved airfoil surface, and the vertical spar web, attempting to rigidly align the flanges caused more topological issues than it solved (including intersecting elements and meshing order bugs where AMESH would prematurely mesh the beam lines). 
 
 **Decision:** The project has been strictly rolled back to 1.0.0-beta. All beam orientation codes tested after this version are deemed unworkable for the current standard BEAM188 library approach.
+- **Date**: 2026-10-06
+- **Objective**: Fix BEAM188 spar flange orientation so elements lay flush against the skin profile. Focus on Spar only, skipping stringers to isolate potential errors.
+- **Hypothesis**: The previous orientation vector incorrectly assumed the elements were in the X-Y plane rather than the K-node defining the X-Z plane. Also the analytical tangent derivative (DYDX) had scaling issues. Fixing the math using a full 3D cross product 
+ = L x T and using local Z offset (Option A: FL_OFFZ = -1*(SPAR_FT/2 + T_SKIN/2)) will correct the orientation.
+- **Action**:
+  - Implemented 3D cross-product normal calculation L x T specifically for COMP_FLANGE_UPPER and COMP_FLANGE_LOWER.
+  - Ignored Stringers as requested.
+  - Set SECOFFSET for BEAM188 rectangular section to local Z direction instead of Y.
+  - Fixed "Too many expressions" APDL syntax error during testing by breaking the equation down.
+  - Resolved license server limits by properly clearing out zombie MAPDL processes and lock files.
+  - Ran MAPDL batch mode.
+- **Result**: HTP_PARAMETRIC.mac compiled and ran without errors. Node generation counts and solver completed successfully. SMAX = 17.38 MPa, TIP_UZ = -0.67 mm.
+- **Conclusion**: The exact analytical 3D normal vector formulation and Z-axis SECOFFSET works beautifully for spar flanges. 

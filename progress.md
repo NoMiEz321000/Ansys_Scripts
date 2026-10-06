@@ -22,3 +22,8 @@
 - Conduct mesh convergence studies (ESIZE optimization).
 - Parametric structural weight optimization vs. Tip deflection.
 - Extracting stress concentration factors (Kt) around the newly meshed lightening holes.
+
+### [2026-10-06] Fix Spar Flange BEAM188 Orientation
+- **Status:** Completed
+- **Details:** Re-wrote the spar flange meshing block to accurately define the orientation keypoint (K) using a full 3D normal calculation (
+ = L x T). The section offset was updated to Option A (flush inner face) using local Z translation (-SPAR_FT/2 - T_SKIN/2). Stringer logic was kept untouched for now to isolate fixes.
