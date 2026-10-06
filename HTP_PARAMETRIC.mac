@@ -108,7 +108,7 @@ XC_UP(25) = 0.98
     IS_SPAR(20) = 1 ! 0.70
     IS_STR(10) = 1  ! 0.25
     IS_STR(13) = 1  ! 0.35
-    IS_STR(15) = 1  ! 0.45
+    ! IS_STR(15) = 1  ! 0.45 (Deleted to match topology gap)
     IS_STR(18) = 1  ! 0.60
 *ELSEIF,CONFIG,EQ,2,THEN
     IS_SPAR(7) = 1
@@ -328,13 +328,13 @@ PREV_XC = 0.0
         CYL4, 0.08*C_I, Z_I, 0.018*C_I
         CYL4, 0.20*C_I, Z_I, 0.025*C_I
         CYL4, 0.30*C_I, Z_I, 0.030*C_I
-        CYL4, 0.40*C_I, Z_I, 0.030*C_I
+        CYL4, 0.425*C_I, Z_I, 0.030*C_I
         CYL4, 0.55*C_I, Z_I, 0.030*C_I
         CYL4, 0.65*C_I, Z_I, 0.025*C_I
     *ELSEIF, N_CUT, EQ, 4, THEN
         CYL4, 0.08*C_I, Z_I, 0.018*C_I
         CYL4, 0.25*C_I, Z_I, 0.030*C_I
-        CYL4, 0.40*C_I, Z_I, 0.030*C_I
+        CYL4, 0.425*C_I, Z_I, 0.030*C_I
         CYL4, 0.60*C_I, Z_I, 0.030*C_I
     *ENDIF
     
@@ -650,5 +650,6 @@ ALLSEL, ALL
 *VWRITE, CONFIG, SMAX, TIP_UZ
 ('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
 *CFCLOS
+
 
 
