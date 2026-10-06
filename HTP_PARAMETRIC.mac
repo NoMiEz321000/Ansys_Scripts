@@ -1,4 +1,4 @@
-﻿! ================================================================
+! ================================================================
 !  BLOCK 1: PARAMETRIC INPUT VARIABLES 
 ! ================================================================
 ! Test git next round experiment branch new chamge?
@@ -294,6 +294,7 @@ PREV_XC = 0.0
 !  BLOCK 5: AREA GENERATION (RIBS -> HOLES -> SKINS -> SPARS)
 ! ================================================================
 ! --- Ribs (Solid first) ---
+/GOPR
 *GET, A_MAX_PRE, AREA, 0, NUM, MAXD
 *DO,I,1,N_RIB
     ALLSEL, ALL
@@ -324,14 +325,17 @@ PREV_XC = 0.0
     ALLSEL, ALL
     CM, TEMP_PRE_AREAS, AREA
     
+    ! --- Max-Ratio Hole Generation ---
     *IF, N_CUT, EQ, 7, THEN
-        CYL4, 0.08*C_I,  Z_I, 0.018*C_I  ! LE to Spar 1
-        CYL4, 0.18*C_I,  Z_I, 0.020*C_I  ! Spar 1 to Str 1
-        CYL4, 0.245*C_I, Z_I, 0.025*C_I  ! Str 1 to Str 2
-        CYL4, 0.315*C_I, Z_I, 0.025*C_I  ! Str 2 to Str 3
-        CYL4, 0.375*C_I, Z_I, 0.015*C_I  ! Str 3 to Str 4
-        CYL4, 0.45*C_I,  Z_I, 0.030*C_I  ! Str 4 to Spar 2
-        CYL4, 0.60*C_I,  Z_I, 0.040*C_I  ! Spar 2 to Spar 3
+        ! Config 1 (4 Stringers between Spar 1 and 2)
+        ! Gaps are calculated to exactly touch the stringer brims and spar flanges
+        CYL4, 0.080*C_I, Z_I, 0.035*C_I  ! LE to Spar 1 (Max limited by thickness)
+        CYL4, 0.180*C_I, Z_I, 0.015*C_I  ! Spar 1(0.15) to Str 1(0.21)
+        CYL4, 0.245*C_I, Z_I, 0.015*C_I  ! Str 1(0.21) to Str 2(0.28)
+        CYL4, 0.315*C_I, Z_I, 0.015*C_I  ! Str 2(0.28) to Str 3(0.35)
+        CYL4, 0.375*C_I, Z_I, 0.015*C_I  ! Str 3(0.35) to Str 4(0.40)
+        CYL4, 0.450*C_I, Z_I, 0.025*C_I  ! Str 4(0.40) to Spar 2(0.50)
+        CYL4, 0.600*C_I, Z_I, 0.040*C_I  ! Spar 2(0.50) to Spar 3(0.70)
     *ELSEIF, N_CUT, EQ, 6, THEN
         CYL4, 0.08*C_I, Z_I, 0.018*C_I
         CYL4, 0.20*C_I, Z_I, 0.025*C_I
@@ -658,6 +662,9 @@ ALLSEL, ALL
 *VWRITE, CONFIG, SMAX, TIP_UZ
 ('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
 *CFCLOS
+
+
+
 
 
 
