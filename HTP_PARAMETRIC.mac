@@ -430,7 +430,8 @@ SECDATA, T_SKIN, 2
 
 SECTYPE, 4, BEAM, HATS
 SECDATA, STR_BRIM, STR_BRIM, STR_W3, STR_H, STR_T, STR_T, STR_T, STR_T, STR_T
-SECOFFSET, USER, 0, 0    ! Visually flush with skin (brims at node plane)
+*GET, STR_YC, SECP, 4, PROP, CGY
+SECOFFSET, USER, STR_YC, 0    ! Centered horizontally, visually flush with skin (brims at node plane)
 
 SECTYPE, 5, BEAM, RECT
 SECDATA, SPAR_FW, SPAR_FT
@@ -649,4 +650,5 @@ ALLSEL, ALL
 *VWRITE, CONFIG, SMAX, TIP_UZ
 ('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
 *CFCLOS
+
 
