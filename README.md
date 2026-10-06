@@ -2,6 +2,16 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.2.0-beta
+
+### Features & Updates
+- **Stringer Hat Section (Omega Profile):** Replaced legacy I-beam stringers with parametric Hat sections (HATS). The dimensions are set to STR_BRIM=15, STR_W3=40, and STR_H=50.
+- **Unified 3D Beam Orientation:** Applied the exact 3D normal vector calculation (
+ = L x T) to the stringers, eliminating the bug where stringers would point outside the aerodynamic skin. All stiffeners (Spars and Stringers) now point inward perfectly.
+- **Centered Symmetric Offset:** Implemented *GET, CGY to dynamically locate the geometric center of the Hat section and applied SECOFFSET, USER, CGY, 0. This resolves an issue where the flat stringer brims would asymmetrically dig into the curved airfoil shell.
+- **Run Directory Migration:** Upgraded the execution environment to main_run_3/ for strict separation of source code and output files.
+
+---
 ## 🚀 Version 1.1.0-beta
 
 ### Features & Updates
@@ -72,6 +82,8 @@ To run the analysis, execute the macro in ANSYS MAPDL (Batch Mode recommended fo
 "C:\Program Files\ANSYS Inc\vXXX\ansys\bin\winx64\ANSYS.exe" -b -i "HTP_PARAMETRIC.mac" -o "HTP_run.out"
 ```
 Check `HTP_Results.txt` for the final optimized outputs.
+
+
 
 
 

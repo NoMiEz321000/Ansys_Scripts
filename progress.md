@@ -27,3 +27,13 @@
 - **Status:** Completed
 - **Details:** Re-wrote the spar flange meshing block to accurately define the orientation keypoint (K) using a full 3D normal calculation (
  = L x T). The section offset was updated to Option A (flush inner face) using local Z translation (-SPAR_FT/2 - T_SKIN/2). Stringer logic was kept untouched for now to isolate fixes.
+
+### [2026-10-06] Release v1.2.0-beta: Stringer Hat Section & 3D Orientation
+- **Status:** Completed
+- **Details:** 
+  - Converted the Stringer cross-sections from I-Beams to Hat sections (HATS).
+  - Parameterized the Hat section using STR_BRIM=15, STR_W3=40, STR_H=50, and STR_T=3.0.
+  - Unified the 3D normal vector logic (
+ = L x T) for both Spar Flanges and Stringers, guaranteeing all stiffeners point perfectly inward.
+  - Dynamically fetched the Centroid Y (CGY) of the Hat section using *GET to perfectly center the Stringer along the node. This resolves the asymmetric "sinking" graphical bug.
+  - Migrated run outputs to main_run_3/ for better repository organization.
