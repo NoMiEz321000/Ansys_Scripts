@@ -433,8 +433,8 @@ SECOFFSET, USER, -STR_H/2, 0  ! Negative Y-offset shifts the section inwards flu
 
 SECTYPE, 5, BEAM, RECT
 SECDATA, SPAR_FW, SPAR_FT
-FL_OFFZ = -1*(SPAR_FT/2 + T_SKIN/2)
-SECOFFSET, USER, 0, FL_OFFZ    ! local z = inward skin normal -> flange face on inner skin face
+FL_OFFZ = -1*(SPAR_FT/2)       ! Visually flush with the node plane (ignores T_SKIN/2 gap)
+SECOFFSET, USER, 0, FL_OFFZ    ! local z = inward skin normal
 
 ! ================================================================
 !  SAVE DB FOR GEOMETRY INSPECTION
