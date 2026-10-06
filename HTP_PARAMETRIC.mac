@@ -16,7 +16,7 @@ TC      = 0.12
     N_RIB  = 14
     N_SPAR = 3
     N_STR  = 8
-    N_CUT  = 6
+    N_CUT  = 7
 *ELSEIF,CONFIG,EQ,2
     N_RIB  = 9
     N_SPAR = 2
@@ -106,10 +106,10 @@ XC_UP(25) = 0.98
     IS_SPAR(7) = 1  ! 0.15
     IS_SPAR(16) = 1 ! 0.50
     IS_SPAR(20) = 1 ! 0.70
-    IS_STR(10) = 1  ! 0.25
+    IS_STR(9)  = 1  ! 0.21
+    IS_STR(11) = 1  ! 0.28
     IS_STR(13) = 1  ! 0.35
-    ! IS_STR(15) = 1  ! 0.45 (Deleted to match topology gap)
-    IS_STR(18) = 1  ! 0.60
+    IS_STR(14) = 1  ! 0.40
 *ELSEIF,CONFIG,EQ,2,THEN
     IS_SPAR(7) = 1
     IS_SPAR(16) = 1
@@ -324,7 +324,15 @@ PREV_XC = 0.0
     ALLSEL, ALL
     CM, TEMP_PRE_AREAS, AREA
     
-    *IF, N_CUT, EQ, 6, THEN
+    *IF, N_CUT, EQ, 7, THEN
+        CYL4, 0.08*C_I,  Z_I, 0.018*C_I  ! LE to Spar 1
+        CYL4, 0.18*C_I,  Z_I, 0.020*C_I  ! Spar 1 to Str 1
+        CYL4, 0.245*C_I, Z_I, 0.025*C_I  ! Str 1 to Str 2
+        CYL4, 0.315*C_I, Z_I, 0.025*C_I  ! Str 2 to Str 3
+        CYL4, 0.375*C_I, Z_I, 0.015*C_I  ! Str 3 to Str 4
+        CYL4, 0.45*C_I,  Z_I, 0.030*C_I  ! Str 4 to Spar 2
+        CYL4, 0.60*C_I,  Z_I, 0.040*C_I  ! Spar 2 to Spar 3
+    *ELSEIF, N_CUT, EQ, 6, THEN
         CYL4, 0.08*C_I, Z_I, 0.018*C_I
         CYL4, 0.20*C_I, Z_I, 0.025*C_I
         CYL4, 0.30*C_I, Z_I, 0.030*C_I
