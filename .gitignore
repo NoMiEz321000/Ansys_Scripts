@@ -1,1 +1,13 @@
-main_run/
+﻿main_run/
+main_run_2/
+*.err
+*.out
+*.log
+*.db
+*.rst
+*.mntr
+*.esav
+*.emat
+*.stat
+*.page
+*.lock
