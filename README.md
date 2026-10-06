@@ -11,7 +11,6 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 - **Project Restructuring:** Moved all .out, .err, and MAPDL junk files into an isolated main_run_2/ directory to keep the repository clean.
 
 ### 🚧 Pending Fixes (To-Do)
-- **Stringer Orientation:** The stringer orientation logic has not been updated yet. It currently uses the old 2D approximation and was temporarily bypassed to isolate the spar fixes.
 - **Flange-Skin Gap Visualization:** Currently, the skin uses a default MID offset, meaning the nodes (cyan mesh) lie at the center of the skin thickness. Because Ansys MAPDL draws shells as zero-thickness planes by default, the correct T_SKIN/2 inward shift of the flange appears as a visual gap in the GUI. Waiting for a decision to either keep the mathematically accurate mid-plane, or change the skin to an Outer Mold Line (OML) TOP offset for 1:1 visual alignment.
 
 ---
@@ -73,5 +72,6 @@ To run the analysis, execute the macro in ANSYS MAPDL (Batch Mode recommended fo
 "C:\Program Files\ANSYS Inc\vXXX\ansys\bin\winx64\ANSYS.exe" -b -i "HTP_PARAMETRIC.mac" -o "HTP_run.out"
 ```
 Check `HTP_Results.txt` for the final optimized outputs.
+
 
 
