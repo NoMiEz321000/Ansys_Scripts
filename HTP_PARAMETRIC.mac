@@ -35,7 +35,7 @@ TC      = 0.12
 ! ================================================================
 
 ! --- Thicknesses [mm] ---
-T_SKIN     = 2.5    ! Composite skin thickness
+T_SKIN  = 2.0    ! Composite skin thickness
 T_SPAR_WEB = 3.0    ! Spar web thickness
 T_RIB_WEB  = 2.0    ! Rib web thickness
 
@@ -46,6 +46,8 @@ STR_BRIM = 20       ! Stringer Brim Width (W1, W2)
 STR_T   = 3.0       ! Stringer Thickness
 
 ! --- Spar Flange Dimensions [mm] ---
+RIB_FW  = 40.0      ! Rib Flange Width
+RIB_FT  = 1.0       ! Rib Flange Thickness
 SPAR_FW  = 80.0      ! Spar Flange Width
 SPAR_FT = 4.0       ! Spar Flange Thickness
 
@@ -449,6 +451,11 @@ SECDATA, SPAR_FW, SPAR_FT
 FL_OFFZ = -1*(SPAR_FT/2)       ! Visually flush with the node plane (ignores T_SKIN/2 gap)
 SECOFFSET, USER, 0, FL_OFFZ    ! local z = inward skin normal
 
+SECTYPE, 6, BEAM, RECT
+SECDATA, RIB_FW, RIB_FT
+FL_OFFZ_RIB = -1*(RIB_FT/2)
+SECOFFSET, USER, 0, FL_OFFZ_RIB
+
 ! ================================================================
 !  SAVE DB FOR GEOMETRY INSPECTION
 ! ================================================================
@@ -598,6 +605,42 @@ ALLSEL, ALL
 /VIEW, 1, 1, 1, 1  ! Set isometric view
 /ESHAPE, 1         ! Turn on 3D element shape rendering (crucial for beams)
 EPLOT              ! Plot elements
+
+! ================================================================
+!  MESH RIB FLANGES
+! ================================================================
+*DO,I,1,N_RIB
+    KB = (I-1)*100
+    
+    ! Dynamically select only the outer profile lines of this rib (bulletproof against ASBA ID recycling)
+    KSEL, S, KP, , KB+1, KB+N_PROF
+    LSLK, S, 1
+    
+    *GET, L_COUNT, LINE, 0, COUNT
+    LNUM = 0
+    *DO, L_IDX, 1, L_COUNT
+        LNUM = LSNEXT(LNUM)
+        
+        ! Get midpoint Y to compute local chord
+        *GET, KP1, LINE, LNUM, KP, 1
+        *GET, Y1, KP, KP1, LOC, Y
+        C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+        
+        ! Orientation keypoint (Z=0 forces Local Z to be inward normal)
+        *GET, K_MAX, KP, 0, NUM, MAXD
+        K_OR = K_MAX + 1
+        K, K_OR, 0.5*C_I, Y1, 0
+        
+        LSEL, S, LINE, , LNUM
+        LATT, 1, , 2, , K_OR, , 6
+        LMESH, LNUM
+        
+        ! Restore selection for next line in loop
+        KSEL, S, KP, , KB+1, KB+N_PROF
+        LSLK, S, 1
+    *ENDDO
+*ENDDO
+ALLSEL, ALL
 
 ! Merge nodes with generous tolerance to weld all unmerged topologies
 ALLSEL, ALL
