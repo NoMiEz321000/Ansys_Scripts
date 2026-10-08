@@ -213,7 +213,8 @@ PREV_XC = 0.0
     Z_I = Z_OFF(I)
     KP_BASE = (I-1)*100
     *DO,J,1,N_PROF
-        X_KP = XC_FRAC(J)*C_I
+        X_OFFSET = C_ROOT - C_I
+        X_KP = X_OFFSET + XC_FRAC(J)*C_I
         Z_KP = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
         K, KP_BASE + J, X_KP, Y_I, Z_KP
     *ENDDO
@@ -328,27 +329,28 @@ PREV_XC = 0.0
     CM, TEMP_PRE_AREAS, AREA
     
     ! --- Max-Ratio Hole Generation ---
-    *IF, N_CUT, EQ, 7, THEN
-        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
-        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, 0.4607*C_I, Z_I, 0.0379*C_I
-        CYL4, 0.5595*C_I, Z_I, 0.0335*C_I
-        CYL4, 0.6486*C_I, Z_I, 0.0284*C_I
-        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
-        CYL4, 0.7956*C_I, Z_I, 0.0183*C_I
+    X_OFFSET = C_ROOT - C_I
+      *IF, N_CUT, EQ, 7, THEN
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, 0.0379*C_I
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, 0.0335*C_I
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, 0.0284*C_I
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
+        CYL4, X_OFFSET + 0.7956*C_I, Z_I, 0.0183*C_I
     *ELSEIF, N_CUT, EQ, 6, THEN
-        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
-        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, 0.4607*C_I, Z_I, 0.0379*C_I
-        CYL4, 0.5595*C_I, Z_I, 0.0335*C_I
-        CYL4, 0.6486*C_I, Z_I, 0.0284*C_I
-        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, 0.0379*C_I
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, 0.0335*C_I
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, 0.0284*C_I
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
     *ELSEIF, N_CUT, EQ, 5, THEN
-        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
-        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, 0.4846*C_I, Z_I, 0.0370*C_I
-        CYL4, 0.6253*C_I, Z_I, 0.0298*C_I
-        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, X_OFFSET + 0.4846*C_I, Z_I, 0.0370*C_I
+        CYL4, X_OFFSET + 0.6253*C_I, Z_I, 0.0298*C_I
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
     *ENDIF
     
     ALLSEL, ALL
@@ -549,7 +551,8 @@ D_OR = 100                         ! orientation KP distance [mm]
 
         ! Chordwise skin tangent T at the rib station of KP1
         C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
-        XF  = X1/C_I
+        X_OFFSET = C_ROOT - C_I
+        XF  = (X1 - X_OFFSET)/C_I
         *IF, XF, GT, 1.0E-4, THEN
             T1 = 0.14845/SQRT(XF) - 0.12600
             T2 = -0.70320*XF + 0.85290*(XF**2)
@@ -625,11 +628,12 @@ EPLOT              ! Plot elements
         *GET, KP1, LINE, LNUM, KP, 1
         *GET, Y1, KP, KP1, LOC, Y
         C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+        X_OFFSET = C_ROOT - C_I
         
         ! Orientation keypoint (Z=0 forces Local Z to be inward normal)
         *GET, K_MAX, KP, 0, NUM, MAXD
         K_OR = K_MAX + 1
-        K, K_OR, 0.5*C_I, Y1, 0
+        K, K_OR, X_OFFSET + 0.5*C_I, Y1, 0
         
         LSEL, S, LINE, , LNUM
         LATT, 1, , 2, , K_OR, , 6
