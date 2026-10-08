@@ -16,17 +16,17 @@ TC      = 0.12
     N_RIB  = 14
     N_SPAR = 3
     N_STR  = 8
-    N_CUT  = 7
+    N_CUT  = 9
 *ELSEIF,CONFIG,EQ,2
     N_RIB  = 9
     N_SPAR = 2
     N_STR  = 8
-    N_CUT  = 6
+    N_CUT  = 8
 *ELSEIF,CONFIG,EQ,3
     N_RIB  = 7
     N_SPAR = 2
     N_STR  = 6
-    N_CUT  = 5
+    N_CUT  = 7
 *ENDIF
 
 ! ================================================================
@@ -42,11 +42,11 @@ T_RIB_WEB  = 2.0    ! Rib web thickness
 ! --- Hat-Section Stringer Dimensions [mm] ---
 STR_H   = 50        ! Stringer Height (W4)
 STR_W3  = 40        ! Stringer Crown Width (W3)
-STR_BRIM = 15       ! Stringer Brim Width (W1, W2)
+STR_BRIM = 20       ! Stringer Brim Width (W1, W2)
 STR_T   = 3.0       ! Stringer Thickness
 
 ! --- Spar Flange Dimensions [mm] ---
-SPAR_FW = 50.0      ! Spar Flange Width
+SPAR_FW  = 80.0      ! Spar Flange Width
 SPAR_FT = 4.0       ! Spar Flange Thickness
 
 ! ================================================================
@@ -90,9 +90,9 @@ RIB_SPC = SPAN/(N_RIB - 1)
 ! Define topological points for Upper Surface
 N_UP = 25
 *DIM,XC_UP,ARRAY,N_UP
-XC_UP(1)  = 0.00, 0.02, 0.05, 0.08, 0.10, 0.12, 0.15, 0.20
-XC_UP(9)  = 0.250, 0.30, 0.356, 0.41, 0.460, 0.51, 0.556, 0.60
-XC_UP(17) = 0.640, 0.67, 0.710, 0.75, 0.80, 0.85, 0.90, 0.95
+XC_UP(1)  = 0.00, 0.02, 0.065, 0.154, 0.243, 0.27, 0.300, 0.355
+XC_UP(9)  = 0.409, 0.461, 0.512, 0.560, 0.607, 0.649, 0.691, 0.727
+XC_UP(17) = 0.764, 0.796, 0.827, 0.86, 0.89, 0.92, 0.95, 0.97
 XC_UP(25) = 0.98
 
 *DIM,IS_SPAR,ARRAY,N_UP
@@ -103,26 +103,26 @@ XC_UP(25) = 0.98
 *ENDDO
 
 *IF,CONFIG,EQ,1,THEN
-    IS_SPAR(7) = 1  ! 0.15
-    IS_SPAR(17) = 1 ! 0.640
-    IS_SPAR(19) = 1 ! 0.710
-    IS_STR(9)  = 1  ! 0.250
-    IS_STR(11) = 1  ! 0.356
-    IS_STR(13) = 1  ! 0.460
-    IS_STR(15) = 1  ! 0.556
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_SPAR(19) = 1 ! 0.827
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(11) = 1  ! 0.512
+    IS_STR(13) = 1  ! 0.607
+    IS_STR(15) = 1  ! 0.691
 *ELSEIF,CONFIG,EQ,2,THEN
-    IS_SPAR(7) = 1  ! 0.15
-    IS_SPAR(17) = 1 ! 0.640
-    IS_STR(9)  = 1  ! 0.250
-    IS_STR(11) = 1  ! 0.356
-    IS_STR(13) = 1  ! 0.460
-    IS_STR(15) = 1  ! 0.556
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(11) = 1  ! 0.512
+    IS_STR(13) = 1  ! 0.607
+    IS_STR(15) = 1  ! 0.691
 *ELSEIF,CONFIG,EQ,3,THEN
-    IS_SPAR(7) = 1  ! 0.15
-    IS_SPAR(17) = 1 ! 0.640
-    IS_STR(9)  = 1  ! 0.250
-    IS_STR(12) = 1  ! 0.410
-    IS_STR(15) = 1  ! 0.556
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(12) = 1  ! 0.560
+    IS_STR(15) = 1  ! 0.691
 *ENDIF
 
 ! Construct Full Profile (Upper + Lower)
@@ -326,27 +326,33 @@ PREV_XC = 0.0
     CM, TEMP_PRE_AREAS, AREA
     
     ! --- Max-Ratio Hole Generation ---
-    *IF, N_CUT, EQ, 7, THEN
-        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
-        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
-        CYL4, 0.3030*C_I, Z_I, 0.0408*C_I
-        CYL4, 0.4080*C_I, Z_I, 0.0396*C_I
-        CYL4, 0.5080*C_I, Z_I, 0.0359*C_I
-        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
-        CYL4, 0.6750*C_I, Z_I, 0.0264*C_I
-    *ELSEIF, N_CUT, EQ, 6, THEN
-        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
-        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
-        CYL4, 0.3030*C_I, Z_I, 0.0408*C_I
-        CYL4, 0.4080*C_I, Z_I, 0.0396*C_I
-        CYL4, 0.5080*C_I, Z_I, 0.0359*C_I
-        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
-    *ELSEIF, N_CUT, EQ, 5, THEN
-        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
-        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
-        CYL4, 0.3300*C_I, Z_I, 0.0410*C_I
-        CYL4, 0.4830*C_I, Z_I, 0.0370*C_I
-        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
+    *IF, N_CUT, EQ, 9, THEN
+        CYL4, 0.0645*C_I, Z_I, 0.0271*C_I  ! LE Hole 1
+        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole 2
+        CYL4, 0.2425*C_I, Z_I, 0.0406*C_I  ! LE Hole 3
+        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, 0.4607*C_I, Z_I, 0.0379*C_I
+        CYL4, 0.5595*C_I, Z_I, 0.0335*C_I
+        CYL4, 0.6486*C_I, Z_I, 0.0284*C_I
+        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
+        CYL4, 0.7956*C_I, Z_I, 0.0183*C_I
+    *ELSEIF, N_CUT, EQ, 8, THEN
+        CYL4, 0.0645*C_I, Z_I, 0.0271*C_I  ! LE Hole 1
+        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole 2
+        CYL4, 0.2425*C_I, Z_I, 0.0406*C_I  ! LE Hole 3
+        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, 0.4607*C_I, Z_I, 0.0379*C_I
+        CYL4, 0.5595*C_I, Z_I, 0.0335*C_I
+        CYL4, 0.6486*C_I, Z_I, 0.0284*C_I
+        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
+    *ELSEIF, N_CUT, EQ, 7, THEN
+        CYL4, 0.0645*C_I, Z_I, 0.0271*C_I  ! LE Hole 1
+        CYL4, 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole 2
+        CYL4, 0.2425*C_I, Z_I, 0.0406*C_I  ! LE Hole 3
+        CYL4, 0.3546*C_I, Z_I, 0.0407*C_I
+        CYL4, 0.4846*C_I, Z_I, 0.0370*C_I
+        CYL4, 0.6253*C_I, Z_I, 0.0298*C_I
+        CYL4, 0.7273*C_I, Z_I, 0.0233*C_I
     *ENDIF
     
     ALLSEL, ALL
