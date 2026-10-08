@@ -26,7 +26,7 @@ TC      = 0.12
     N_RIB  = 7
     N_SPAR = 2
     N_STR  = 6
-    N_CUT  = 4
+    N_CUT  = 5
 *ENDIF
 
 ! ================================================================
@@ -90,9 +90,9 @@ RIB_SPC = SPAN/(N_RIB - 1)
 ! Define topological points for Upper Surface
 N_UP = 25
 *DIM,XC_UP,ARRAY,N_UP
-XC_UP(1)  = 0.00, 0.02, 0.05, 0.08, 0.10, 0.12, 0.15, 0.18
-XC_UP(9)  = 0.21, 0.25, 0.28, 0.31, 0.35, 0.40, 0.45, 0.50
-XC_UP(17) = 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90
+XC_UP(1)  = 0.00, 0.02, 0.05, 0.08, 0.10, 0.12, 0.15, 0.20
+XC_UP(9)  = 0.250, 0.30, 0.356, 0.41, 0.460, 0.51, 0.556, 0.60
+XC_UP(17) = 0.640, 0.67, 0.710, 0.75, 0.80, 0.85, 0.90, 0.95
 XC_UP(25) = 0.98
 
 *DIM,IS_SPAR,ARRAY,N_UP
@@ -327,27 +327,26 @@ PREV_XC = 0.0
     
     ! --- Max-Ratio Hole Generation ---
     *IF, N_CUT, EQ, 7, THEN
-        ! Config 1 (4 Stringers between Spar 1 and 2)
-        ! Gaps are calculated to exactly touch the stringer brims and spar flanges
-        CYL4, 0.080*C_I, Z_I, 0.035*C_I  ! LE to Spar 1 (Max limited by thickness)
-        CYL4, 0.180*C_I, Z_I, 0.015*C_I  ! Spar 1(0.15) to Str 1(0.21)
-        CYL4, 0.245*C_I, Z_I, 0.015*C_I  ! Str 1(0.21) to Str 2(0.28)
-        CYL4, 0.315*C_I, Z_I, 0.015*C_I  ! Str 2(0.28) to Str 3(0.35)
-        CYL4, 0.375*C_I, Z_I, 0.015*C_I  ! Str 3(0.35) to Str 4(0.40)
-        CYL4, 0.450*C_I, Z_I, 0.025*C_I  ! Str 4(0.40) to Spar 2(0.50)
-        CYL4, 0.600*C_I, Z_I, 0.040*C_I  ! Spar 2(0.50) to Spar 3(0.70)
+        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
+        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
+        CYL4, 0.3030*C_I, Z_I, 0.0408*C_I
+        CYL4, 0.4080*C_I, Z_I, 0.0396*C_I
+        CYL4, 0.5080*C_I, Z_I, 0.0359*C_I
+        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
+        CYL4, 0.6750*C_I, Z_I, 0.0264*C_I
     *ELSEIF, N_CUT, EQ, 6, THEN
-        CYL4, 0.08*C_I, Z_I, 0.018*C_I
-        CYL4, 0.20*C_I, Z_I, 0.025*C_I
-        CYL4, 0.30*C_I, Z_I, 0.030*C_I
-        CYL4, 0.425*C_I, Z_I, 0.030*C_I
-        CYL4, 0.55*C_I, Z_I, 0.030*C_I
-        CYL4, 0.65*C_I, Z_I, 0.025*C_I
-    *ELSEIF, N_CUT, EQ, 4, THEN
-        CYL4, 0.08*C_I, Z_I, 0.018*C_I
-        CYL4, 0.25*C_I, Z_I, 0.030*C_I
-        CYL4, 0.425*C_I, Z_I, 0.030*C_I
-        CYL4, 0.60*C_I, Z_I, 0.030*C_I
+        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
+        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
+        CYL4, 0.3030*C_I, Z_I, 0.0408*C_I
+        CYL4, 0.4080*C_I, Z_I, 0.0396*C_I
+        CYL4, 0.5080*C_I, Z_I, 0.0359*C_I
+        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
+    *ELSEIF, N_CUT, EQ, 5, THEN
+        CYL4, 0.0785*C_I, Z_I, 0.0293*C_I
+        CYL4, 0.1984*C_I, Z_I, 0.0393*C_I
+        CYL4, 0.3300*C_I, Z_I, 0.0410*C_I
+        CYL4, 0.4830*C_I, Z_I, 0.0370*C_I
+        CYL4, 0.5996*C_I, Z_I, 0.0313*C_I
     *ENDIF
     
     ALLSEL, ALL
