@@ -37,3 +37,15 @@
  = L x T) for both Spar Flanges and Stringers, guaranteeing all stiffeners point perfectly inward.
   - Dynamically fetched the Centroid Y (CGY) of the Hat section using *GET to perfectly center the Stringer along the node. This resolves the asymmetric "sinking" graphical bug.
   - Migrated run outputs to main_run_3/ for better repository organization.
+
+### [2026-10-08] Release v1.3.0-beta: Swept-back Planform & Rib Flanges
+- **Status:** Completed (with known issues)
+- **Details:**
+  - Implemented max-ratio hole packing bounded by the airfoil thickness equation.
+  - Adjusted global geometry to a **Straight Trailing Edge (Swept-back Leading Edge)** by dynamically shifting local X-coordinates.
+  - Increased structural dimensions: RIB_FW=40, RIB_FT=1, SPAR_FW=80. Reduced T_SKIN to 2.0.
+  - Implemented Rib Flanges along the entire airfoil perimeter using robust topological selection (LSLK, S, 1).
+- **Known Issues (Pending Fixes):**
+  - รอยต่อ Rib Flange กับ Spar: มีส่วนของ Flange โผล่ทะลุออกมา (อาจเกิดจากโค้ด Rib Flange ยังไม่ครอบคลุมบริเวณจุดตัดนี้)
+  - ปลายปีก (Tip Chord): Rib Flange ฝั่งท้าย (Trailing Edge) มีชิ้นส่วนที่ขาดหายไป
+  - การทับซ้อน: มีจังหวะที่ Rib Flange บางส่วนจมลงไปใน Skin ผิดปกติ (รอตรวจสอบการคำนวณ Orientation K_OR)

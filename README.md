@@ -2,6 +2,20 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.3.0-beta
+
+### Features & Updates
+- **Literature-based Topology & Hole Packing:** Implemented max-ratio mathematical packing for lightening holes bounded by the NACA 0012 thickness distribution. The LE Bay now fits a single perfectly centered max-ratio hole.
+- **Swept-back Planform (Straight Trailing Edge):** Modified the global macro-geometry to feature a Straight Trailing Edge, shifting the Leading Edge backward proportionally towards the tip.
+- **Robust Rib Flange Generation:** Added fully parametric 360-degree Rib Flanges using BEAM188 elements. Solved the APDL ID recycling bug by using dynamic topological selection (LSLK, S, 1) post-boolean operations.
+- **Enhanced Structural Parameters:** Upgraded element dimensions to robust sizes (RIB_FW=40mm, RIB_FT=1mm, SPAR_FW=80mm) and optimized T_SKIN down to 2.0mm.
+
+### ⚠️ Known Issues (Pending Fixes)
+- **Spar Intersection Protrusion:** Rib flanges inappropriately protrude at intersections with spars due to unhandled boolean overlaps.
+- **Tip Chord Trailing Edge Defect:** Rib flanges are missing at the trailing edge of the tip chord.
+- **Skin Sinking (Offset Issue):** Certain rib flange sections appear to sink into the skin incorrectly, requiring an orientation/offset review.
+
+---
 ## 🚀 Version 1.2.0-beta
 
 ### Features & Updates
