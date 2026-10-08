@@ -104,25 +104,25 @@ XC_UP(25) = 0.98
 
 *IF,CONFIG,EQ,1,THEN
     IS_SPAR(7) = 1  ! 0.15
-    IS_SPAR(16) = 1 ! 0.50
-    IS_SPAR(20) = 1 ! 0.70
-    IS_STR(9)  = 1  ! 0.21
-    IS_STR(11) = 1  ! 0.28
-    IS_STR(13) = 1  ! 0.35
-    IS_STR(14) = 1  ! 0.40
+    IS_SPAR(17) = 1 ! 0.640
+    IS_SPAR(19) = 1 ! 0.710
+    IS_STR(9)  = 1  ! 0.250
+    IS_STR(11) = 1  ! 0.356
+    IS_STR(13) = 1  ! 0.460
+    IS_STR(15) = 1  ! 0.556
 *ELSEIF,CONFIG,EQ,2,THEN
-    IS_SPAR(7) = 1
-    IS_SPAR(16) = 1
-    IS_STR(10) = 1
-    IS_STR(13) = 1
-    IS_STR(15) = 1
-    IS_STR(18) = 1
+    IS_SPAR(7) = 1  ! 0.15
+    IS_SPAR(17) = 1 ! 0.640
+    IS_STR(9)  = 1  ! 0.250
+    IS_STR(11) = 1  ! 0.356
+    IS_STR(13) = 1  ! 0.460
+    IS_STR(15) = 1  ! 0.556
 *ELSEIF,CONFIG,EQ,3,THEN
-    IS_SPAR(7) = 1
-    IS_SPAR(16) = 1
-    IS_STR(10) = 1
-    IS_STR(15) = 1
-    IS_STR(18) = 1
+    IS_SPAR(7) = 1  ! 0.15
+    IS_SPAR(17) = 1 ! 0.640
+    IS_STR(9)  = 1  ! 0.250
+    IS_STR(12) = 1  ! 0.410
+    IS_STR(15) = 1  ! 0.556
 *ENDIF
 
 ! Construct Full Profile (Upper + Lower)
