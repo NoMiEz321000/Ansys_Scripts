@@ -2,18 +2,28 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.3.2-beta
+
+### Features & Updates
+- **Dedicated Autonomous Verification Macro (`VERIFY_VISUAL.mac`):** Segregated the 7 multi-scale diagnostic snapshot suite and quantitative element metrics extraction out of the main model into an independent, modular verification script (`VERIFY_VISUAL.mac`). The main macro (`HTP_PARAMETRIC.mac`) remains 100% clean and pristine with zero graphics manipulation or display side-effects.
+- **Classic Pristine Post-Process (`/POST1`):** Restored `/POST1` in `HTP_PARAMETRIC.mac` to the classic standard (`SET, LAST`, `/ESHAPE, 1`, `EPLOT`) with stress and deflection exports, completely removing all camera transformations, view resets, and display commands.
+- **Factory Default ANSYS GUI Restoration:** Guaranteed 100% standard ANSYS display settings (Pure Black background, White border frame, ANSYS Corporate Logo, Date/Time header, Full Graphics mode, no view parameters clutter), matching the clean interactive experience of earlier releases.
+- **Protocol Hardening (.antigravity-visual-loop.md Rule 7):** Established a permanent guardrail strictly forbidding future injection of `/SHOW, PNG` or camera manipulation directives directly into the production model macro.
+
+### ⚠️ Known Issues (Pending Fixes)
+- **Base & Tip Rib Flange Outward Extension (รอการแก้ไขในเวอร์ชันถัดไป):** บริเวณ Rib ฝั่ง Base (Root, $Y=0$) และ Tip ($Y=B$) มีส่วนของ Flange ยื่นล้ำออกไปทางด้านนอกของแนวขอบโครงสร้าง (Outward extension beyond wing boundaries) เนื่องจากหน้าตัด Beam RECT ถูกจัดวางกึ่งกลางเส้นแนวขอบ (Centered offset)
+  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* ปรับปรุงหน้าตัดหรือ Offset ให้ Flange ของ Rib ที่ Base และ Tip ดึงเข้ามาทางฝั่งด้านในโครงสร้างเพียงฝั่งเดียว (Single-sided inward flange / C-channel / L-angle offset) โดยไม่ยื่นหรือดึงออกมาทางฝั่งภายนอก (ไม่ให้เกินขอบ $Y < 0$ และ $Y > B$) เพื่อให้สอดคล้องกับการติดตั้งฝาครอบปลายปีก (Tip Cap) และรอยต่อเข้ากับลำตัว (Fuselage Root Attachment)
+- **Rib Flange Inverted Orientation & Skin Penetration (การสลับด้านของ Rib Flange ท่อนบนและท่อนล่าง):** ตรวจพบว่าเวกเตอร์การวางแนวของหน้าตัด Beam (Beam Orientation Keypoint $K_{OR}$) ระหว่างขอบบน (Upper Skin) กับขอบล่าง (Lower Skin) มีการวางตัวสลับด้าน ส่งผลให้ทิศทาง Flange หันผิดทางและเกิดการกินเนื้อ (Penetration/clipping) ลึกเข้าไปในเนื้อผิวโครงสร้างครึ่งหนึ่งของขนาดหน้าตัด
+  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* คำนวณเวกเตอร์ Normal แยกกันระหว่างผิวบน ($Z > 0$) และผิวล่าง ($Z < 0$) อย่างแม่นยำ เพื่อบังคับให้ Flange ทุกลำดับแนบเข้าหาผิวด้านในโครงสร้างอย่างสมบูรณ์แบบโดยไม่กินเนื้อเข้าไปในแผ่น Skin
+
+---
 ## 🚀 Version 1.3.1-beta
 
 ### Features & Updates
 - **Spar Intersection Protrusion Fix:** Resolved the vertical flange protrusion defect at spar-rib junctions. Replaced keypoint-based (`LSLK`) selection with chordwise skin boundary line filtering (`COMP_SKINS` with $|Y_2 - Y_1| < 1.0$), completely preventing vertical spar web lines from being selected and meshed with `SEC 6`.
 - **Tip Chord Closed Flange Perimeter:** Resolved missing rib flange elements at the tip chord (Rib 14) trailing edge and lower surface. Fixed keypoint compression indexing issue (`NUMCMP, ALL`) by migrating to topology-driven boundary line extraction directly from skin components (`LSLA, S`), ensuring 100% complete closed perimeters across all 14 ribs.
 - **Dihedral-Aware Beam Normal Orientation:** Resolved rib flange sinking and inverted offset. Beam orientation keypoints `K_OR` are now dynamically calculated along the local chord and camber line accounting for wing dihedral ($Z_I = Y_1 \cdot \tan(7^\circ)$), guaranteeing that beam normals point inward into the structure consistently from root to tip.
-- **Visual-Verification Loop Integration:** Integrated the autonomous verification protocol (`.antigravity-visual-loop.md`) into `HTP_PARAMETRIC.mac` with node bounding-box dynamic auto-framing, generating 7 diagnostic snapshots (`Visual_Verification/snapshots/`) and tracking quantitative element metrics (`Visual_Verification/logs/DIAGNOSTIC_METRICS.txt`).
 - **Zero-Regression Verification:** Confirmed 0% regression on untouched structural components (Stringers: 416 elements, Spar Flanges: 312 elements), while Rib Flanges increased from 954 to 1,134 elements (+180 elements), reflecting the full restoration of missing tip rib segments.
-
-### ⚠️ Known Issues (Pending Fixes)
-- **Base & Tip Rib Flange Outward Extension (รอการแก้ไขในเวอร์ชันถัดไป):** บริเวณ Rib ฝั่ง Base (Root, $Y=0$) และ Tip ($Y=B$) มีส่วนของ Flange ยื่นล้ำออกไปทางด้านนอกของแนวขอบโครงสร้าง (Outward extension beyond wing boundaries) เนื่องจากหน้าตัด Beam RECT ถูกจัดวางกึ่งกลางเส้นแนวขอบ (Centered offset)
-  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* ปรับปรุงหน้าตัดหรือ Offset ให้ Flange ของ Rib ที่ Base และ Tip ดึงเข้ามาทางฝั่งด้านในโครงสร้างเพียงฝั่งเดียว (Single-sided inward flange / C-channel / L-angle offset) โดยไม่ยื่นหรือดึงออกมาทางฝั่งภายนอก (ไม่ให้เกินขอบ $Y < 0$ และ $Y > B$) เพื่อให้สอดคล้องกับการติดตั้งฝาครอบปลายปีก (Tip Cap) และรอยต่อเข้ากับลำตัว (Fuselage Root Attachment)
 
 ---
 ## 🚀 Version 1.3.0-beta

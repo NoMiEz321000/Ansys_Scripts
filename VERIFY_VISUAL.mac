@@ -1,0 +1,179 @@
+! ================================================================
+!  VERIFY_VISUAL.mac - Autonomous Multi-Scale Diagnostic Suite
+! ================================================================
+! This macro is the dedicated visual verification tool for HTP.
+! It operates independently of the production model macro (HTP_PARAMETRIC.mac)
+! to ensure production code remains pristine and unpolluted.
+!
+! Features:
+!  - Quantitative element count extraction (SEC 4, 5, 6)
+!  - 7 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro)
+!  - Clean environment restoration upon completion
+! ================================================================
+
+! Check if model is already populated in memory; if not, run HTP_PARAMETRIC.mac
+*GET, N_NODES, NODE, 0, COUNT
+*IF, N_NODES, LE, 0, THEN
+    /CLEAR, NOSTART
+    /INQUIRE, EX_LOCAL, EXIST, HTP_PARAMETRIC, mac
+    *IF, EX_LOCAL, EQ, 1, THEN
+        /INPUT, HTP_PARAMETRIC, mac
+    *ELSE
+        /INPUT, ..\HTP_PARAMETRIC, mac
+    *ENDIF
+*ENDIF
+
+! ================================================================
+!  STEP 1: EXTRACT QUANTITATIVE METRICS
+! ================================================================
+ESEL, S, SEC, , 4
+*GET, N_SEC4, ELEM, 0, COUNT
+ESEL, S, SEC, , 5
+*GET, N_SEC5, ELEM, 0, COUNT
+ESEL, S, SEC, , 6
+*GET, N_SEC6, ELEM, 0, COUNT
+
+*CFOPEN, 'DIAGNOSTIC_METRICS', 'txt'
+*VWRITE, N_SEC4
+(/'Stringers (SEC 4): ', F8.0)
+*VWRITE, N_SEC5
+('Spar Flanges (SEC 5): ', F8.0)
+*VWRITE, N_SEC6
+('Rib Flanges (SEC 6): ', F8.0)
+*CFCLOS
+
+! ================================================================
+!  STEP 2: CONFIGURE DIAGNOSTIC RENDERING DRIVER
+! ================================================================
+/SHOW, PNG, REV
+/GFILE, 1600
+/RGB, INDEX, 100, 100, 100, 0    ! White background for report clarity
+/RGB, INDEX, 0, 0, 0, 15         ! Black lines
+/PLOPTS, INFO, 0                 ! Suppress clutter
+/PLOPTS, LEG1, 0
+/ESHAPE, 1                       ! 3D Beam solid extrusion
+
+! --- 1. MACRO: Full Wing Skeleton (Iso) ---
+ALLSEL, ALL
+ESEL, S, TYPE, , 2               ! All Beams
+ESEL, A, SEC, , 1                ! Rib Webs
+ESEL, A, SEC, , 2                ! Spar Webs
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+EPLOT
+! Output: snapshot_01_macro_skeleton.png
+
+! --- 2. MACRO: Top Planform (Planform & Sweep) ---
+ALLSEL, ALL
+/VIEW, 1, 0, 0, 1
+/AUTO, 1
+EPLOT
+! Output: snapshot_02_macro_planform.png
+
+! --- 3. MESO: Isolate ALL Rib Flanges (Network Completeness) ---
+ALLSEL, ALL
+ESEL, S, SEC, , 6                ! ONLY Rib Flanges
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+EPLOT
+! Output: snapshot_03_meso_all_rib_flanges.png
+
+! --- 4. MESO: Isolate ALL Stringers & Spar Flanges ---
+ALLSEL, ALL
+ESEL, S, SEC, , 4
+ESEL, A, SEC, , 5
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+EPLOT
+! Output: snapshot_04_meso_stiffeners.png
+
+! --- 5. MICRO: Root Rib & Spar 1 Joint (Auto-Framed) ---
+ALLSEL, ALL
+ESEL, S, SEC, , 6                ! Rib Flange
+ESEL, A, SEC, , 5                ! Spar Flange
+ESEL, A, SEC, , 1                ! Rib Web
+ESEL, A, SEC, , 2                ! Spar Web
+ESEL, R, CENT, Y, -10, 100       ! Root Bay only (Y <= 100)
+ESEL, R, CENT, X, -10, 0.45*C_ROOT
+NSLE, S
+*GET, X_MIN, NODE, 0, MNLOC, X
+*GET, X_MAX, NODE, 0, MXLOC, X
+*GET, Y_MIN, NODE, 0, MNLOC, Y
+*GET, Y_MAX, NODE, 0, MXLOC, Y
+*GET, Z_MIN, NODE, 0, MNLOC, Z
+*GET, Z_MAX, NODE, 0, MXLOC, Z
+X_MID = (X_MIN + X_MAX) / 2
+Y_MID = (Y_MIN + Y_MAX) / 2
+Z_MID = (Z_MIN + Z_MAX) / 2
+DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
+/VIEW, 1, 1, 1, 1
+/USER, 1
+/FOCUS, 1, X_MID, Y_MID, Z_MID
+/DIST, 1, DIAG_D * 0.50
+EPLOT
+! Output: snapshot_05_micro_root_joint.png
+
+! --- 6. MICRO: Tip Rib Auto-Framed ---
+ALLSEL, ALL
+ESEL, S, SEC, , 6                ! Rib Flange
+ESEL, A, SEC, , 1                ! Rib Web
+ESEL, R, CENT, Y, SPAN-100, SPAN+50 ! Tip Bay only
+NSLE, S
+*GET, X_MIN, NODE, 0, MNLOC, X
+*GET, X_MAX, NODE, 0, MXLOC, X
+*GET, Y_MIN, NODE, 0, MNLOC, Y
+*GET, Y_MAX, NODE, 0, MXLOC, Y
+*GET, Z_MIN, NODE, 0, MNLOC, Z
+*GET, Z_MAX, NODE, 0, MXLOC, Z
+X_MID = (X_MIN + X_MAX) / 2
+Y_MID = (Y_MIN + Y_MAX) / 2
+Z_MID = (Z_MIN + Z_MAX) / 2
+DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
+/VIEW, 1, 1, 1, 1
+/USER, 1
+/FOCUS, 1, X_MID, Y_MID, Z_MID
+/DIST, 1, DIAG_D * 0.50
+EPLOT
+! Output: snapshot_06_micro_tip_rib.png
+
+! --- 7. MICRO: Skin Section Offset ---
+ALLSEL, ALL
+ESEL, S, CENT, Y, -10, SPAN/(N_RIB-1)+10  ! Bay 1 only
+NSLE, S
+*GET, X_MIN, NODE, 0, MNLOC, X
+*GET, X_MAX, NODE, 0, MXLOC, X
+*GET, Y_MIN, NODE, 0, MNLOC, Y
+*GET, Y_MAX, NODE, 0, MXLOC, Y
+*GET, Z_MIN, NODE, 0, MNLOC, Z
+*GET, Z_MAX, NODE, 0, MXLOC, Z
+X_MID = (X_MIN + X_MAX) / 2
+Y_MID = (Y_MIN + Y_MAX) / 2
+Z_MID = (Z_MIN + Z_MAX) / 2
+DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
+/VIEW, 1, 0, 1, 0                ! Side cross-section
+/USER, 1
+/FOCUS, 1, X_MID, Y_MID, Z_MID
+/DIST, 1, DIAG_D * 0.50
+EPLOT
+! Output: snapshot_07_micro_skin_offset.png
+
+/SHOW, CLOSE                      ! Close PNG device
+ALLSEL, ALL
+
+! ================================================================
+!  STEP 3: RESTORE FACTORY DEFAULT GUI & DISPLAY ENVIRONMENT
+! ================================================================
+/GRAPHICS, FULL                  ! Default Full Graphics (NO PowerGraphics)
+/RGB, INDEX, 0, 0, 0, 0          ! Restore Default Background: Pure Black
+/RGB, INDEX, 100, 100, 100, 15   ! Restore Default Foreground Text/Lines: White
+/PLOPTS, FRAME, 1                ! White frame border ON (Default)
+/PLOPTS, LOGO, 1                 ! ANSYS Corporate Logo ON (Default)
+/PLOPTS, DATE, 2                 ! Date and Time ON under logo (Default)
+/PLOPTS, INFO, 0                 ! Suppress view metrics clutter
+/PLOPTS, LEG1, 1                 ! Legend header ON (Default)
+/PLOPTS, TITLE, 1                ! Model Title ON (Default)
+/AUTO, 1                         ! Reset Auto-fit focus and distance to full model
+/VIEW, 1, 1, 1, 1                ! Reset camera to standard Isometric view
+/ANG, 1, 0                       ! Reset view rotation angle
+/ESHAPE, 1
+EPLOT
