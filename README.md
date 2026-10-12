@@ -1,7 +1,21 @@
-﻿# Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization
+# Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.3.1-beta
+
+### Features & Updates
+- **Spar Intersection Protrusion Fix:** Resolved the vertical flange protrusion defect at spar-rib junctions. Replaced keypoint-based (`LSLK`) selection with chordwise skin boundary line filtering (`COMP_SKINS` with $|Y_2 - Y_1| < 1.0$), completely preventing vertical spar web lines from being selected and meshed with `SEC 6`.
+- **Tip Chord Closed Flange Perimeter:** Resolved missing rib flange elements at the tip chord (Rib 14) trailing edge and lower surface. Fixed keypoint compression indexing issue (`NUMCMP, ALL`) by migrating to topology-driven boundary line extraction directly from skin components (`LSLA, S`), ensuring 100% complete closed perimeters across all 14 ribs.
+- **Dihedral-Aware Beam Normal Orientation:** Resolved rib flange sinking and inverted offset. Beam orientation keypoints `K_OR` are now dynamically calculated along the local chord and camber line accounting for wing dihedral ($Z_I = Y_1 \cdot \tan(7^\circ)$), guaranteeing that beam normals point inward into the structure consistently from root to tip.
+- **Visual-Verification Loop Integration:** Integrated the autonomous verification protocol (`.antigravity-visual-loop.md`) into `HTP_PARAMETRIC.mac` with node bounding-box dynamic auto-framing, generating 7 diagnostic snapshots (`Visual_Verification/snapshots/`) and tracking quantitative element metrics (`Visual_Verification/logs/DIAGNOSTIC_METRICS.txt`).
+- **Zero-Regression Verification:** Confirmed 0% regression on untouched structural components (Stringers: 416 elements, Spar Flanges: 312 elements), while Rib Flanges increased from 954 to 1,134 elements (+180 elements), reflecting the full restoration of missing tip rib segments.
+
+### ⚠️ Known Issues (Pending Fixes)
+- **Base & Tip Rib Flange Outward Extension (รอการแก้ไขในเวอร์ชันถัดไป):** บริเวณ Rib ฝั่ง Base (Root, $Y=0$) และ Tip ($Y=B$) มีส่วนของ Flange ยื่นล้ำออกไปทางด้านนอกของแนวขอบโครงสร้าง (Outward extension beyond wing boundaries) เนื่องจากหน้าตัด Beam RECT ถูกจัดวางกึ่งกลางเส้นแนวขอบ (Centered offset)
+  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* ปรับปรุงหน้าตัดหรือ Offset ให้ Flange ของ Rib ที่ Base และ Tip ดึงเข้ามาทางฝั่งด้านในโครงสร้างเพียงฝั่งเดียว (Single-sided inward flange / C-channel / L-angle offset) โดยไม่ยื่นหรือดึงออกมาทางฝั่งภายนอก (ไม่ให้เกินขอบ $Y < 0$ และ $Y > B$) เพื่อให้สอดคล้องกับการติดตั้งฝาครอบปลายปีก (Tip Cap) และรอยต่อเข้ากับลำตัว (Fuselage Root Attachment)
+
+---
 ## 🚀 Version 1.3.0-beta
 
 ### Features & Updates
@@ -20,8 +34,7 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 
 ### Features & Updates
 - **Stringer Hat Section (Omega Profile):** Replaced legacy I-beam stringers with parametric Hat sections (HATS). The dimensions are set to STR_BRIM=15, STR_W3=40, and STR_H=50.
-- **Unified 3D Beam Orientation:** Applied the exact 3D normal vector calculation (
- = L x T) to the stringers, eliminating the bug where stringers would point outside the aerodynamic skin. All stiffeners (Spars and Stringers) now point inward perfectly.
+- **Unified 3D Beam Orientation:** Applied the exact 3D normal vector calculation ($\vec{n} = \vec{L} \times \vec{T}$) to the stringers, eliminating the bug where stringers would point outside the aerodynamic skin. All stiffeners (Spars and Stringers) now point inward perfectly.
 - **Centered Symmetric Offset:** Implemented *GET, CGY to dynamically locate the geometric center of the Hat section and applied SECOFFSET, USER, CGY, 0. This resolves an issue where the flat stringer brims would asymmetrically dig into the curved airfoil shell.
 - **Run Directory Migration:** Upgraded the execution environment to main_run_3/ for strict separation of source code and output files.
 
@@ -29,8 +42,7 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 ## 🚀 Version 1.1.0-beta
 
 ### Features & Updates
-- **3D Spar Flange Orientation:** Re-wrote the spar flange BEAM188 meshing logic to use a precise 3D surface normal calculation (
- = L x T). This forces the rectangular spar flanges to lie completely flush and parallel to the curved aerodynamic skin.
+- **3D Spar Flange Orientation:** Re-wrote the spar flange BEAM188 meshing logic to use a precise 3D surface normal calculation ($\vec{n} = \vec{L} \times \vec{T}$). This forces the rectangular spar flanges to lie completely flush and parallel to the curved aerodynamic skin.
 - **Section Offsets:** Implemented SECOFFSET for the spar flanges in the local Z-axis (FL_OFFZ = -1*(SPAR_FT/2 + T_SKIN/2)) so the outer face of the flange aligns mathematically perfectly with the inner face of the skin.
 - **Project Restructuring:** Moved all .out, .err, and MAPDL junk files into an isolated main_run_2/ directory to keep the repository clean.
 
@@ -38,7 +50,7 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 - **Flange-Skin Gap Visualization:** Currently, the skin uses a default MID offset, meaning the nodes (cyan mesh) lie at the center of the skin thickness. Because Ansys MAPDL draws shells as zero-thickness planes by default, the correct T_SKIN/2 inward shift of the flange appears as a visual gap in the GUI. Waiting for a decision to either keep the mathematically accurate mid-plane, or change the skin to an Outer Mold Line (OML) TOP offset for 1:1 visual alignment.
 
 ---
-## ðŸš€ Version 1.0.0-beta
+## 🚀 Version 1.0.0-beta
 
 ### Features & Capabilities
 - **Parametric Geometry Generation:** Automatically generates a NACA 0012 HTP structure with Ribs, Spars, Stringers, and Skins based on parametric inputs (Span, Root/Tip Chord, Dihedral, etc.).
@@ -52,7 +64,7 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 
 ---
 
-## ðŸ› ï¸ The Road to v1.0.0-beta: Comprehensive Bug Fix Review
+## 🛠️ The Road to v1.0.0-beta: Comprehensive Bug Fix Review
 The journey from the initial script to `v1.0.0-beta` involved hunting down several highly obscure geometric and meshing bugs in Ansys APDL. Here is a summary of the major fixes:
 
 ### 1. The Rib Meshing Crash (`SIG$SEGV` & 1.E+20 Aspect Ratio)
@@ -85,19 +97,20 @@ The journey from the initial script to `v1.0.0-beta` involved hunting down sever
 
 ---
 
-## ðŸ“Œ Next Steps
+## 📌 Next Steps
+- Implement single-sided inward flange offset for Base (Root) and Tip Ribs (v1.3.2-beta).
 - Verify the structural boundary conditions and applied pressure loads.
 - Run the Parametric Optimization Loop to find the optimal thicknesses and sizing for Config A, B, and C.
 - Extract the structural mass, Von Mises stresses, and Tip Deflection for the final Literature Report.
 
-## ðŸ› ï¸ Usage
+## 📁 Archive & Legacy Documentation
+Historical notes and early development tracking files have been moved to `archive/`:
+- [`archive/progress.md`](archive/progress.md): Historical milestone tracker and initial bugfix notes.
+- [`archive/experiment.md`](archive/experiment.md): Early experiments on beam orientation formulations.
+
+## 🛠️ Usage
 To run the analysis, execute the macro in ANSYS MAPDL (Batch Mode recommended for speed):
 ```bash
 "C:\Program Files\ANSYS Inc\vXXX\ansys\bin\winx64\ANSYS.exe" -b -i "HTP_PARAMETRIC.mac" -o "HTP_run.out"
 ```
 Check `HTP_Results.txt` for the final optimized outputs.
-
-
-
-
-
