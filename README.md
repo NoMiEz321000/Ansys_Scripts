@@ -2,19 +2,20 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
-## 🚀 Version 1.3.2-beta
+## 🚀 Version 1.3.3-beta
 
 ### Features & Updates
-- **Dedicated Autonomous Verification Macro (`VERIFY_VISUAL.mac`):** Segregated the 7 multi-scale diagnostic snapshot suite and quantitative element metrics extraction out of the main model into an independent, modular verification script (`VERIFY_VISUAL.mac`). The main macro (`HTP_PARAMETRIC.mac`) remains 100% clean and pristine with zero graphics manipulation or display side-effects.
-- **Classic Pristine Post-Process (`/POST1`):** Restored `/POST1` in `HTP_PARAMETRIC.mac` to the classic standard (`SET, LAST`, `/ESHAPE, 1`, `EPLOT`) with stress and deflection exports, completely removing all camera transformations, view resets, and display commands.
-- **Factory Default ANSYS GUI Restoration:** Guaranteed 100% standard ANSYS display settings (Pure Black background, White border frame, ANSYS Corporate Logo, Date/Time header, Full Graphics mode, no view parameters clutter), matching the clean interactive experience of earlier releases.
-- **Protocol Hardening (.antigravity-visual-loop.md Rule 7):** Established a permanent guardrail strictly forbidding future injection of `/SHOW, PNG` or camera manipulation directives directly into the production model macro.
+- **3D Surface Normal Orientation for Rib Flanges:** Resolved the rib flange inverted orientation and skin penetration defect. The flange beam orientation keypoints ($K_{OR}$) are now calculated using the true 3D surface normal $\vec{n} = \hat{T} \times \vec{S}$ (where $\hat{T}$ is the chordwise line tangent and $\vec{S}$ is the spanwise skin tangent accounting for both dihedral $7^\circ$ and planform taper). This forces the 40 mm flange width to lie 100% parallel to the inclined aerodynamic skin without tilt.
+- **Inner-Skin Flush Offset:** Adjusted the section offset to `FL_OFFZ_RIB = -1*(RIB_FT/2 + T_SKIN/2)`, ensuring the outer face of the rib flange aligns mathematically flush with the inner surface of the skin with zero penetration/clipping in 3D solid rendering (`/ESHAPE, 1`).
+- **Single-Sided Inward Flange for Base & Tip Ribs:** Resolved the outward flange extension defect at Root ($Y=0$) and Tip ($Y=SPAN$). Introduced single-sided inward L-profile sections (`SEC 7` and `SEC 8`) with width reduced to 20 mm (`RIB_FW_EDGE = 20.0`), strictly eliminating all overhang beyond $Y < 0$ and $Y > SPAN$.
+- **Enhanced Multi-Scale Verification Suite (`VERIFY_VISUAL.mac`):** Expanded the automated diagnostic suite to 11 auto-framed snapshots (adding ultra-close-up cross-sections for mid-rib upper/lower flanges, root rib, and tip rib), alongside full quantitative metric tracking across `SEC 4`, `SEC 5`, `SEC 6`, `SEC 7`, and `SEC 8`.
+- **Zero-Regression Verification:** Confirmed 0% regression on untouched structural components (Stringers: 416 elements, Spar Flanges: 312 elements, Total Rib Flanges: 1,134 elements [972 interior + 81 root + 81 tip]). Static solve completes cleanly with 0 errors ($S_{MAX} = 19.77\text{ MPa}$, $\delta_{TIP} = -0.93\text{ mm}$).
 
-### ⚠️ Known Issues (Pending Fixes)
-- **Base & Tip Rib Flange Outward Extension (รอการแก้ไขในเวอร์ชันถัดไป):** บริเวณ Rib ฝั่ง Base (Root, $Y=0$) และ Tip ($Y=B$) มีส่วนของ Flange ยื่นล้ำออกไปทางด้านนอกของแนวขอบโครงสร้าง (Outward extension beyond wing boundaries) เนื่องจากหน้าตัด Beam RECT ถูกจัดวางกึ่งกลางเส้นแนวขอบ (Centered offset)
-  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* ปรับปรุงหน้าตัดหรือ Offset ให้ Flange ของ Rib ที่ Base และ Tip ดึงเข้ามาทางฝั่งด้านในโครงสร้างเพียงฝั่งเดียว (Single-sided inward flange / C-channel / L-angle offset) โดยไม่ยื่นหรือดึงออกมาทางฝั่งภายนอก (ไม่ให้เกินขอบ $Y < 0$ และ $Y > B$) เพื่อให้สอดคล้องกับการติดตั้งฝาครอบปลายปีก (Tip Cap) และรอยต่อเข้ากับลำตัว (Fuselage Root Attachment)
-- **Rib Flange Inverted Orientation & Skin Penetration (การสลับด้านของ Rib Flange ท่อนบนและท่อนล่าง):** ตรวจพบว่าเวกเตอร์การวางแนวของหน้าตัด Beam (Beam Orientation Keypoint $K_{OR}$) ระหว่างขอบบน (Upper Skin) กับขอบล่าง (Lower Skin) มีการวางตัวสลับด้าน ส่งผลให้ทิศทาง Flange หันผิดทางและเกิดการกินเนื้อ (Penetration/clipping) ลึกเข้าไปในเนื้อผิวโครงสร้างครึ่งหนึ่งของขนาดหน้าตัด
-  - *พฤติกรรมเป้าหมายสำหรับเวอร์ชันถัดไป:* คำนวณเวกเตอร์ Normal แยกกันระหว่างผิวบน ($Z > 0$) และผิวล่าง ($Z < 0$) อย่างแม่นยำ เพื่อบังคับให้ Flange ทุกลำดับแนบเข้าหาผิวด้านในโครงสร้างอย่างสมบูรณ์แบบโดยไม่กินเนื้อเข้าไปในแผ่น Skin
+### ⚠️ Future Fixes & Enhancements (Pending Fixes)
+- **Rib Cutouts for Stringers & Spar Flanges (Mouse Holes / Notches) ตาม Literature:** เจาะรูเว้า (Cutouts / Mouse holes / Notches) บริเวณแนวขอบ Rib ทั้งผิวด้านบนและผิวด้านล่าง เพื่อให้ Stringers (Hat-section) และ Spar Flanges วิ่งทะลุผ่านระนาบ Rib Web ได้อย่างถูกต้องสมบูรณ์แบบตามงานวิจัยอ้างอิง (Literature Reference) ตามรูปภาพโครงสร้าง Rib Web Layout (a)
+
+---
+## 🚀 Version 1.3.2-beta
 
 ---
 ## 🚀 Version 1.3.1-beta

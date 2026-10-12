@@ -6,8 +6,8 @@
 ! to ensure production code remains pristine and unpolluted.
 !
 ! Features:
-!  - Quantitative element count extraction (SEC 4, 5, 6)
-!  - 7 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro)
+!  - Quantitative element count extraction (SEC 4, 5, 6, 7, 8, TOTAL)
+!  - 11 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro)
 !  - Clean environment restoration upon completion
 ! ================================================================
 
@@ -32,6 +32,11 @@ ESEL, S, SEC, , 5
 *GET, N_SEC5, ELEM, 0, COUNT
 ESEL, S, SEC, , 6
 *GET, N_SEC6, ELEM, 0, COUNT
+ESEL, S, SEC, , 7
+*GET, N_SEC7, ELEM, 0, COUNT
+ESEL, S, SEC, , 8
+*GET, N_SEC8, ELEM, 0, COUNT
+N_RIB_TOT = N_SEC6 + N_SEC7 + N_SEC8
 
 *CFOPEN, 'DIAGNOSTIC_METRICS', 'txt'
 *VWRITE, N_SEC4
@@ -39,7 +44,13 @@ ESEL, S, SEC, , 6
 *VWRITE, N_SEC5
 ('Spar Flanges (SEC 5): ', F8.0)
 *VWRITE, N_SEC6
-('Rib Flanges (SEC 6): ', F8.0)
+('Rib Flanges Interior (SEC 6): ', F8.0)
+*VWRITE, N_SEC7
+('Rib Flanges Edge +Y (SEC 7): ', F8.0)
+*VWRITE, N_SEC8
+('Rib Flanges Edge -Y (SEC 8): ', F8.0)
+*VWRITE, N_RIB_TOT
+('Rib Flanges TOTAL (SEC 6+7+8): ', F8.0)
 *CFCLOS
 
 ! ================================================================
@@ -72,7 +83,9 @@ EPLOT
 
 ! --- 3. MESO: Isolate ALL Rib Flanges (Network Completeness) ---
 ALLSEL, ALL
-ESEL, S, SEC, , 6                ! ONLY Rib Flanges
+ESEL, S, SEC, , 6                ! Rib Flanges Interior
+ESEL, A, SEC, , 7                ! Rib Flanges Edge +Y
+ESEL, A, SEC, , 8                ! Rib Flanges Edge -Y
 /VIEW, 1, 1, 2, 1
 /AUTO, 1
 EPLOT
@@ -89,7 +102,9 @@ EPLOT
 
 ! --- 5. MICRO: Root Rib & Spar 1 Joint (Auto-Framed) ---
 ALLSEL, ALL
-ESEL, S, SEC, , 6                ! Rib Flange
+ESEL, S, SEC, , 6
+ESEL, A, SEC, , 7
+ESEL, A, SEC, , 8
 ESEL, A, SEC, , 5                ! Spar Flange
 ESEL, A, SEC, , 1                ! Rib Web
 ESEL, A, SEC, , 2                ! Spar Web
@@ -115,7 +130,9 @@ EPLOT
 
 ! --- 6. MICRO: Tip Rib Auto-Framed ---
 ALLSEL, ALL
-ESEL, S, SEC, , 6                ! Rib Flange
+ESEL, S, SEC, , 6
+ESEL, A, SEC, , 7
+ESEL, A, SEC, , 8
 ESEL, A, SEC, , 1                ! Rib Web
 ESEL, R, CENT, Y, SPAN-100, SPAN+50 ! Tip Bay only
 NSLE, S
@@ -156,6 +173,62 @@ DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
 /DIST, 1, DIAG_D * 0.50
 EPLOT
 ! Output: snapshot_07_micro_skin_offset.png
+
+! --- 8. MICRO: Mid-Rib Upper Flange Cross-Section (Zoomed) ---
+YR = Y_STA(7)
+CR = C_STA(7)
+XR = C_ROOT - CR + 0.40*CR
+ZR = Z_OFF(7)
+TR = 0.06*CR
+ALLSEL, ALL
+ESEL, S, CENT, X, XR-40, XR+40
+ESEL, R, CENT, Y, YR-120, YR+120
+/VIEW, 1, -1, 0, 0
+/USER, 1
+/FOCUS, 1, XR, YR, ZR+TR
+/DIST, 1, 35
+EPLOT
+! Output: snapshot_08_micro_mid_rib_upper.png
+
+! --- 9. MICRO: Mid-Rib Lower Flange Cross-Section (Zoomed) ---
+ALLSEL, ALL
+ESEL, S, CENT, X, XR-40, XR+40
+ESEL, R, CENT, Y, YR-120, YR+120
+/VIEW, 1, -1, 0, 0
+/USER, 1
+/FOCUS, 1, XR, YR, ZR-TR
+/DIST, 1, 35
+EPLOT
+! Output: snapshot_09_micro_mid_rib_lower.png
+
+! --- 10. MICRO: Root Rib Single-Sided Inward Flange (Zoomed) ---
+CR = C_STA(1)
+XR = 0.40*CR
+TR = 0.06*CR
+ALLSEL, ALL
+ESEL, S, CENT, X, XR-40, XR+40
+ESEL, R, CENT, Y, -80, 150
+/VIEW, 1, -1, 0, 0
+/USER, 1
+/FOCUS, 1, XR, 20, TR
+/DIST, 1, 45
+EPLOT
+! Output: snapshot_10_micro_root_flange.png
+
+! --- 11. MICRO: Tip Rib Single-Sided Inward Flange (Zoomed) ---
+CR = C_STA(N_RIB)
+XR = C_ROOT - CR + 0.40*CR
+TR = 0.06*CR
+ZR = Z_OFF(N_RIB)
+ALLSEL, ALL
+ESEL, S, CENT, X, XR-40, XR+40
+ESEL, R, CENT, Y, SPAN-150, SPAN+80
+/VIEW, 1, -1, 0, 0
+/USER, 1
+/FOCUS, 1, XR, SPAN-20, ZR+TR
+/DIST, 1, 45
+EPLOT
+! Output: snapshot_11_micro_tip_flange.png
 
 /SHOW, CLOSE                      ! Close PNG device
 ALLSEL, ALL

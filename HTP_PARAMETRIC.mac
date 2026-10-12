@@ -453,10 +453,21 @@ SECDATA, SPAR_FW, SPAR_FT
 FL_OFFZ = -1*(SPAR_FT/2)       ! Visually flush with the node plane (ignores T_SKIN/2 gap)
 SECOFFSET, USER, 0, FL_OFFZ    ! local z = inward skin normal
 
+RIB_FW_EDGE = 20.0
+FL_OFFZ_RIB = -1*(RIB_FT/2 + T_SKIN/2)
+
 SECTYPE, 6, BEAM, RECT
 SECDATA, RIB_FW, RIB_FT
-FL_OFFZ_RIB = -1*(RIB_FT/2)
 SECOFFSET, USER, 0, FL_OFFZ_RIB
+
+! Edge Rib Flanges (Root & Tip: Single-sided Inward Flange, Width = 20mm)
+SECTYPE, 7, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER, -RIB_FW_EDGE/2, FL_OFFZ_RIB
+
+SECTYPE, 8, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER,  RIB_FW_EDGE/2, FL_OFFZ_RIB
 
 ! ================================================================
 !  SAVE DB FOR GEOMETRY INSPECTION
@@ -627,19 +638,80 @@ LNUM = 0
     
     ! Select only chordwise lines lying along a constant Y rib station (filters out spanwise skin lines)
     *IF, ABS(Y2-Y1), LT, 1.0, THEN
+        *GET, X1, KP, KP1, LOC, X
+        *GET, Z1, KP, KP1, LOC, Z
+        *GET, X2, KP, KP2, LOC, X
+        *GET, Z2, KP, KP2, LOC, Z
         C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
         X_OFFSET = C_ROOT - C_I
-        Z_I = Y1*TAN(DIHED_R)  ! Exact dihedral height of this rib station
-        
-        ! Orientation keypoint placed at the local chord camber center (forces Local Z strictly inward)
+        Z_I = Y1*TAN(DIHED_R)
+        DCDY = (C_TIP-C_ROOT)/SPAN
+
+        ! Chordwise line tangent T (I -> J)
+        TX = X2-X1
+        TY = Y2-Y1
+        TZ = Z2-Z1
+        TMAG = SQRT(TX**2+TY**2+TZ**2)
+        TX = TX/TMAG
+        TY = TY/TMAG
+        TZ = TZ/TMAG
+
+        ! Midpoint & local chord fractions
+        XM = (X1+X2)/2
+        YM = (Y1+Y2)/2
+        ZM = (Z1+Z2)/2
+        XFR = (XM - X_OFFSET)/C_I
+        ZFR = (ZM - Z_I)/C_I
+
+        ! Spanwise skin tangent S
+        SX = -(1.0 - XFR)*DCDY
+        SY = 1.0
+        SZ = TAN(DIHED_R) + ZFR*DCDY
+
+        ! 3D skin normal n = T x S
+        NX = TY*SZ - TZ*SY
+        NY = TZ*SX - TX*SZ
+        NZ = TX*SY - TY*SX
+        NMAG = SQRT(NX**2+NY**2+NZ**2)
+        NX = NX/NMAG
+        NY = NY/NMAG
+        NZ = NZ/NMAG
+
+        ! Force n inward (towards local chord center)
+        *IF, NX*(X_OFFSET+0.5*C_I-XM) + NZ*(Z_I-ZM), LT, 0, THEN
+            NX = -NX
+            NY = -NY
+            NZ = -NZ
+        *ENDIF
+
+        ! Orientation KP: element z = inward skin normal
         *GET, K_MAX, KP, 0, NUM, MAXD
         K_OR = K_MAX + 1
-        K, K_OR, X_OFFSET + 0.5*C_I, Y1, Z_I
-        
+        K, K_OR, XM + 100*NX, YM + 100*NY, ZM + 100*NZ
+
+        ! Select section: SEC 6 (interior), SEC 7/8 (root/tip single-sided inward)
+        SEC_RF = 6
+        EYY = NZ*TX - NX*TZ   ! Y-component of element local y = z x x
+        *IF, Y1, LT, 1.0, THEN
+            SPAN_IN = 1.0
+        *ELSEIF, Y1, GT, SPAN-1.0, THEN
+            SPAN_IN = -1.0
+        *ELSE
+            SPAN_IN = 0.0
+        *ENDIF
+
+        *IF, SPAN_IN, NE, 0, THEN
+            *IF, EYY*SPAN_IN, GT, 0, THEN
+                SEC_RF = 7
+            *ELSE
+                SEC_RF = 8
+            *ENDIF
+        *ENDIF
+
         LSEL, S, LINE, , LNUM
-        LATT, 1, , 2, , K_OR, , 6
+        LATT, 1, , 2, , K_OR, , SEC_RF
         LMESH, LNUM
-        
+
         ! Restore skin lines selection for next iteration
         CMSEL, S, COMP_SKINS
         LSLA, S
