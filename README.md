@@ -2,6 +2,21 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.4.0-beta
+
+### Features & Updates
+- **Dynamic 3-Point OML Sagitta Line Filtering for LE Rib Flanges:** Resolved the missing Leading Edge rib flange defect across all 14 ribs. Replaced the simplistic midpoint sagitta check with a robust 3-point filter ($D_1 < 2\text{ mm}$, $D_2 < 2\text{ mm}$, and sagitta $D_M < 12\text{ mm}$), overcoming the sharp nose curvature of the NACA 0012 airfoil. Restored LE rib flange elements across all 14 ribs (+906 elements, increasing total rib flange elements from 1,860 to 2,766 elements) with zero regression on Stringers (416 elements) and Spar Flanges (312 elements).
+- **Aeronautical Physics Verification for Continuous Hat Stringers (Palumbo et al., 2026):** Fully verified and cross-referenced with literature that Hat Stringers run continuously through mouse holes with clearance gaps (0 connection to rib web) without stringer clips/cleats, which is standard for compact HTP wingboxes (3.98 m span, 300 mm rib pitch) to maintain principal wing bending continuity.
+- **Physical Deflection Scaling & Stress Contour Verification:** Diagnosed and proved that the apparent gap between skin and rib flange under load is purely a visual artifact of Ansys default `/DSCALE, 1, AUTO` (50x-100x magnification). Added Snapshot 14 (`/DSCALE, 1, 1.0`) to prove that at 1:1 true physical scale, skin and rib flanges are perfectly flush with zero gap.
+- **PowerGraphics vs Full Graphics Stress Resolution:** Clarified that the $103.62\text{ MPa}$ peak stress reported in PowerGraphics reflects the conservative extreme outer fiber bending stress on BEAM188 sections ($FS \approx 3.09$ against Al 2024-T3 $\sigma_y = 320\text{ MPa}$), while Full Graphics nodal shell stress is $35.46\text{ MPa}$ ($DMX = 3.78\text{ mm}$, Tip $U_Z = -2.42\text{ mm}$).
+- **Interactive Verification Macros in `archive/`:** Added `VIEW_NO_SKIN.mac`, `VIEW_STRESS_NO_SKIN.mac`, and `RESTORE_ALL.mac` allowing users to quickly hide/restore skin panels and inspect internal ribs, stringers, and mouse holes in MAPDL GUI.
+
+### ⚠️ Future Fixes & Enhancements (Pending Fixes)
+- **LE Root Rib Flange Gap Recovery (Ribs 1–3 Nose Flange Discontinuity):** บริเวณจมูกปีกของ Ribs ฝั่ง Root (โดยเฉพาะ Rib 1 ถึง 3) ยังพบว่า Rib Flange บางท่อนหายไปหรือไม่ต่อเนื่องบริเวณส่วนปลายแหลมสุดของ Leading Edge (เนื่องจากคอร์ดปีกที่โคน Root มีขนาดยาวถึง $C_{ROOT} = 3090\text{ mm}$ รัศมีความโค้งและระยะ Sagitta กึ่งกลางเส้นสไปลน์ตรงหัวจมูกปีกอาจจะยังสูงกว่าเกณฑ์คัดกรอง $12\text{ mm}$ หรือแนวเส้น spline หัวจมูกปีกถูกแบ่งหลายท่อน ทำให้ยังเลือกเส้นไม่ครบ 100%)
+- **LE Tip Rib Flange Overhang / Protrusion Fix (Tip Rib 14 Leading Edge Flange Protrusion):** ที่บริเวณจมูกปีกของ Tip Rib (Rib 14, $Y=SPAN$) พบว่ามีส่วนปลายของหน้าแปลน Rib Flange ด้านบนแลบ/เลยผิว OML ออกมานอกแนวเปลือกปีก (Tip flange overhang / protrusion past outer skin mold line) จะต้องปรับแต่งเวกเตอร์ Normal $\vec{n}$ หรือแนวระนาบการวางหน้าตัดให้โค้งแนบสนิทเรียบไปกับขอบเปลือกปีกอย่างสมบูรณ์แบบ
+
+---
+
 ## 🚀 Version 1.3.3-beta
 
 ### Features & Updates

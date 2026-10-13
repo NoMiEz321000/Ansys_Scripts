@@ -1,0 +1,20 @@
+! ================================================================
+!  MACRO: VIEW_NO_SKIN.mac
+!  Purpose: ซ่อน Skin (SHELL181, SEC 3) เพื่อดูโครงสร้างภายใน
+!           (Ribs, Spars, Rib Flanges, Hat Stringers, Mouse Holes)
+!  วิธีใช้ใน APDL: 
+!    พิมพ์ในช่อง Command Bar: /INPUT, VIEW_NO_SKIN, mac
+! ================================================================
+ALLSEL, ALL
+
+! ปลดการเลือกชิ้นส่วนผิวปีก (Skin Shells คือ SEC 3)
+ESEL, U, SEC, , 3
+
+! เลือกเฉพาะ Nodes ที่ติดอยู่กับชิ้นส่วนที่เหลืออยู่
+NSLE, S
+
+! เปิดการแสดงผล 3D Solid Cross-Section สำหรับคาน (BEAM188)
+/ESHAPE, 1
+
+! พล็อตโครงสร้างภายในทั้งหมด
+EPLOT

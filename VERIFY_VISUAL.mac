@@ -7,7 +7,7 @@
 !
 ! Features:
 !  - Quantitative element count extraction (SEC 4, 5, 6, 7, 8, TOTAL)
-!  - 11 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro)
+!  - 13 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro, Literature Validation)
 !  - Clean environment restoration upon completion
 ! ================================================================
 
@@ -230,6 +230,57 @@ ESEL, R, CENT, Y, SPAN-150, SPAN+80
 EPLOT
 ! Output: snapshot_11_micro_tip_flange.png
 
+! --- 12. LITERATURE FIG 3a: Isolated Ribs with Cutouts & Flanges ---
+ALLSEL, ALL
+ESEL, S, SEC, , 1                ! Rib Webs
+ESEL, A, SEC, , 6                ! Rib Flanges Interior
+ESEL, A, SEC, , 7                ! Rib Flanges Edge +Y
+ESEL, A, SEC, , 8                ! Rib Flanges Edge -Y
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+EPLOT
+! Output: snapshot_12_lit_fig3a_ribs.png
+
+! --- 13. LITERATURE FIG 4b: Stringer Mouse Hole Penetration Detail ---
+YR = Y_STA(7)
+CR = C_STA(7)
+XR = C_ROOT - CR + 0.512*CR
+ZR = Z_OFF(7) + YT_FRAC(11)*CR
+ALLSEL, ALL
+ESEL, S, SEC, , 1                ! Rib Webs
+ESEL, A, SEC, , 6                ! Rib Flanges Interior
+ESEL, A, SEC, , 4                ! Stringers
+ESEL, R, CENT, Y, YR-120, YR+120
+ESEL, R, CENT, X, XR-80, XR+80
+/VIEW, 1, 1.2, 1.5, 0.8
+/USER, 1
+/FOCUS, 1, XR, YR, ZR - 20
+/DIST, 1, 80
+EPLOT
+! Output: snapshot_13_lit_fig4b_stringer_mousehole.png
+
+! --- 14. PHYSICS: Von Mises Stress Contour True Scale 1:1 ---
+ALLSEL, ALL
+/POST1
+SET, LAST
+/DSCALE, 1, 1.0                  ! True 1:1 physical displacement scale (confirms 0 artificial separation)
+/PLOPTS, LEG1, 1                 ! Show stress legend color bar
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+PLNSOL, S, EQV
+! Output: snapshot_14_stress_truescale_1to1.png
+
+! --- 15. PHYSICS: Von Mises Stress Contour Autoscale ---
+ALLSEL, ALL
+/POST1
+SET, LAST
+/DSCALE, 1, AUTO                 ! Autoscale displacement magnification
+/PLOPTS, LEG1, 1                 ! Show stress legend color bar
+/VIEW, 1, 1, 2, 1
+/AUTO, 1
+PLNSOL, S, EQV
+! Output: snapshot_15_stress_autoscale.png
+
 /SHOW, CLOSE                      ! Close PNG device
 ALLSEL, ALL
 
@@ -248,5 +299,6 @@ ALLSEL, ALL
 /AUTO, 1                         ! Reset Auto-fit focus and distance to full model
 /VIEW, 1, 1, 1, 1                ! Reset camera to standard Isometric view
 /ANG, 1, 0                       ! Reset view rotation angle
+/DSCALE, 1, AUTO                 ! Reset displacement scaling to default auto
 /ESHAPE, 1
 EPLOT

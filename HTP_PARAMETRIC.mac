@@ -294,73 +294,159 @@ PREV_XC = 0.0
     ALLSEL, ALL
 
 ! ================================================================
-!  BLOCK 5: AREA GENERATION (RIBS -> HOLES -> SKINS -> SPARS)
+!  BLOCK 5: AREA GENERATION (RIBS -> HOLES/CUTOUTS -> SKINS -> SPARS)
 ! ================================================================
-! --- Ribs (Solid first) ---
+! --- Ribs with Dynamic Cutouts & Holes ---
 /GOPR
 *GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+
+HW = 40.0
+C_CH = 15.0
+
 *DO,I,1,N_RIB
+    /GOPR
     ALLSEL, ALL
-    KB = (I-1)*100
-    *GET, L_MAX_PRE, LINE, 0, NUM, MAXD
-    *DO,J,1,N_PROF-1
-        L, KB+J, KB+J+1
-    *ENDDO
-    L, KB+N_PROF, KB+1
-    *GET, L_MAX_POST, LINE, 0, NUM, MAXD
-    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
-    
-    CM, TEMP_PRE_RIB_AREAS, AREA
-    AL, ALL
-    
-    ! Get the ID of the newly created Rib area robustly
-    CMSEL, U, TEMP_PRE_RIB_AREAS
-    *GET, AR_RIB, AREA, 0, NUM, MAX
-    CMSEL, A, TEMP_PRE_RIB_AREAS
-    
-    ! Lightening Cutouts
-    WPCSYS, -1, 0
-    WPOFFS, 0, Y_STA(I), 0
-    WPROTA, 0, 90, 0
+    KB_RIB = 10000 + (I-1)*100
+    Y_I = Y_STA(I)
     C_I = C_STA(I)
     Z_I = Z_OFF(I)
+    X_OFFSET = C_ROOT - C_I
+
+    ! 1. Temporary Rib Keypoints
+    *DO,J,1,N_PROF
+        X_KP = X_OFFSET + XC_FRAC(J)*C_I
+        Z_KP = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        K, KB_RIB + J, X_KP, Y_I, Z_KP
+    *ENDDO
+
+    ! 2. Rib boundary lines and solid area (Component-based selection)
+    ALLSEL, ALL
+    CM, PRE_RIB_LINES, LINE
+    *DO,J,1,N_PROF-1
+        L, KB_RIB + J, KB_RIB + J + 1
+    *ENDDO
+    L, KB_RIB + N_PROF, KB_RIB + 1
+    
+    ALLSEL, ALL
+    CMSEL, U, PRE_RIB_LINES
+    CM, PRE_RIB_AREAS, AREA
+    AL, ALL
+    ALLSEL, ALL
+    CMSEL, U, PRE_RIB_AREAS
+    *GET, AR_RIB, AREA, 0, NUM, MAX
+    
+    ! 3. Align Working Plane to Rib I
+    WPCSYS, -1, 0
+    WPOFFS, 0, Y_I, 0
+    WPROTA, 0, 90, 0
 
     ALLSEL, ALL
-    CM, TEMP_PRE_AREAS, AREA
+    CM, PRE_TOOLS, AREA
     
-    ! --- Max-Ratio Hole Generation ---
-    X_OFFSET = C_ROOT - C_I
-      *IF, N_CUT, EQ, 7, THEN
-        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
-        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, X_OFFSET + 0.4607*C_I, Z_I, 0.0379*C_I
-        CYL4, X_OFFSET + 0.5595*C_I, Z_I, 0.0335*C_I
-        CYL4, X_OFFSET + 0.6486*C_I, Z_I, 0.0284*C_I
-        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
-        CYL4, X_OFFSET + 0.7956*C_I, Z_I, 0.0183*C_I
+    ! 4. Lightening Holes with Dynamic Safe Capping (Web Pillar >= 14 mm)
+    *IF, N_CUT, EQ, 7, THEN
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
+        
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 40.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+        
+        RH3 = 0.0379*C_I
+        D_ADJ = (0.4607 - 0.409)*C_I - 25.0
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, RH3
+
+        RH4 = 0.0335*C_I
+        D_ADJ = (0.5595 - 0.512)*C_I - 25.0
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, RH4
+
+        RH5 = 0.0284*C_I
+        D_ADJ = (0.6486 - 0.607)*C_I - 25.0
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, RH5
+
+        RH6 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - 25.0
+        *IF, RH6, GT, D_ADJ - 14.0, THEN
+            RH6 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH6
+
+        RH7 = 0.0183*C_I
+        D_ADJ = (0.7956 - 0.764)*C_I - 25.0
+        *IF, RH7, GT, D_ADJ - 14.0, THEN
+            RH7 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7956*C_I, Z_I, RH7
     *ELSEIF, N_CUT, EQ, 6, THEN
-        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
         CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
         CYL4, X_OFFSET + 0.4607*C_I, Z_I, 0.0379*C_I
         CYL4, X_OFFSET + 0.5595*C_I, Z_I, 0.0335*C_I
         CYL4, X_OFFSET + 0.6486*C_I, Z_I, 0.0284*C_I
         CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
     *ELSEIF, N_CUT, EQ, 5, THEN
-        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I  ! LE Hole
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
         CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
         CYL4, X_OFFSET + 0.4846*C_I, Z_I, 0.0370*C_I
         CYL4, X_OFFSET + 0.6253*C_I, Z_I, 0.0298*C_I
         CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
     *ENDIF
-    
+
+    ! 5. Edge Cutouts (Spar Semicircles & Stringer Chamfered-Rectangles)
+    *DO,J,1,N_PROF
+        X_J = X_OFFSET + XC_FRAC(J)*C_I
+        Z_J = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        Z_HALF = YT_FRAC(J)*C_I
+        SGN = Y_SGN(J)
+        
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            R_SP = 40.0
+            *IF, R_SP, GT, 0.60*Z_HALF, THEN
+                R_SP = 0.60*Z_HALF
+            *ENDIF
+            CYL4, X_J, Z_J, R_SP
+        *ELSEIF, PROF_STR(J), EQ, 1, THEN
+            H_STR = 50.0
+            *IF, H_STR, GT, 0.65*Z_HALF, THEN
+                H_STR = 0.65*Z_HALF
+            *ENDIF
+            
+            KP_C = 80000 + (I-1)*1000 + J*10
+            *IF, SGN, GT, 0, THEN
+                K, KP_C+1, X_J - HW,        Y_I, Z_J + 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J - H_STR + C_CH
+                K, KP_C+3, X_J - HW + C_CH, Y_I, Z_J - H_STR
+                K, KP_C+4, X_J + HW - C_CH, Y_I, Z_J - H_STR
+                K, KP_C+5, X_J + HW,        Y_I, Z_J - H_STR + C_CH
+                K, KP_C+6, X_J + HW,        Y_I, Z_J + 30
+            *ELSE
+                K, KP_C+1, X_J - HW,        Y_I, Z_J - 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J + H_STR - C_CH
+                K, KP_C+3, X_J - HW + C_CH, Y_I, Z_J + H_STR
+                K, KP_C+4, X_J + HW - C_CH, Y_I, Z_J + H_STR
+                K, KP_C+5, X_J + HW,        Y_I, Z_J + H_STR - C_CH
+                K, KP_C+6, X_J + HW,        Y_I, Z_J - 30
+            *ENDIF
+            A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6
+        *ENDIF
+    *ENDDO
+
+    ! 6. Subtract all cutouts from AR_RIB
     ALLSEL, ALL
-    CMSEL, U, TEMP_PRE_AREAS
-    *GET, N_HOLES, AREA, 0, COUNT
-    
-    *IF, N_HOLES, GT, 0, THEN
-        ASEL, A, AREA, , AR_RIB
-        ASBA, AR_RIB, ALL
-    *ENDIF
+    CMSEL, U, PRE_TOOLS
+    ASEL, A, AREA, , AR_RIB
+    ASBA, AR_RIB, ALL
     WPCSYS, -1, 0
 *ENDDO
 ALLSEL, ALL
@@ -624,7 +710,7 @@ EPLOT              ! Plot elements
 !  MESH RIB FLANGES (Bulletproof OML Skin Boundary Selection)
 ! ================================================================
 ALLSEL, ALL
-CMSEL, S, COMP_SKINS
+CMSEL, S, COMP_RIBS
 LSLA, S
 *GET, L_COUNT, LINE, 0, COUNT
 
@@ -633,95 +719,155 @@ LNUM = 0
     LNUM = LSNEXT(LNUM)
     *GET, KP1, LINE, LNUM, KP, 1
     *GET, KP2, LINE, LNUM, KP, 2
+    *GET, X1, KP, KP1, LOC, X
     *GET, Y1, KP, KP1, LOC, Y
+    *GET, Z1, KP, KP1, LOC, Z
+    *GET, X2, KP, KP2, LOC, X
     *GET, Y2, KP, KP2, LOC, Y
+    *GET, Z2, KP, KP2, LOC, Z
     
-    ! Select only chordwise lines lying along a constant Y rib station (filters out spanwise skin lines)
-    *IF, ABS(Y2-Y1), LT, 1.0, THEN
-        *GET, X1, KP, KP1, LOC, X
-        *GET, Z1, KP, KP1, LOC, Z
-        *GET, X2, KP, KP2, LOC, X
-        *GET, Z2, KP, KP2, LOC, Z
-        C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
-        X_OFFSET = C_ROOT - C_I
-        Z_I = Y1*TAN(DIHED_R)
-        DCDY = (C_TIP-C_ROOT)/SPAN
+    C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+    X_OFFSET = C_ROOT - C_I
+    Z_I = Y1*TAN(DIHED_R)
+    DCDY = (C_TIP-C_ROOT)/SPAN
 
-        ! Chordwise line tangent T (I -> J)
+    ! Refined OML Line Filtering: Check KP1, KP2, and Midpoint Sagitta
+    ! Check KP1
+    XF1 = (X1 - X_OFFSET)/C_I
+    *IF, XF1, GE, 0, AND, XF1, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XF1)
+        T2 = 0.12600*XF1
+        T3 = 0.35160*(XF1**2)
+        T4 = 0.28430*(XF1**3)
+        T5 = 0.10150*(XF1**4)
+        YT1 = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YT1 = 0.0
+    *ENDIF
+    D1_UP = ABS(Z1 - (Z_I + YT1))
+    D1_LO = ABS(Z1 - (Z_I - YT1))
+    D1 = D1_UP
+    *IF, D1_LO, LT, D1_UP, THEN
+        D1 = D1_LO
+    *ENDIF
+
+    ! Check KP2
+    XF2 = (X2 - X_OFFSET)/C_I
+    *IF, XF2, GE, 0, AND, XF2, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XF2)
+        T2 = 0.12600*XF2
+        T3 = 0.35160*(XF2**2)
+        T4 = 0.28430*(XF2**3)
+        T5 = 0.10150*(XF2**4)
+        YT2 = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YT2 = 0.0
+    *ENDIF
+    D2_UP = ABS(Z2 - (Z_I + YT2))
+    D2_LO = ABS(Z2 - (Z_I - YT2))
+    D2 = D2_UP
+    *IF, D2_LO, LT, D2_UP, THEN
+        D2 = D2_LO
+    *ENDIF
+
+    ! Check Midpoint (Sagitta)
+    XM = (X1+X2)/2
+    YM = (Y1+Y2)/2
+    ZM = (Z1+Z2)/2
+    XFM = (XM - X_OFFSET)/C_I
+    *IF, XFM, GE, 0, AND, XFM, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XFM)
+        T2 = 0.12600*XFM
+        T3 = 0.35160*(XFM**2)
+        T4 = 0.28430*(XFM**3)
+        T5 = 0.10150*(XFM**4)
+        YTM = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YTM = 0.0
+    *ENDIF
+    DM_UP = ABS(ZM - (Z_I + YTM))
+    DM_LO = ABS(ZM - (Z_I - YTM))
+    DM = DM_UP
+    *IF, DM_LO, LT, DM_UP, THEN
+        DM = DM_LO
+    *ENDIF
+
+    ! Robust OML Filtering (Both endpoints on skin + midpoint within sagitta)
+    *IF, D1, LT, 2.0, AND, D2, LT, 2.0, THEN
+        *IF, DM, LT, 12.0, THEN
         TX = X2-X1
         TY = Y2-Y1
         TZ = Z2-Z1
         TMAG = SQRT(TX**2+TY**2+TZ**2)
-        TX = TX/TMAG
-        TY = TY/TMAG
-        TZ = TZ/TMAG
+        *IF, TMAG, GT, 1.0E-4, THEN
+            TX = TX/TMAG
+            TY = TY/TMAG
+            TZ = TZ/TMAG
 
-        ! Midpoint & local chord fractions
-        XM = (X1+X2)/2
-        YM = (Y1+Y2)/2
-        ZM = (Z1+Z2)/2
-        XFR = (XM - X_OFFSET)/C_I
-        ZFR = (ZM - Z_I)/C_I
+            XFR = (XM - X_OFFSET)/C_I
+            ZFR = (ZM - Z_I)/C_I
 
-        ! Spanwise skin tangent S
-        SX = -(1.0 - XFR)*DCDY
-        SY = 1.0
-        SZ = TAN(DIHED_R) + ZFR*DCDY
+            ! Spanwise skin tangent S
+            SX = -(1.0 - XFR)*DCDY
+            SY = 1.0
+            SZ = TAN(DIHED_R) + ZFR*DCDY
 
-        ! 3D skin normal n = T x S
-        NX = TY*SZ - TZ*SY
-        NY = TZ*SX - TX*SZ
-        NZ = TX*SY - TY*SX
-        NMAG = SQRT(NX**2+NY**2+NZ**2)
-        NX = NX/NMAG
-        NY = NY/NMAG
-        NZ = NZ/NMAG
+            ! 3D skin normal n = T x S
+            NX = TY*SZ - TZ*SY
+            NY = TZ*SX - TX*SZ
+            NZ = TX*SY - TY*SX
+            NMAG = SQRT(NX**2+NY**2+NZ**2)
+            NX = NX/NMAG
+            NY = NY/NMAG
+            NZ = NZ/NMAG
 
-        ! Force n inward (towards local chord center)
-        *IF, NX*(X_OFFSET+0.5*C_I-XM) + NZ*(Z_I-ZM), LT, 0, THEN
-            NX = -NX
-            NY = -NY
-            NZ = -NZ
-        *ENDIF
-
-        ! Orientation KP: element z = inward skin normal
-        *GET, K_MAX, KP, 0, NUM, MAXD
-        K_OR = K_MAX + 1
-        K, K_OR, XM + 100*NX, YM + 100*NY, ZM + 100*NZ
-
-        ! Select section: SEC 6 (interior), SEC 7/8 (root/tip single-sided inward)
-        SEC_RF = 6
-        EYY = NZ*TX - NX*TZ   ! Y-component of element local y = z x x
-        *IF, Y1, LT, 1.0, THEN
-            SPAN_IN = 1.0
-        *ELSEIF, Y1, GT, SPAN-1.0, THEN
-            SPAN_IN = -1.0
-        *ELSE
-            SPAN_IN = 0.0
-        *ENDIF
-
-        *IF, SPAN_IN, NE, 0, THEN
-            *IF, EYY*SPAN_IN, GT, 0, THEN
-                SEC_RF = 7
-            *ELSE
-                SEC_RF = 8
+            ! Force n inward (towards local chord center)
+            *IF, NX*(X_OFFSET+0.5*C_I-XM) + NZ*(Z_I-ZM), LT, 0, THEN
+                NX = -NX
+                NY = -NY
+                NZ = -NZ
             *ENDIF
+
+            ! Orientation KP: element z = inward skin normal
+            *GET, K_MAX, KP, 0, NUM, MAXD
+            K_OR = K_MAX + 1
+            K, K_OR, XM + 100*NX, YM + 100*NY, ZM + 100*NZ
+
+            ! Select section: SEC 6 (interior), SEC 7/8 (root/tip single-sided inward)
+            SEC_RF = 6
+            EYY = NZ*TX - NX*TZ
+            *IF, Y1, LT, 1.0, THEN
+                SPAN_IN = 1.0
+            *ELSEIF, Y1, GT, SPAN-1.0, THEN
+                SPAN_IN = -1.0
+            *ELSE
+                SPAN_IN = 0.0
+            *ENDIF
+
+            *IF, SPAN_IN, NE, 0, THEN
+                *IF, EYY*SPAN_IN, GT, 0, THEN
+                    SEC_RF = 7
+                *ELSE
+                    SEC_RF = 8
+                *ENDIF
+            *ENDIF
+
+            LSEL, S, LINE, , LNUM
+            LATT, 1, , 2, , K_OR, , SEC_RF
+            LMESH, LNUM
+
+            ! Restore rib lines selection for next iteration
+            CMSEL, S, COMP_RIBS
+            LSLA, S
         *ENDIF
-
-        LSEL, S, LINE, , LNUM
-        LATT, 1, , 2, , K_OR, , SEC_RF
-        LMESH, LNUM
-
-        ! Restore skin lines selection for next iteration
-        CMSEL, S, COMP_SKINS
-        LSLA, S
     *ENDIF
+*ENDIF
 *ENDDO
 ALLSEL, ALL
 
-! Merge nodes with generous tolerance to weld all unmerged topologies
+! Merge nodes with precise tolerance to weld all unmerged topologies without collapsing elements
 ALLSEL, ALL
-NUMMRG, NODE, 1.0
+NUMMRG, NODE, 0.01
 NUMCMP, NODE
 
 /ESHAPE, 1

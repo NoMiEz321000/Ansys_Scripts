@@ -1,0 +1,24 @@
+! ================================================================
+!  MACRO: VIEW_STRESS_NO_SKIN.mac
+!  Purpose: ดู Von Mises Stress Contour บนโครงสร้างภายใน
+!           โดยซ่อน Skin ออก และตั้งค่าสเกลการโก่งตัวเป็น True Scale 1:1
+!  วิธีใช้ใน APDL: 
+!    พิมพ์ในช่อง Command Bar: /INPUT, VIEW_STRESS_NO_SKIN, mac
+! ================================================================
+/POST1
+SET, LAST
+ALLSEL, ALL
+
+! ปลดการเลือกชิ้นส่วนผิวปีก (Skin Shells คือ SEC 3)
+ESEL, U, SEC, , 3
+NSLE, S
+
+! ตั้งค่าสเกลการโก่งตัวเป็น True Scale 1:1 (ป้องกันภาพหลอกตาจากการขยายสเกล)
+/DSCALE, 1, 1.0
+
+! เปิดแถบสี Legend และ 3D Beam Extrusion
+/PLOPTS, LEG1, 1
+/ESHAPE, 1
+
+! พล็อตคอนทัวร์ความเค้น Von Mises
+PLNSOL, S, EQV
