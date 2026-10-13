@@ -814,24 +814,14 @@ LNUM = 0
             XFR = (XM - X_OFFSET)/C_I
             ZFR = (ZM - Z_I)/C_I
 
-            ! Spanwise skin tangent S
-            SX = -(1.0 - XFR)*DCDY
-            SY = 1.0
-            SZ = TAN(DIHED_R) + ZFR*DCDY
-
-            ! 3D skin normal n = T x S
-            NX = TY*SZ - TZ*SY
-            NY = TZ*SX - TX*SZ
-            NZ = TX*SY - TY*SX
-            NMAG = SQRT(NX**2+NY**2+NZ**2)
-            NX = NX/NMAG
-            NY = NY/NMAG
-            NZ = NZ/NMAG
+            ! Pure in-plane rib normal (eliminates out-of-plane twist and LE nose overhang)
+            NX = -TZ
+            NY = 0.0
+            NZ = TX
 
             ! Force n inward (towards local chord center)
             *IF, NX*(X_OFFSET+0.5*C_I-XM) + NZ*(Z_I-ZM), LT, 0, THEN
                 NX = -NX
-                NY = -NY
                 NZ = -NZ
             *ENDIF
 

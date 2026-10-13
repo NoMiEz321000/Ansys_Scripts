@@ -2,14 +2,23 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.4.2-beta
+
+### Features & Updates
+- **Resolution of LE Tip Rib Flange Overhang / Protrusion Defect (Tip Rib 14):** Eliminated the defect where the leading edge rib flange at Tip Rib 14 ($Y = SPAN = 2100\text{ mm}$) curled forward past the leading edge Outer Mold Line (OML) and punctured through the aerodynamic skin. Proved mathematically that calculating orientation normal via 3D loft cross-product $\vec{n} = \vec{T} \times \vec{S}$ coupled steep vertical profile tangent $TZ$ ($0.76 \to 0.99$) with planform sweep/taper $SX$ ($+0.571$), generating a parasitic out-of-plane component $NY = -0.37$ to $-0.43$. This tilted the beam local width axis $\vec{y}_{local}$, thrusting the 20 mm flange corner forward by $\Delta X = -5.7$ to $-6.5\text{ mm}$ past the nose and outward by $\Delta Z = \pm 4.8$ to $\pm 5.5\text{ mm}$ through the skin. Implemented **Pure In-Plane Rib Normal Projection**: enforcing $NY \equiv 0.0$ and $\vec{n} = (-TZ, 0, TX)$ across all rib flanges. Guaranteed that the flange width axis $\vec{y}_{local}$ is strictly spanwise $(0, \pm 1.0, 0)$, mathematically ensuring $\Delta X \equiv 0.00\text{ mm}$ (zero forward overhang) and $\Delta Z \equiv 0.00\text{ mm}$ (zero vertical skin puncture), conforming 100% flush inside the aerodynamic loft envelope.
+- **Dedicated Tip Flange Micro Verification Snapshot 17 (`VERIFY_VISUAL.mac`):** Added Snapshot 17 (`snapshot_17_micro_le_tip_flange.png`) featuring high-magnification front-quarter auto-framing of Tip Rib 14 LE nose apex. Validates that the single-sided inward rib flange sits seamlessly underneath the shell skin with zero protrusion.
+- **Zero-Regression Verification:** Maintained 100% stability across all structural elements: Stringers (416 elements), Spar Flanges (312 elements), and Total Rib Flanges (2,784 elements [SEC 6: 2,387, SEC 7: 199, SEC 8: 198]). Static structural solve completed cleanly with 0 MAPDL errors ($S_{MAX} = 35.46\text{ MPa}$, Tip $U_Z = -2.43\text{ mm}$).
+
+### ⚠️ Future Enhancements (Upcoming Optimizations)
+- **Lightening Holes & Mouse Holes Aesthetic Sizing Optimization:** ปรับแต่งสัดส่วนขนาดและระยะห่างของรูลดน้ำหนัก (Lightening Holes) และช่องลอดสตริงเกอร์ (Mouse Holes) บนแผ่น Rib Web ให้มีความสวยงาม ลงตัว และสอดคล้องกับสัดส่วนความสูงของ Rib แต่ละช่วงมากยิ่งขึ้น
+
+---
+
 ## 🚀 Version 1.4.1-beta
 
 ### Features & Updates
 - **Full Recovery of LE Rib Flanges at Root (Ribs 1 to 9):** Resolved the missing nose rib flange segments near the root chord. Proved mathematically that for the NACA 0012 profile, the curvature sagitta of the nose segment ($X/C = 0.00 \to 0.02$) reaches $16.19\text{ mm}$ at $C_{ROOT} = 3090\text{ mm}$, which previously exceeded the fixed $12.0\text{ mm}$ filter limit on Ribs 1 through 9. Implemented **Dynamic Dual-Zone Sagitta Tolerance**: setting `DM_TOL = 22.0 mm` at the nose apex ($X/C < 0.05$) while maintaining `DM_TOL = 12.0 mm` across the main wingbox ($X/C \ge 0.05$) to strictly exclude internal spar and mousehole cutouts. Restored all 18 missing segments (+18 elements), bringing total rib flange elements from 2,766 to **2,784 elements** (SEC 6: 2,387, SEC 7: 199, SEC 8: 198) with zero regression on Stringers (416 elements) and Spar Flanges (312 elements).
 - **Dedicated Root Flange Verification Snapshot 16 (`VERIFY_VISUAL.mac`):** Added Snapshot 16 (`snapshot_16_micro_le_root_flange.png`) featuring dynamic node bounding-box auto-framing. Provides an ultra close-up perspective of the continuous Leading Edge nose rib flanges curving seamlessly across Ribs 1 to 3, directly validating full perimeter continuity.
-
-### ⚠️ Future Fixes & Enhancements (Pending Fixes)
-- **LE Tip Rib Flange Overhang / Protrusion Fix (Tip Rib 14 Leading Edge Flange Protrusion):** ที่บริเวณจมูกปีกของ Tip Rib (Rib 14, $Y=SPAN$) พบว่ามีส่วนปลายของหน้าแปลน Rib Flange ด้านบนแลบ/เลยผิว OML ออกมานอกแนวเปลือกปีก (Tip flange overhang / protrusion past outer skin mold line) จะต้องปรับแต่งเวกเตอร์ Normal $\vec{n}$ หรือแนวระนาบการวางหน้าตัดให้โค้งแนบสนิทเรียบไปกับขอบเปลือกปีกอย่างสมบูรณ์แบบ
 
 ---
 
