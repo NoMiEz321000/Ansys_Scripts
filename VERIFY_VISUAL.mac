@@ -7,7 +7,7 @@
 !
 ! Features:
 !  - Quantitative element count extraction (SEC 4, 5, 6, 7, 8, TOTAL)
-!  - 13 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro, Literature Validation)
+!  - 16 multi-scale dynamically auto-framed snapshots (Macro, Meso, Micro, Literature, Postprocessing)
 !  - Clean environment restoration upon completion
 ! ================================================================
 
@@ -280,6 +280,34 @@ SET, LAST
 /AUTO, 1
 PLNSOL, S, EQV
 ! Output: snapshot_15_stress_autoscale.png
+
+! --- 16. MICRO: LE ROOT RIB FLANGES (Ribs 1-5 Front-Quarter View) ---
+ALLSEL, ALL
+ESEL, S, SEC, , 6                ! Rib Flanges Interior
+ESEL, A, SEC, , 7                ! Rib Flanges Edge +Y (Root)
+ESEL, A, SEC, , 8                ! Rib Flanges Edge -Y
+ESEL, A, SEC, , 1                ! Rib Webs
+ESEL, A, SEC, , 2                ! Spar Web 1
+ESEL, A, SEC, , 5                ! Spar Flanges
+ESEL, R, CENT, Y, -10, 750       ! Ribs 1 to 3 (ultra close-up)
+ESEL, R, CENT, X, -50, 1000      ! Leading edge bay + Front spar
+NSLE, S
+*GET, X_MIN, NODE, 0, MNLOC, X
+*GET, X_MAX, NODE, 0, MXLOC, X
+*GET, Y_MIN, NODE, 0, MNLOC, Y
+*GET, Y_MAX, NODE, 0, MXLOC, Y
+*GET, Z_MIN, NODE, 0, MNLOC, Z
+*GET, Z_MAX, NODE, 0, MXLOC, Z
+X_MID = (X_MIN + X_MAX) / 2
+Y_MID = (Y_MIN + Y_MAX) / 2
+Z_MID = (Z_MIN + Z_MAX) / 2
+DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
+/VIEW, 1, -1.5, 0.8, 0.5         ! Looking at LE nose from front-quarter (matches user photo)
+/USER, 1
+/FOCUS, 1, X_MID, Y_MID, Z_MID
+/DIST, 1, DIAG_D * 0.22
+EPLOT
+! Output: snapshot_16_micro_le_root_flange.png
 
 /SHOW, CLOSE                      ! Close PNG device
 ALLSEL, ALL

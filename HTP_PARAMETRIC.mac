@@ -792,9 +792,16 @@ LNUM = 0
         DM = DM_LO
     *ENDIF
 
+    ! Dynamic Dual-Zone Sagitta Tolerance Filter
+    *IF, XFM, LT, 0.05, THEN
+        DM_TOL = 22.0    ! LE Apex nose curvature (max Root sagitta = 16.19 mm)
+    *ELSE
+        DM_TOL = 12.0    ! Interior wingbox (strictly rejects spar cutouts R >= 27-40 mm)
+    *ENDIF
+
     ! Robust OML Filtering (Both endpoints on skin + midpoint within sagitta)
     *IF, D1, LT, 2.0, AND, D2, LT, 2.0, THEN
-        *IF, DM, LT, 12.0, THEN
+        *IF, DM, LT, DM_TOL, THEN
         TX = X2-X1
         TY = Y2-Y1
         TZ = Z2-Z1

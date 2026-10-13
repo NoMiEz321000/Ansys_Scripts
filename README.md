@@ -2,6 +2,17 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.4.1-beta
+
+### Features & Updates
+- **Full Recovery of LE Rib Flanges at Root (Ribs 1 to 9):** Resolved the missing nose rib flange segments near the root chord. Proved mathematically that for the NACA 0012 profile, the curvature sagitta of the nose segment ($X/C = 0.00 \to 0.02$) reaches $16.19\text{ mm}$ at $C_{ROOT} = 3090\text{ mm}$, which previously exceeded the fixed $12.0\text{ mm}$ filter limit on Ribs 1 through 9. Implemented **Dynamic Dual-Zone Sagitta Tolerance**: setting `DM_TOL = 22.0 mm` at the nose apex ($X/C < 0.05$) while maintaining `DM_TOL = 12.0 mm` across the main wingbox ($X/C \ge 0.05$) to strictly exclude internal spar and mousehole cutouts. Restored all 18 missing segments (+18 elements), bringing total rib flange elements from 2,766 to **2,784 elements** (SEC 6: 2,387, SEC 7: 199, SEC 8: 198) with zero regression on Stringers (416 elements) and Spar Flanges (312 elements).
+- **Dedicated Root Flange Verification Snapshot 16 (`VERIFY_VISUAL.mac`):** Added Snapshot 16 (`snapshot_16_micro_le_root_flange.png`) featuring dynamic node bounding-box auto-framing. Provides an ultra close-up perspective of the continuous Leading Edge nose rib flanges curving seamlessly across Ribs 1 to 3, directly validating full perimeter continuity.
+
+### ⚠️ Future Fixes & Enhancements (Pending Fixes)
+- **LE Tip Rib Flange Overhang / Protrusion Fix (Tip Rib 14 Leading Edge Flange Protrusion):** ที่บริเวณจมูกปีกของ Tip Rib (Rib 14, $Y=SPAN$) พบว่ามีส่วนปลายของหน้าแปลน Rib Flange ด้านบนแลบ/เลยผิว OML ออกมานอกแนวเปลือกปีก (Tip flange overhang / protrusion past outer skin mold line) จะต้องปรับแต่งเวกเตอร์ Normal $\vec{n}$ หรือแนวระนาบการวางหน้าตัดให้โค้งแนบสนิทเรียบไปกับขอบเปลือกปีกอย่างสมบูรณ์แบบ
+
+---
+
 ## 🚀 Version 1.4.0-beta
 
 ### Features & Updates
@@ -10,10 +21,6 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 - **Physical Deflection Scaling & Stress Contour Verification:** Diagnosed and proved that the apparent gap between skin and rib flange under load is purely a visual artifact of Ansys default `/DSCALE, 1, AUTO` (50x-100x magnification). Added Snapshot 14 (`/DSCALE, 1, 1.0`) to prove that at 1:1 true physical scale, skin and rib flanges are perfectly flush with zero gap.
 - **PowerGraphics vs Full Graphics Stress Resolution:** Clarified that the $103.62\text{ MPa}$ peak stress reported in PowerGraphics reflects the conservative extreme outer fiber bending stress on BEAM188 sections ($FS \approx 3.09$ against Al 2024-T3 $\sigma_y = 320\text{ MPa}$), while Full Graphics nodal shell stress is $35.46\text{ MPa}$ ($DMX = 3.78\text{ mm}$, Tip $U_Z = -2.42\text{ mm}$).
 - **Interactive Verification Macros in `archive/`:** Added `VIEW_NO_SKIN.mac`, `VIEW_STRESS_NO_SKIN.mac`, and `RESTORE_ALL.mac` allowing users to quickly hide/restore skin panels and inspect internal ribs, stringers, and mouse holes in MAPDL GUI.
-
-### ⚠️ Future Fixes & Enhancements (Pending Fixes)
-- **LE Root Rib Flange Gap Recovery (Ribs 1–3 Nose Flange Discontinuity):** บริเวณจมูกปีกของ Ribs ฝั่ง Root (โดยเฉพาะ Rib 1 ถึง 3) ยังพบว่า Rib Flange บางท่อนหายไปหรือไม่ต่อเนื่องบริเวณส่วนปลายแหลมสุดของ Leading Edge (เนื่องจากคอร์ดปีกที่โคน Root มีขนาดยาวถึง $C_{ROOT} = 3090\text{ mm}$ รัศมีความโค้งและระยะ Sagitta กึ่งกลางเส้นสไปลน์ตรงหัวจมูกปีกอาจจะยังสูงกว่าเกณฑ์คัดกรอง $12\text{ mm}$ หรือแนวเส้น spline หัวจมูกปีกถูกแบ่งหลายท่อน ทำให้ยังเลือกเส้นไม่ครบ 100%)
-- **LE Tip Rib Flange Overhang / Protrusion Fix (Tip Rib 14 Leading Edge Flange Protrusion):** ที่บริเวณจมูกปีกของ Tip Rib (Rib 14, $Y=SPAN$) พบว่ามีส่วนปลายของหน้าแปลน Rib Flange ด้านบนแลบ/เลยผิว OML ออกมานอกแนวเปลือกปีก (Tip flange overhang / protrusion past outer skin mold line) จะต้องปรับแต่งเวกเตอร์ Normal $\vec{n}$ หรือแนวระนาบการวางหน้าตัดให้โค้งแนบสนิทเรียบไปกับขอบเปลือกปีกอย่างสมบูรณ์แบบ
 
 ---
 
