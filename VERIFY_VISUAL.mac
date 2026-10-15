@@ -177,12 +177,15 @@ EPLOT
 ! --- 8. MICRO: Mid-Rib Upper Flange Cross-Section (Zoomed) ---
 YR = Y_STA(7)
 CR = C_STA(7)
-XR = C_ROOT - CR + 0.40*CR
+XR = C_ROOT - CR + 0.35*CR
 ZR = Z_OFF(7)
 TR = 0.06*CR
 ALLSEL, ALL
-ESEL, S, CENT, X, XR-40, XR+40
-ESEL, R, CENT, Y, YR-120, YR+120
+ESEL, S, SEC, , 1                ! Rib Web
+ESEL, A, SEC, , 6                ! Rib Flange Interior
+ESEL, A, SEC, , 3                ! Skin Panels
+ESEL, R, CENT, X, XR-50, XR+50
+ESEL, R, CENT, Y, YR-320, YR+320
 /VIEW, 1, -1, 0, 0
 /USER, 1
 /FOCUS, 1, XR, YR, ZR+TR
@@ -192,8 +195,11 @@ EPLOT
 
 ! --- 9. MICRO: Mid-Rib Lower Flange Cross-Section (Zoomed) ---
 ALLSEL, ALL
-ESEL, S, CENT, X, XR-40, XR+40
-ESEL, R, CENT, Y, YR-120, YR+120
+ESEL, S, SEC, , 1                ! Rib Web
+ESEL, A, SEC, , 6                ! Rib Flange Interior
+ESEL, A, SEC, , 3                ! Skin Panels
+ESEL, R, CENT, X, XR-50, XR+50
+ESEL, R, CENT, Y, YR-320, YR+320
 /VIEW, 1, -1, 0, 0
 /USER, 1
 /FOCUS, 1, XR, YR, ZR-TR
@@ -334,6 +340,26 @@ DIAG_D = SQRT((X_MAX-X_MIN)**2 + (Y_MAX-Y_MIN)**2 + (Z_MAX-Z_MIN)**2)
 /DIST, 1, 45
 EPLOT
 ! Output: snapshot_17_micro_le_tip_flange.png
+
+! --- 18. USER PERSPECTIVE: Rib 7 Upper Flange & Mousehole Flush Alignment ---
+YR = Y_STA(7)
+CR = C_STA(7)
+XR = C_ROOT - CR + 0.512*CR
+ZR = Z_OFF(7) + YT_FRAC(11)*CR
+ALLSEL, ALL
+ESEL, S, SEC, , 1                ! Rib Webs
+ESEL, A, SEC, , 6                ! Rib Flanges Interior
+ESEL, A, SEC, , 4                ! Stringers
+ESEL, A, SEC, , 3                ! Skin Panels
+ESEL, R, CENT, Y, YR-320, YR+320
+ESEL, R, CENT, X, XR-120, XR+120
+ESEL, R, CENT, Z, ZR-80, ZR+30
+/VIEW, 1, 1.2, 1.5, 0.8
+/USER, 1
+/FOCUS, 1, XR, YR, ZR
+/DIST, 1, 95
+EPLOT
+! Output: snapshot_18_user_view_flange_flush.png
 
 /SHOW, CLOSE                      ! Close PNG device
 ALLSEL, ALL

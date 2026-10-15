@@ -828,21 +828,40 @@ LNUM = 0
             XFR = (XM - X_OFFSET)/C_I
             ZFR = (ZM - Z_I)/C_I
 
-            ! Pure in-plane rib normal (eliminates out-of-plane twist and LE nose overhang)
-            NX = -TZ
-            NY = 0.0
-            NZ = TX
-
-            ! Force n inward (towards local chord center)
-            *IF, NX*(X_OFFSET+0.5*C_I-XM) + NZ*(Z_I-ZM), LT, 0, THEN
-                NX = -NX
-                NZ = -NZ
+            ! Dual-Zone Blending: Pure in-plane at nose apex (XFR < 0.025), full 3D dihedral normal across main wingbox (XFR >= 0.065)
+            *IF, XFR, LT, 0.025, THEN
+                BLEND_FAC = 0.0
+            *ELSEIF, XFR, LT, 0.065, THEN
+                BLEND_FAC = (XFR-0.025)/0.040
+            *ELSE
+                BLEND_FAC = 1.0
             *ENDIF
+
+            ! Robust Line-Direction-Invariant In-Plane Normal (pointing inward to chord center)
+            NX_IP = -TZ
+            NZ_IP = TX
+            *IF, NX_IP*(X_OFFSET+0.5*C_I-XM) + NZ_IP*(Z_I-ZM), LT, 0, THEN
+                NX_IP = -NX_IP
+                NZ_IP = -NZ_IP
+            *ENDIF
+
+            ! 3D Skin Normal with Dihedral & Chord Taper Alignment:
+            ! Upper skin (NZ_IP < 0): inward normal points down and outboard (+Y)
+            ! Lower skin (NZ_IP > 0): inward normal points up and inboard (-Y)
+            ! Nose apex (BLEND_FAC = 0): pure in-plane (NY = 0) eliminates forward overhang/beak
+            SLOPE_Y = TAN(DIHED_R) + ZFR*DCDY
+            NX = NX_IP
+            NY = (-NZ_IP)*SLOPE_Y*BLEND_FAC
+            NZ = NZ_IP
+            NMAG = SQRT(NX**2+NY**2+NZ**2)
+            NX = NX/NMAG
+            NY = NY/NMAG
+            NZ = NZ/NMAG
 
             ! Orientation KP: element z = inward skin normal
             *GET, K_MAX, KP, 0, NUM, MAXD
             K_OR = K_MAX + 1
-            K, K_OR, XM + 100*NX, YM + 100*NY, ZM + 100*NZ
+            K, K_OR, XM+100*NX, YM+100*NY, ZM+100*NZ
 
             ! Select section: SEC 6 (interior), SEC 7/8 (root/tip single-sided inward)
             SEC_RF = 6

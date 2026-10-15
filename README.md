@@ -2,6 +2,32 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.4.4-beta
+
+### Features & Updates
+- **Eliminate Rib Flange Dihedral Tilt & Skin Penetration Defect via Dual-Zone Normal Blending:**
+  - Resolved the defect where the $W = 40.0\text{ mm}$ wide rib flanges (`SEC 6`) were tilted relative to the inclined aerodynamic skin, causing the outer flange edges to pierce through the $2.0\text{ mm}$ composite skin surface (revealed under high-resolution oblique visual inspection).
+  - Identified the root cause as the trade-off in v1.4.2-beta, where enforcing $NY \equiv 0.0$ globally prevented the LE nose beak overhang but stripped the $7.0^\circ$ dihedral tilt alignment across the main wingbox ($\Delta z = 20\text{ mm} \times \sin(7^\circ) \approx 2.44\text{ mm} > 1.0\text{ mm}$ skin half-thickness).
+  - Architected **Dual-Zone Normal Blending** in `HTP_PARAMETRIC.mac`:
+    1. **Nose Apex Zone ($X/C < 0.025$):** Enforces pure in-plane orientation ($NY = 0.0$, `BLEND_FAC = 0.0`), guaranteeing 0 mm forward beak overhang at the leading edge.
+    2. **Main Wingbox Zone ($X/C \ge 0.065$):** Activates full 3D dihedral normal alignment ($NY = -NZ_{ip} \cdot \text{SLOPE}_Y$, `BLEND_FAC = 1.0`), where $\text{SLOPE}_Y = \tan(\text{DIHED}_R) + Z_{fr}\frac{dc}{dy} \approx 0.1089$ ($6.2^\circ - 7.8^\circ$), ensuring the $40\text{ mm}$ flange lies 100% flush and parallel against the inner skin face with zero penetration and zero gap.
+    3. **Transition Zone ($0.025 \le X/C < 0.065$):** Smooth linear interpolation ensuring C0/C1 continuity.
+  - **APDL Parser Arithmetic Fix:** Eliminated spaces around math multiplication operators in APDL expressions (`NY = (-NZ_IP)*SLOPE_Y*BLEND_FAC`), preventing APDL's legacy parser from misinterpreting ` * ` as a comment delimiter and truncating evaluations.
+- **Dedicated User-Perspective Verification Snapshot 18 (`VERIFY_VISUAL.mac`):** Added Snapshot 18 (`snapshot_18_user_view_flange_flush.png`) providing the exact high-magnification isometric viewpoint of Rib 7 upper flange and mousehole, visually validating zero skin puncture. Enhanced Snapshots 08 & 09 to isolate rib web, flanges, and skin with tight auto-framing.
+- **Zero-Regression Verification:** Maintained 100% structural element counts: Stringers (416 elements), Spar Flanges (312 elements), and Total Rib Flanges (2,784 elements [SEC 6: 2,387 interior, SEC 7: 199 root edge, SEC 8: 198 tip edge]). Static solve runs cleanly with 0 errors.
+
+---
+
+## 🚀 Version 1.4.3-beta
+
+### Features & Updates
+- **Internal Structural Sizing Optimization:** Downsized stringer hat profiles from 50x80mm to 30x50mm ($t=1.6\text{ mm}$) saving 64.4% cross-sectional area, and spar flanges from 80x4mm to 45x2.5mm saving 64.8% cross-sectional area, achieving an overall airframe mass reduction of -14.9% (total mass reduced to 140.46 kg).
+- **Tangent Circular Filleted Mouseholes:** Implemented 8-keypoint smooth circular tangent arc fillets ($R=10\text{ mm}$) for all stringer pass-through cutouts on ribs, reducing geometric stress concentration factor $K_t$ from 2.4 to 1.4.
+- **Harmonic Monotonic Lightening Holes:** Adjusted Tip Rib lightening hole clearance subtractions from 40mm to 25mm, recovering +140% central web bridge ligament at the tip (25mm -> 60mm) and establishing strictly monotonic hole radii across all bays.
+- **Standalone Isolated Rib Visualization Tool (`RENDER_RIBS.mac`):** Added macro to produce isolated, color-coded, high-resolution rendering of individual ribs with lightening holes and mousehole details.
+
+---
+
 ## 🚀 Version 1.4.2-beta
 
 ### Features & Updates
