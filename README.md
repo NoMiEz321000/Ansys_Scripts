@@ -2,6 +2,21 @@
 
 This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRIC.mac`) for the structural analysis and optimization of a composite Horizontal Tailplane (HTP).
 
+## 🚀 Version 1.4.5-stable (Production Milestone)
+
+### Highlights & Architecture Certification
+- **Production Milestone Freeze:** Formally released and certified `v1.4.5-stable` marking the complete, defect-free maturation of **Stage 2a: Parametric APDL Script Development (Task T-04)**.
+- **Master Technical Specification Published:** Added comprehensive architectural and verification master specification in [HTP_PARAMETRIC_ARCHITECTURE_AND_VERIFICATION.md](file:///e:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/HTP_PARAMETRIC_ARCHITECTURE_AND_VERIFICATION.md) detailing:
+  - Complete block-by-block mathematical architecture of `HTP_PARAMETRIC.mac`
+  - The step-by-step collaborative journey of resolving complex FE modeling defects (Hat-stringer inward offset, LE nose rib flange recovery via dual-zone sagitta filter, tangent circular mouseholes $R=10\text{ mm}$, harmonic lightening holes, dual-zone normal blending eliminating beak overhang + skin puncture, and APDL parser arithmetic fixes)
+  - Full audit of stage readiness for Stage 2b (SFBM Load Pre-processing), Stage 3a (Configurations A/B/C), Stage 3b (Free-Free Modal & 1g Gravity Verification), and Stage 3c-d (Static Solve & Sizing Optimization)
+  - Detailed catalog and physical verification criteria for all 18 automated diagnostic snapshots (`VERIFY_VISUAL.mac`)
+  - Explicit guidelines and inspection directives for automated/external reviewers (Argon).
+- **Centralized Reference Materials (`reference/`):** Bundled all project proposals, schedule tracking, ATR 42-600 drawings, EASA CS-25 airworthiness standards, and published literature in `reference/`.
+- **Archived Complete Visual Log (`visual_log/snapshot_v1.4.5/`):** Stored all 18 high-resolution diagnostic snapshots and 6 standalone rib renderings covering all perspectives with 0 mm defects.
+
+---
+
 ## 🚀 Version 1.4.4-beta
 
 ### Features & Updates
