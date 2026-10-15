@@ -1,0 +1,116 @@
+/BATCH
+RESUME, 'HTP_SOLVED', 'db'
+
+/GOPR
+/RGB, INDEX, 100, 100, 100, 0    ! Pure white background
+/RGB, INDEX, 0, 0, 0, 15         ! Black lines and text
+/PLOPTS, INFO, 0                 ! Suppress clutter
+/PLOPTS, LEG1, 1                 ! Show Section Color Legend
+/PLOPTS, WINS, 0                 ! Suppress window number
+/PNUM, SEC, 1                   ! Color code elements by Section ID
+/NUM, 1
+/ESHAPE, 1                       ! 3D Beam solid extrusion
+/EDGE, 1, 1                      ! Element mesh outline
+/DEVICE, VECTOR, 0               ! Shaded rendering
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! ================================================================
+!  IMAGE 1: ROOT RIB (Y = 0) - FULL ELEVATION VIEW
+! ================================================================
+ALLSEL, ALL
+ESEL, S, SEC, , 1           ! Rib Web
+ESEL, A, SEC, , 6           ! Rib Flange Interior
+ESEL, A, SEC, , 7           ! Rib Flange Edge +Y
+ESEL, A, SEC, , 8           ! Rib Flange Edge -Y
+ESEL, R, CENT, Y, -10, 10   ! Root rib only (Station 1, Y = 0)
+NSLE, S
+
+*GET, X_MIN_R, NODE, 0, MNLOC, X
+*GET, X_MAX_R, NODE, 0, MXLOC, X
+*GET, Z_MIN_R, NODE, 0, MNLOC, Z
+*GET, Z_MAX_R, NODE, 0, MXLOC, Z
+X_MID_R = (X_MIN_R + X_MAX_R) / 2
+Z_MID_R = (Z_MIN_R + Z_MAX_R) / 2
+
+/VIEW, 1, 0, -1, 0
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, X_MID_R, 0, Z_MID_R
+/DIST, 1, 1275
+EPLOT
+
+! ================================================================
+!  IMAGE 2: ROOT RIB (Y = 0) - 3D ISOMETRIC VIEW
+! ================================================================
+/VIEW, 1, 0.45, -1.0, 0.35
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, X_MID_R, 0, Z_MID_R
+/DIST, 1, 1320
+EPLOT
+
+! ================================================================
+!  IMAGE 3: ROOT RIB (Y = 0) - CLOSE-UP OF HOLES & MOUSEHOLES
+! ================================================================
+/VIEW, 1, 0, -1, 0
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, 1400, 0, Z_MID_R
+/DIST, 1, 450
+EPLOT
+
+! ================================================================
+!  IMAGE 4: TIP RIB (Y = SPAN) - FULL ELEVATION VIEW
+! ================================================================
+ALLSEL, ALL
+ESEL, S, SEC, , 1           ! Rib Web
+ESEL, A, SEC, , 6
+ESEL, A, SEC, , 7
+ESEL, A, SEC, , 8
+ESEL, R, CENT, Y, SPAN-10, SPAN+10  ! Tip rib only (Station 14, Y = SPAN)
+NSLE, S
+
+*GET, X_MIN_T, NODE, 0, MNLOC, X
+*GET, X_MAX_T, NODE, 0, MXLOC, X
+*GET, Z_MIN_T, NODE, 0, MNLOC, Z
+*GET, Z_MAX_T, NODE, 0, MXLOC, Z
+X_MID_T = (X_MIN_T + X_MAX_T) / 2
+Z_MID_T = (Z_MIN_T + Z_MAX_T) / 2
+
+/VIEW, 1, 0, -1, 0
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, X_MID_T, SPAN, Z_MID_T
+/DIST, 1, 770
+EPLOT
+
+! ================================================================
+!  IMAGE 5: TIP RIB (Y = SPAN) - 3D ISOMETRIC VIEW
+! ================================================================
+/VIEW, 1, 0.45, -1.0, 0.35
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, X_MID_T, SPAN, Z_MID_T
+/DIST, 1, 800
+EPLOT
+
+! ================================================================
+!  IMAGE 6: TIP RIB (Y = SPAN) - CLOSE-UP OF HOLES & MOUSEHOLES
+! ================================================================
+/VIEW, 1, 0, -1, 0
+/VUP, 1, Z
+/ANG, 1, 0
+/USER, 1
+/FOCUS, 1, 2060, SPAN, Z_MID_T
+/DIST, 1, 320
+EPLOT
+
+/SHOW, CLOSE
+/EXIT, NOSAVE

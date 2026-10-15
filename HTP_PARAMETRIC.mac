@@ -39,17 +39,17 @@ T_SKIN  = 2.0    ! Composite skin thickness
 T_SPAR_WEB = 3.0    ! Spar web thickness
 T_RIB_WEB  = 2.0    ! Rib web thickness
 
-! --- Hat-Section Stringer Dimensions [mm] ---
-STR_H   = 50        ! Stringer Height (W4)
-STR_W3  = 40        ! Stringer Crown Width (W3)
-STR_BRIM = 20       ! Stringer Brim Width (W1, W2)
-STR_T   = 3.0       ! Stringer Thickness
+! --- Hat-Section Stringer Dimensions [mm] (Optimized Aerospace Scale) ---
+STR_H   = 30.0      ! Stringer Height (W4)
+STR_W3  = 20.0      ! Stringer Crown Width (W3)
+STR_BRIM = 15.0     ! Stringer Brim Width (W1, W2)
+STR_T   = 1.6       ! Stringer Thickness
 
 ! --- Spar Flange Dimensions [mm] ---
 RIB_FW  = 40.0      ! Rib Flange Width
 RIB_FT  = 1.0       ! Rib Flange Thickness
-SPAR_FW  = 80.0      ! Spar Flange Width
-SPAR_FT = 4.0       ! Spar Flange Thickness
+SPAR_FW = 45.0      ! Spar Flange Width
+SPAR_FT = 2.5       ! Spar Flange Thickness
 
 ! ================================================================
 ! MESH & MICRO-DETAILS CONSTANTS
@@ -300,8 +300,8 @@ PREV_XC = 0.0
 /GOPR
 *GET, A_MAX_PRE, AREA, 0, NUM, MAXD
 
-HW = 40.0
-C_CH = 15.0
+HW = 28.0           ! Mousehole half-width (total width 56mm for 50mm stringer base)
+R_FIL = 10.0        ! Tangent corner fillet radius [mm]
 
 *DO,I,1,N_RIB
     /GOPR
@@ -348,35 +348,35 @@ C_CH = 15.0
         CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
         
         RH2 = 0.0407*C_I
-        D_ADJ = (0.3546 - 0.300)*C_I - 40.0
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
         *IF, RH2, GT, D_ADJ - 14.0, THEN
             RH2 = D_ADJ - 14.0
         *ENDIF
         CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
         
         RH3 = 0.0379*C_I
-        D_ADJ = (0.4607 - 0.409)*C_I - 25.0
+        D_ADJ = (0.4607 - 0.409)*C_I - HW
         *IF, RH3, GT, D_ADJ - 14.0, THEN
             RH3 = D_ADJ - 14.0
         *ENDIF
         CYL4, X_OFFSET + 0.4607*C_I, Z_I, RH3
 
         RH4 = 0.0335*C_I
-        D_ADJ = (0.5595 - 0.512)*C_I - 25.0
+        D_ADJ = (0.5595 - 0.512)*C_I - HW
         *IF, RH4, GT, D_ADJ - 14.0, THEN
             RH4 = D_ADJ - 14.0
         *ENDIF
         CYL4, X_OFFSET + 0.5595*C_I, Z_I, RH4
 
         RH5 = 0.0284*C_I
-        D_ADJ = (0.6486 - 0.607)*C_I - 25.0
+        D_ADJ = (0.6486 - 0.607)*C_I - HW
         *IF, RH5, GT, D_ADJ - 14.0, THEN
             RH5 = D_ADJ - 14.0
         *ENDIF
         CYL4, X_OFFSET + 0.6486*C_I, Z_I, RH5
 
         RH6 = 0.0233*C_I
-        D_ADJ = (0.7273 - 0.691)*C_I - 25.0
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
         *IF, RH6, GT, D_ADJ - 14.0, THEN
             RH6 = D_ADJ - 14.0
         *ENDIF
@@ -411,34 +411,48 @@ C_CH = 15.0
         SGN = Y_SGN(J)
         
         *IF, PROF_SPAR(J), EQ, 1, THEN
-            R_SP = 40.0
+            R_SP = 25.0
             *IF, R_SP, GT, 0.60*Z_HALF, THEN
                 R_SP = 0.60*Z_HALF
             *ENDIF
             CYL4, X_J, Z_J, R_SP
         *ELSEIF, PROF_STR(J), EQ, 1, THEN
-            H_STR = 50.0
+            H_STR = 34.0
             *IF, H_STR, GT, 0.65*Z_HALF, THEN
                 H_STR = 0.65*Z_HALF
             *ENDIF
             
+            RF = R_FIL
+            *IF, RF, GT, 0.45*H_STR, THEN
+                RF = 0.45*H_STR
+            *ENDIF
+            *IF, RF, GT, 0.45*HW, THEN
+                RF = 0.45*HW
+            *ENDIF
+            D_ARC = 0.2929*RF
+            
             KP_C = 80000 + (I-1)*1000 + J*10
             *IF, SGN, GT, 0, THEN
                 K, KP_C+1, X_J - HW,        Y_I, Z_J + 30
-                K, KP_C+2, X_J - HW,        Y_I, Z_J - H_STR + C_CH
-                K, KP_C+3, X_J - HW + C_CH, Y_I, Z_J - H_STR
-                K, KP_C+4, X_J + HW - C_CH, Y_I, Z_J - H_STR
-                K, KP_C+5, X_J + HW,        Y_I, Z_J - H_STR + C_CH
-                K, KP_C+6, X_J + HW,        Y_I, Z_J + 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J - H_STR + RF
+                K, KP_C+3, X_J - HW + D_ARC, Y_I, Z_J - H_STR + D_ARC
+                K, KP_C+4, X_J - HW + RF,   Y_I, Z_J - H_STR
+                K, KP_C+5, X_J + HW - RF,   Y_I, Z_J - H_STR
+                K, KP_C+6, X_J + HW - D_ARC, Y_I, Z_J - H_STR + D_ARC
+                K, KP_C+7, X_J + HW,        Y_I, Z_J - H_STR + RF
+                K, KP_C+8, X_J + HW,        Y_I, Z_J + 30
+                A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6, KP_C+7, KP_C+8
             *ELSE
                 K, KP_C+1, X_J - HW,        Y_I, Z_J - 30
-                K, KP_C+2, X_J - HW,        Y_I, Z_J + H_STR - C_CH
-                K, KP_C+3, X_J - HW + C_CH, Y_I, Z_J + H_STR
-                K, KP_C+4, X_J + HW - C_CH, Y_I, Z_J + H_STR
-                K, KP_C+5, X_J + HW,        Y_I, Z_J + H_STR - C_CH
-                K, KP_C+6, X_J + HW,        Y_I, Z_J - 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J + H_STR - RF
+                K, KP_C+3, X_J - HW + D_ARC, Y_I, Z_J + H_STR - D_ARC
+                K, KP_C+4, X_J - HW + RF,   Y_I, Z_J + H_STR
+                K, KP_C+5, X_J + HW - RF,   Y_I, Z_J + H_STR
+                K, KP_C+6, X_J + HW - D_ARC, Y_I, Z_J + H_STR - D_ARC
+                K, KP_C+7, X_J + HW,        Y_I, Z_J + H_STR - RF
+                K, KP_C+8, X_J + HW,        Y_I, Z_J - 30
+                A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6, KP_C+7, KP_C+8
             *ENDIF
-            A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6
         *ENDIF
     *ENDDO
 
