@@ -1,0 +1,31 @@
+STAGE 3b: HTP MULTI-CONFIGURATION MODAL & MASS VERIFICATION AUDIT
+========================================================================
+CONFIG = 1.  [Ribs=14., Spars=3., Stringers=8.]
+Mesh Census: Nodes= 40607. | Total Elems= 63460. (SHELL181= 59948., BEAM188= 3512.)
+Half-Span Mass:   140.463 kg (Solver MTOT =   140.463 kg) | CG [mm]: ( 1797.99,  1812.76,  222.43)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 19.064 | RibWeb= 28.835 | Stringer= 15.082 | SparCap=  7.671 | RibFlange=  6.147
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.0000E+00,  0.9306E-04,  0.1268E-03,  0.2714E-03
+Free-Free Elastic Modes 7-12   [Hz]:    55.987,    62.864,    64.774,    66.473,    66.754,    67.758
+Cantilever Root-Fixed Modes 1-6[Hz]:    19.702,    65.012,    67.028,    68.508,    71.103,    75.400
+Verification Gate: Max RBM =  0.2714E-03 Hz (<1e-3) | Mode 7 =   55.987 Hz (>1.0) | PASS = 1.
+
+========================================================================
+CONFIG = 2.  [Ribs= 9., Spars=2., Stringers=8.]
+Mesh Census: Nodes= 25063. | Total Elems= 38251. (SHELL181= 36047., BEAM188= 2204.)
+Half-Span Mass:   121.890 kg (Solver MTOT =   121.890 kg) | CG [mm]: ( 1775.86,  1817.86,  223.04)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 15.208 | RibWeb= 18.928 | Stringer= 15.082 | SparCap=  5.133 | RibFlange=  3.874
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.3971E-04,  0.6029E-04,  0.1394E-03,  0.2115E-03
+Free-Free Elastic Modes 7-12   [Hz]:    52.340,    55.472,    56.367,    60.399,    60.969,    61.115
+Cantilever Root-Fixed Modes 1-6[Hz]:    20.689,    59.850,    63.672,    65.544,    67.409,    69.082
+Verification Gate: Max RBM =  0.2115E-03 Hz (<1e-3) | Mode 7 =   52.340 Hz (>1.0) | PASS = 1.
+
+========================================================================
+CONFIG = 3.  [Ribs= 7., Spars=2., Stringers=6.]
+Mesh Census: Nodes= 19199. | Total Elems= 29815. (SHELL181= 28241., BEAM188= 1574.)
+Half-Span Mass:   113.637 kg (Solver MTOT =   113.637 kg) | CG [mm]: ( 1775.43,  1811.90,  222.30)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 15.208 | RibWeb= 15.337 | Stringer= 11.314 | SparCap=  5.133 | RibFlange=  2.981
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.0000E+00,  0.0000E+00,  0.9190E-04,  0.2422E-03
+Free-Free Elastic Modes 7-12   [Hz]:    45.946,    47.273,    48.653,    49.912,    50.432,    51.364
+Cantilever Root-Fixed Modes 1-6[Hz]:    21.009,    48.575,    50.741,    51.843,    53.611,    54.860
+Verification Gate: Max RBM =  0.2422E-03 Hz (<1e-3) | Mode 7 =   45.946 Hz (>1.0) | PASS = 1.
+

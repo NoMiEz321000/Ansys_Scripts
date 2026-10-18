@@ -1,0 +1,177 @@
+! =====================================================================
+!  RUN_SINGLE_MODAL.mac — Worker Macro for Stage 3b Verification
+!  Executes for the active CONFIG:
+!    1. Mesh Census (Nodes, SHELL181, BEAM188)
+!    2. Unconstrained Free-Free Modal Analysis (Modes 1..12)
+!    3. Dual-Method Structural Mass & CG Audit (Solver MTOT vs ETABLE VOLU)
+!    4. Clamped-Root Cantilever Modal Analysis (Modes 1..6)
+!    5. Appends clean scalar results to CSV & Summary Report files
+! =====================================================================
+
+! --- 1. MESH CENSUS ---
+/PREP7
+ALLSEL, ALL
+*GET, N_NODES, NODE, 0, COUNT
+*GET, N_ELEMS, ELEM, 0, COUNT
+ESEL, S, TYPE, , 1
+*GET, N_SHELL, ELEM, 0, COUNT
+ESEL, S, TYPE, , 2
+*GET, N_BEAM,  ELEM, 0, COUNT
+ALLSEL, ALL
+FINISH
+
+! --- 2. UNCONSTRAINED (FREE-FREE) MODAL SOLVE ---
+/SOLU
+ALLSEL, ALL
+DDELE, ALL, ALL
+FDELE, ALL, ALL
+SFEDELE, ALL, ALL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 12, -1.0, 10000.0
+MXPAND, 12, , , YES
+SOLVE
+FINISH
+
+! --- 3. POST-PROCESS FREE-FREE MODES & MASS BREAKDOWN ---
+/POST1
+ALLSEL, ALL
+SET, 1, 1
+
+*DIM, FF_HZ, ARRAY, 12
+MAX_RBM = 0.0
+*DO, IM, 1, 12
+    *GET, FF_HZ(IM), MODE, IM, FREQ
+    *IF, IM, LE, 6, THEN
+        *IF, ABS(FF_HZ(IM)), GT, MAX_RBM, THEN
+            MAX_RBM = ABS(FF_HZ(IM))
+        *ENDIF
+    *ENDIF
+*ENDDO
+
+! Assign scalar variables to prevent *VWRITE array vectorization
+FF1  = FF_HZ(1)
+FF2  = FF_HZ(2)
+FF3  = FF_HZ(3)
+FF4  = FF_HZ(4)
+FF5  = FF_HZ(5)
+FF6  = FF_HZ(6)
+FF7  = FF_HZ(7)
+FF8  = FF_HZ(8)
+FF9  = FF_HZ(9)
+FF10 = FF_HZ(10)
+FF11 = FF_HZ(11)
+FF12 = FF_HZ(12)
+
+! Verification Gate: Modes 1..6 < 1.0E-3 Hz AND Mode 7 > 1.0 Hz
+GATE_PASS = 0
+*IF, MAX_RBM, LT, 1.0E-3, AND, FF7, GT, 1.0, THEN
+    GATE_PASS = 1
+*ENDIF
+
+! Extract Solver Mass & Center of Gravity (No spaces around * operator!)
+ALLSEL, ALL
+*GET, M_SOLVER_T, ELEM, 0, MTOT, X
+*GET, X_CG,       ELEM, 0, MC, X
+*GET, Y_CG,       ELEM, 0, MC, Y
+*GET, Z_CG,       ELEM, 0, MC, Z
+M_SOLVER_KG = M_SOLVER_T*1000.0
+
+! Extract Exact Component Mass Breakdown via Element Volume Integration
+ALLSEL, ALL
+ETABLE, EVOL, VOLU
+
+ESEL, S, SEC, , 1
+SSUM
+*GET, V_RIB_W, SSUM, 0, ITEM, EVOL
+M_RIB_W_KG = V_RIB_W*DENS_AL*1000.0
+
+ESEL, S, SEC, , 2
+SSUM
+*GET, V_SPAR_W, SSUM, 0, ITEM, EVOL
+M_SPAR_W_KG = V_SPAR_W*DENS_AL*1000.0
+
+ESEL, S, SEC, , 3
+SSUM
+*GET, V_SKIN, SSUM, 0, ITEM, EVOL
+M_SKIN_KG = V_SKIN*DENS_CO*1000.0
+
+ESEL, S, SEC, , 4
+SSUM
+*GET, V_STR, SSUM, 0, ITEM, EVOL
+M_STR_KG = V_STR*DENS_AL*1000.0
+
+ESEL, S, SEC, , 5
+SSUM
+*GET, V_SPAR_F, SSUM, 0, ITEM, EVOL
+M_SPAR_F_KG = V_SPAR_F*DENS_AL*1000.0
+
+ESEL, S, SEC, , 6, 8
+SSUM
+*GET, V_RIB_F, SSUM, 0, ITEM, EVOL
+M_RIB_F_KG = V_RIB_F*DENS_AL*1000.0
+
+ALLSEL, ALL
+M_TOTAL_KG = M_RIB_W_KG + M_SPAR_W_KG + M_SKIN_KG + M_STR_KG + M_SPAR_F_KG + M_RIB_F_KG
+FINISH
+
+! --- 4. CLAMPED-ROOT (CANTILEVER) MODAL SOLVE ---
+/SOLU
+ALLSEL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 6, 0.1, 10000.0
+MXPAND, 6, , , YES
+
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+ALLSEL, ALL
+SET, 1, 1
+*DIM, FC_HZ, ARRAY, 6
+*DO, IM, 1, 6
+    *GET, FC_HZ(IM), MODE, IM, FREQ
+*ENDDO
+FC1 = FC_HZ(1)
+FC2 = FC_HZ(2)
+FC3 = FC_HZ(3)
+FC4 = FC_HZ(4)
+FC5 = FC_HZ(5)
+FC6 = FC_HZ(6)
+FINISH
+
+! --- 5. WRITE RESULTS TO CSV & SUMMARY FILES (Pure Scalar Variables) ---
+*CFOPEN, STAGE3B_MODAL_FREE_FREE, csv, , APPEND
+*VWRITE, CONFIG, N_NODES, N_ELEMS, M_TOTAL_KG, FF1, FF2, FF3, FF4, FF5, FF6, FF7, FF8, FF9, FF10, FF11, FF12, MAX_RBM, GATE_PASS
+(F3.0,',',F8.0,',',F8.0,',',F10.4,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',E12.5,',',F3.0)
+*CFCLOS
+
+*CFOPEN, STAGE3B_MODAL_CANTILEVER, csv, , APPEND
+*VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, M_TOTAL_KG, FC1, FC2, FC3, FC4, FC5, FC6
+(F3.0,',',F4.0,',',F3.0,',',F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4)
+*CFCLOS
+
+*CFOPEN, STAGE3B_MASS_BREAKDOWN, csv, , APPEND
+*VWRITE, CONFIG, M_TOTAL_KG, M_SOLVER_KG, M_SKIN_KG, M_SPAR_W_KG, M_RIB_W_KG, M_STR_KG, M_SPAR_F_KG, M_RIB_F_KG, X_CG, Y_CG, Z_CG
+(F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.3,',',F10.3,',',F10.3)
+*CFCLOS
+
+*CFOPEN, STAGE3B_VERIFICATION_SUMMARY, txt, , APPEND
+*VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, N_NODES, N_ELEMS, N_SHELL, N_BEAM
+('========================================================================',/,'CONFIG = ',F2.0,'  [Ribs=',F3.0,', Spars=',F2.0,', Stringers=',F2.0,']',/,'Mesh Census: Nodes=',F7.0,' | Total Elems=',F7.0,' (SHELL181=',F7.0,', BEAM188=',F6.0,')')
+*VWRITE, M_TOTAL_KG, M_SOLVER_KG, X_CG, Y_CG, Z_CG
+('Half-Span Mass: ',F9.3,' kg (Solver MTOT = ',F9.3,' kg) | CG [mm]: (',F8.2,', ',F8.2,', ',F7.2,')')
+*VWRITE, M_SKIN_KG, M_SPAR_W_KG, M_RIB_W_KG, M_STR_KG, M_SPAR_F_KG, M_RIB_F_KG
+('Mass Breakdown [kg]: Skin=',F7.3,' | SparWeb=',F7.3,' | RibWeb=',F7.3,' | Stringer=',F7.3,' | SparCap=',F7.3,' | RibFlange=',F7.3)
+*VWRITE, FF1, FF2, FF3, FF4, FF5, FF6
+('Free-Free Rigid-Body Modes 1-6 [Hz]: ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4)
+*VWRITE, FF7, FF8, FF9, FF10, FF11, FF12
+('Free-Free Elastic Modes 7-12   [Hz]: ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3)
+*VWRITE, FC1, FC2, FC3, FC4, FC5, FC6
+('Cantilever Root-Fixed Modes 1-6[Hz]: ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3)
+*VWRITE, MAX_RBM, FF7, GATE_PASS
+('Verification Gate: Max RBM = ',E11.4,' Hz (<1e-3) | Mode 7 = ',F8.3,' Hz (>1.0) | PASS = ',F2.0,/)
+*CFCLOS

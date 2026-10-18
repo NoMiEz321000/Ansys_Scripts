@@ -1,0 +1,209 @@
+! =====================================================================
+!  RENDER_MODAL.mac — High-Resolution Mode Shape & Topology Visualizer
+!  Generates 12 PNG verification snapshots across CONFIG = 1, 2, 3
+! =====================================================================
+
+! =====================================================================
+!  PART 1: CONFIG A (14-3-8) — FREE-FREE & CANTILEVER MODE SHAPES
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, modal_cfg1, 1
+CONFIG = 1
+/INPUT, HTP_BUILD_CORE, mac
+
+! --- Free-Free Modal Solve (Config A) ---
+/SOLU
+ALLSEL, ALL
+DDELE, ALL, ALL
+FDELE, ALL, ALL
+SFEDELE, ALL, ALL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 12, -1.0, 10000.0
+MXPAND, 12, , , NO
+SOLVE
+FINISH
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 0
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! modal_cfg1000.png : Free-Free Mode 7 (55.99 Hz)
+SET, 1, 7
+/TITLE, Config A [14-3-8] Free-Free Mode 7 (f7 = 55.99 Hz - 1st Elastic Mode)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1001.png : Free-Free Mode 8 (62.86 Hz)
+SET, 1, 8
+/TITLE, Config A [14-3-8] Free-Free Mode 8 (f8 = 62.86 Hz - 2nd Elastic Mode)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1002.png : Free-Free Mode 9 (64.77 Hz)
+SET, 1, 9
+/TITLE, Config A [14-3-8] Free-Free Mode 9 (f9 = 64.77 Hz - 3rd Elastic Mode)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1003.png : Free-Free Mode 10 (66.47 Hz)
+SET, 1, 10
+/TITLE, Config A [14-3-8] Free-Free Mode 10 (f10 = 66.47 Hz - 4th Elastic Mode)
+PLNSOL, U, SUM, 0, 1.0
+FINISH
+
+! --- Cantilever Modal Solve (Config A) ---
+/SOLU
+ALLSEL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 6, 0.1, 10000.0
+MXPAND, 6, , , NO
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+! modal_cfg1004.png : Cantilever Mode 1 (19.70 Hz - 1st Vertical Bending)
+SET, 1, 1
+/TITLE, Config A [14-3-8] Cantilever Mode 1 (fc1 = 19.70 Hz - 1st Vertical Bending)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1005.png : Cantilever Mode 2 (65.01 Hz)
+SET, 1, 2
+/TITLE, Config A [14-3-8] Cantilever Mode 2 (fc2 = 65.01 Hz - Coupled Panel/Box Mode)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1006.png : Cantilever Mode 3 (67.03 Hz)
+SET, 1, 3
+/TITLE, Config A [14-3-8] Cantilever Mode 3 (fc3 = 67.03 Hz - Coupled Box Mode)
+PLNSOL, U, SUM, 0, 1.0
+
+! modal_cfg1007.png : Cantilever Mode 4 (68.51 Hz)
+SET, 1, 4
+/TITLE, Config A [14-3-8] Cantilever Mode 4 (fc4 = 68.51 Hz - Higher-Order Mode)
+PLNSOL, U, SUM, 0, 1.0
+/SHOW, CLOSE
+FINISH
+
+! =====================================================================
+!  PART 2: CONFIG B (9-2-8) — SKELETON & CANTILEVER MODE 1
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, modal_cfg2, 1
+CONFIG = 2
+/INPUT, HTP_BUILD_CORE, mac
+
+/SOLU
+ALLSEL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 6, 0.1, 10000.0
+MXPAND, 6, , , NO
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! modal_cfg2000.png : Config B Internal Skeleton (Skin Hidden)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Internal Structural Framework (9 Ribs, 2 Spars, 8 Stringers)
+EPLOT
+
+! modal_cfg2001.png : Config B Cantilever Mode 1 (20.69 Hz)
+ALLSEL, ALL
+/PNUM, SEC, 0
+/NUM, 0
+/EDGE, 1, 0
+SET, 1, 1
+/TITLE, Config B [9-2-8] Cantilever Mode 1 (fc1 = 20.69 Hz - 1st Vertical Bending)
+PLNSOL, U, SUM, 0, 1.0
+/SHOW, CLOSE
+FINISH
+
+! =====================================================================
+!  PART 3: CONFIG C (7-2-6) — SKELETON & CANTILEVER MODE 1
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, modal_cfg3, 1
+CONFIG = 3
+/INPUT, HTP_BUILD_CORE, mac
+
+/SOLU
+ALLSEL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 6, 0.1, 10000.0
+MXPAND, 6, , , NO
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! modal_cfg3000.png : Config C Internal Skeleton (Skin Hidden)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Internal Structural Framework (7 Ribs, 2 Spars, 6 Stringers)
+EPLOT
+
+! modal_cfg3001.png : Config C Cantilever Mode 1 (21.01 Hz)
+ALLSEL, ALL
+/PNUM, SEC, 0
+/NUM, 0
+/EDGE, 1, 0
+SET, 1, 1
+/TITLE, Config C [7-2-6] Cantilever Mode 1 (fc1 = 21.01 Hz - 1st Vertical Bending)
+PLNSOL, U, SUM, 0, 1.0
+/SHOW, CLOSE
+FINISH

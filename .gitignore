@@ -1,5 +1,6 @@
-﻿main_run/
+main_run/
 main_run_2/
+main_run_3/
 *.err
 *.out
 *.log
@@ -11,4 +12,12 @@ main_run_2/
 *.stat
 *.page
 *.lock
-main_run_3/
+*.full
+*.mode
+*.DSP
+*.bcs
+*.LN*
+*.prs
+*.parm
+*.mlv
+file.bat
