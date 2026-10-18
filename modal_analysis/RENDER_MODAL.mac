@@ -207,3 +207,66 @@ SET, 1, 1
 PLNSOL, U, SUM, 0, 1.0
 /SHOW, CLOSE
 FINISH
+
+! =====================================================================
+!  PART 4: LITERATURE FIGURE 6 REPLICATION (Palumbo et al., 2026)
+!  Free-Free Rigid-Body Modes 1-6 (Signed Directional Components UZ/UX/UY)
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, lit_fig6_mode, 1
+CONFIG = 1
+/INPUT, HTP_BUILD_CORE, mac
+
+/SOLU
+ANTYPE, MODAL
+MODOPT, LANB, 12
+MXPAND, 12, , , YES
+SOLVE
+FINISH
+
+/POST1
+/SHOW, PNG, , 0
+PNGR, COMP, 1, -1
+PNGR, ORIENT, HORIZ
+PNGR, COLOR, 2
+PNGR, TMOD, 1
+/GFILE, 1200
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 80, 80, 80, 13
+/RGB, INDEX, 60, 60, 60, 14
+/RGB, INDEX, 0, 0, 0, 15
+
+ALLSEL, ALL
+/VIEW, 1, 1, -1, 1
+/ANG, 1
+/DSCALE, 1, 1.0
+/EDGE, 1, 0
+/GLINE, 1, -1
+
+SET, 1, 1
+/TITLE, Free-Free Mode 1 (Rigid Body) - UZ Component (Straight Parallel Contours)
+PLNSOL, U, Z, 0, 1.0
+
+SET, 1, 2
+/TITLE, Free-Free Mode 2 (Rigid Body) - UZ Component (Straight Parallel Contours)
+PLNSOL, U, Z, 0, 1.0
+
+SET, 1, 3
+/TITLE, Free-Free Mode 3 (Rigid Body) - UX Component (Straight Parallel Contours)
+PLNSOL, U, X, 0, 1.0
+
+SET, 1, 4
+/TITLE, Free-Free Mode 4 (Rigid Body) - UZ Component (Straight Parallel Contours)
+PLNSOL, U, Z, 0, 1.0
+
+SET, 1, 5
+/TITLE, Free-Free Mode 5 (Rigid Body) - UZ Component (Straight Parallel Contours)
+PLNSOL, U, Z, 0, 1.0
+
+SET, 1, 6
+/TITLE, Free-Free Mode 6 (Rigid Body) - UY Component (Straight Parallel Contours)
+PLNSOL, U, Y, 0, 1.0
+
+/SHOW, CLOSE
+FINISH
+
