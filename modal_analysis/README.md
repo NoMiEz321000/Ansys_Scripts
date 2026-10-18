@@ -76,6 +76,25 @@ A critical visual observation in **Figure 6 (a)–(f) (Page 6)** of Palumbo et a
 
 When we plot **Free-Free Modes 1–6** of our own model using signed directional components (`PLNSOL, U, Z` / `UX` / `UY`), we obtain the exact same straight parallel contour bands and signed legend bars as **Figure 6 (a)–(f)** in Palumbo et al. (2026) (stored in [`visual_modal/01_literature_fig6_rigid_body/`](visual_modal/01_literature_fig6_rigid_body/)).
 
+### 2.3 Gravity Load Equilibrium (`1g` in X, Y, Z — Literature Tables 4, 5, 6) & Unit Displacement Verification
+
+In **Section 3 (Page 6, Tables 4–6)** of Palumbo et al. (2026), two additional static verification checks are performed after the Free-Free modal check:
+1. **Unitary Displacement Check:** Imposing a unit displacement (`UX = 1.0 mm, UY = UZ = ROTX = ROTY = ROTZ = 0`) at a central node with all other constraints removed to verify stiffness matrix assembly ($\mathbf{K}$).
+2. **Three-Direction $1g$ Gravity Load Verification (Tables 4, 5, 6):** Applying a $1g$ acceleration sequentially along the $X$, $Y$, and $Z$ directions (`ACEL`) with the root clamped (`Y = 0`) and verifying that the root constraint reaction forces (`FSUM`) match the total structural weight ($W = M \cdot g$), while maximum displacements remain within a few millimeters and stresses remain well below material allowables (Strength Ratio $> 1.0$).
+
+> **Note on Units in Literature Tables 4–6:** In Palumbo et al. (2026), multiplying `Model Mass = 0.16602 ton` by `9.81` yields `-1.6287` (which corresponds to **kilonewtons `[kN]`**, or inputting `ACEL = 9.81` instead of `9810 mm/s²` in `(N, mm, tonne)` units). Below, we report both the exact SI force in **Newtons `[N]`** ($g = 9810\text{ mm/s}^2$) and the **Literature-normalized `[kN]`** value ($M[\text{ton}] \times 9.81$) from [`modal_main_run_1/STAGE3B_GRAVITY_1G_VERIFICATION.csv`](modal_main_run_1/STAGE3B_GRAVITY_1G_VERIFICATION.csv):
+
+#### Table 4, 5 & 6 Comparison: $1g$ Gravity Load Verification Across X, Y, and Z Directions
+
+| Load Case & Direction | Metric | Literature (*Palumbo et al., 2026* — Baseline) | Our Model: Config A (`14-3-8`) | Our Model: Config B (`9-2-8`) | Our Model: Config C (`7-2-6`) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Model Mass** | Half-Span Mass `[ton]` (`[kg]`) | `0.16602 ton` (`166.02 kg`) | **`0.14046 ton`** (`140.46 kg`) | **`0.12189 ton`** (`121.89 kg`) | **`0.11364 ton`** (`113.64 kg`) |
+| **Table 4: $1g$ in X-Dir** (`ACEL, g, 0, 0`) | Reaction $R_x$ `[N]` (`[kN]`)<br>Off-Axis $R_y, R_z$ `[N]`<br>Theoretical $M \times 1g$ `[N]` (`[kN]` )<br>**Error `[%]`** | `-1628.7 N` (`-1.6287`)<br>$\approx 0$<br>`-1628.7 N` (`-1.6287`)<br>`0.00260%` | **`-1377.946 N`** (`-1.3779`)<br>`4.83e-6`, `-6.96e-7`<br>**`-1377.946 N`** (`-1.3779`)<br>**`5.95e-8%` ($\approx 0\%$)** | **`-1195.743 N`** (`-1.1957`)<br>`7.47e-7`, `7.60e-7`<br>**`-1195.743 N`** (`-1.1957`)<br>**`4.12e-7%` ($\approx 0\%$)** | **`-1114.784 N`** (`-1.1148`)<br>`-8.82e-6`, `-2.52e-7`<br>**`-1114.784 N`** (`-1.1148`)<br>**`5.81e-7%` ($\approx 0\%$)** |
+| **Table 5: $1g$ in Y-Dir** (`ACEL, 0, g, 0`) | Reaction $R_y$ `[N]` (`[kN]`)<br>Off-Axis $R_x, R_z$ `[N]`<br>Theoretical $M \times 1g$ `[N]` (`[kN]` )<br>**Error `[%]`** | `-1628.7 N` (`-1.6287`)<br>`-7.06e-12`<br>`-1628.7 N` (`-1.6287`)<br>`0.00000%` | **`-1377.946 N`** (`-1.3779`)<br>`6.41e-7`, `2.78e-7`<br>**`-1377.946 N`** (`-1.3779`)<br>**`5.29e-7%` ($\approx 0\%$)** | **`-1195.743 N`** (`-1.1957`)<br>`-9.37e-8`, `1.40e-6`<br>**`-1195.743 N`** (`-1.1957`)<br>**`6.22e-7%` ($\approx 0\%$)** | **`-1114.784 N`** (`-1.1148`)<br>`-5.76e-7`, `8.02e-7`<br>**`-1114.784 N`** (`-1.1148`)<br>**`5.25e-7%` ($\approx 0\%$)** |
+| **Table 6: $1g$ in Z-Dir** (`ACEL, 0, 0, g`) | Reaction $R_z$ `[N]` (`[kN]`)<br>Off-Axis $R_x, R_y$ `[N]`<br>Theoretical $M \times 1g$ `[N]` (`[kN]` )<br>**Error `[%]`** | `-1678.7 N` (`-1.6787`)<br>`-4.46e-12`, `-9.45e-13`<br>`-1628.7 N` (`-1.6287`)<br>`0.00260%` | **`-1377.946 N`** (`-1.3779`)<br>`1.31e-5`, `-1.38e-5`<br>**`-1377.946 N`** (`-1.3779`)<br>**`8.97e-7%` ($\approx 0\%$)** | **`-1195.743 N`** (`-1.1957`)<br>`3.29e-6`, `-4.77e-7`<br>**`-1195.743 N`** (`-1.1957`)<br>**`7.18e-7%` ($\approx 0\%$)** | **`-1114.784 N`** (`-1.1148`)<br>`6.98e-8`, `1.51e-5`<br>**`-1114.784 N`** (`-1.1148`)<br>**`1.01e-7%` ($\approx 0\%$)** |
+| **$1g$ Z-Static Structural Response** | Max Deflection $U_{\max}$ `[mm]`<br>Max Von Mises $\sigma_{\max}$ `[MPa]`<br>Strength Ratio ($\sigma_{\text{allow}}/\sigma_{\max}$) | *"A few millimeters"*<br>*"Below allowable"*<br>**$> 1.0$** | **`1.0802 mm`**<br>**`1.981 MPa`**<br>**`253.9`** ($\gg 1.0$) | **`0.9711 mm`**<br>**`1.750 MPa`**<br>**`287.4`** ($\gg 1.0$) | **`0.9378 mm`**<br>**`1.614 MPa`**<br>**`311.6`** ($\gg 1.0$) |
+| **Unitary Displacement Check** | Imposed `UX = 1.0 mm`<br>Nodal Response `[UX_min, UX_max]`<br>Parasitic Stress $\sigma_{\max}$ `[MPa]` | Matched `1.0 mm`<br>Zero Strain | **`[1.00000, 1.00000] mm`**<br>**`1.59e-8 MPa`** ($\approx 0$) | **`[1.00000, 1.00000] mm`**<br>**`2.02e-8 MPa`** ($\approx 0$) | **`[1.00000, 1.00000] mm`**<br>**`1.31e-8 MPa`** ($\approx 0$) |
+
 ---
 
 ## 3. Baseline Structural Mass & Component Breakdown Audit (`modal_main_run_1/STAGE3B_MASS_BREAKDOWN.csv`)
@@ -181,7 +200,9 @@ modal_analysis/
 │   ├── STAGE3B_VERIFICATION_SUMMARY.txt            # Human-readable verification log and gate report
 │   ├── STAGE3B_MODAL_FREE_FREE.csv                 # Machine-readable Free-Free frequencies (f1..f12) and gate flags
 │   ├── STAGE3B_MODAL_CANTILEVER.csv                # Machine-readable Cantilever frequencies (fc1..fc6)
-│   └── STAGE3B_MASS_BREAKDOWN.csv                  # Machine-readable component mass breakdown and CG coordinates
+│   ├── STAGE3B_MASS_BREAKDOWN.csv                  # Machine-readable component mass breakdown and CG coordinates
+│   ├── STAGE3B_GRAVITY_1G_VERIFICATION.csv         # Machine-readable 3-axis 1g gravity equilibrium checks (Tables 4, 5, 6)
+│   └── STAGE3B_STATIC_AND_UNIT_DISP.csv            # Machine-readable 1g Z-static deflection/stress & unit displacement check
 └── visual_modal/                                   # Categorized mode shape & structural skeleton visual gallery
     ├── 01_literature_fig6_rigid_body/              # Free-Free Modes 1-6 signed directional contours (Lit. Fig. 6a-f)
     ├── 02_config_a_14_3_8_free_free_elastic/       # Config A Free-Free elastic modes (Modes 7-10)
