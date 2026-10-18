@@ -4,16 +4,16 @@ This repository contains an advanced parametric ANSYS APDL macro (`HTP_PARAMETRI
 
 ---
 
-## 🔬 Active Branch: `stage-3b/modal-verification` — Stage 3b Multi-Configuration Modal Verification & Literature Validation
+### 🔬 Stage 3b Certified Milestone: Multi-Configuration Modal, Gravity & Unit Displacement Verification
 
 > **Verification Verdict: 100% CERTIFIED PASS (`GATE_PASS = 1` ACROSS ALL CONFIGURATIONS `CONFIG = 1, 2, 3`)**  
-> Full documentation, mathematical derivations, and visual galleries are located in [`modal_analysis/README.md`](modal_analysis/README.md).
+> Full documentation, mathematical derivations, and visual galleries are located in [`modal_analysis/README.md`](modal_analysis/README.md) and [`modal_analysis/note.md`](modal_analysis/note.md).
 
 ### 1. Direct Validation Against Reference Literature (Palumbo et al., 2026 — Section 3, Table 3 & Figure 6)
 In accordance with **Section 3 (Pages 5–6)** of the reference literature, unconstrained (**Free-Free**) Modal Analysis (`MODOPT, LANB, 12`) is executed to verify complete nodal connectivity (`NUMMRG, NODE, 0.01`) across all three candidate structural topologies (**Config A `[14-3-8]`**, **Config B `[9-2-8]`**, and **Config C `[7-2-6]`**):
 
 | Mode / Metric | Physical Interpretation | Literature (*Palumbo et al., 2026* — Table 3) | Our Model: Config A (`14-3-8`) | Our Model: Config B (`9-2-8`) | Our Model: Config C (`7-2-6`) | Validation Status |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| :---: | :--- | :---: | :---: | :---: | :---: | :--- |
 | **Mode 1 ($f_1$)** | Rigid-Body Translation 1 | `0 Hz` | `0.00000e+00 Hz` | `0.00000e+00 Hz` | `0.00000e+00 Hz` | **Exact Match (`0 Hz`)** |
 | **Mode 2 ($f_2$)** | Rigid-Body Translation 2 | `0 Hz` | `0.00000e+00 Hz` | `0.00000e+00 Hz` | `0.00000e+00 Hz` | **Exact Match (`0 Hz`)** |
 | **Mode 3 ($f_3$)** | Rigid-Body Translation 3 | `0 Hz` | `0.00000e+00 Hz` | `3.97080e-05 Hz` | `0.00000e+00 Hz` | **Exact Match (`0 Hz`)** |
@@ -35,7 +35,7 @@ In accordance with **Section 3 (Pages 5–6)** of the reference literature, unco
 - **Extracted Verification Results (`modal_analysis/result/`):** [`STAGE3B_VERIFICATION_SUMMARY.txt`](modal_analysis/result/STAGE3B_VERIFICATION_SUMMARY.txt), [`STAGE3B_MODAL_FREE_FREE.csv`](modal_analysis/result/STAGE3B_MODAL_FREE_FREE.csv), [`STAGE3B_MODAL_CANTILEVER.csv`](modal_analysis/result/STAGE3B_MODAL_CANTILEVER.csv), [`STAGE3B_MASS_BREAKDOWN.csv`](modal_analysis/result/STAGE3B_MASS_BREAKDOWN.csv), [`STAGE3B_GRAVITY_1G_VERIFICATION.csv`](modal_analysis/result/STAGE3B_GRAVITY_1G_VERIFICATION.csv), and [`STAGE3B_STATIC_AND_UNIT_DISP.csv`](modal_analysis/result/STAGE3B_STATIC_AND_UNIT_DISP.csv).
 - **Raw Solver Execution Logs (`modal_analysis/modal_main_run_1/`):** Isolated directory containing raw ANSYS MAPDL `.out`, `.log`, `.rst`, `.full`, and `.esav` solver scratch files.
 - **Categorized Visual Gallery (`modal_analysis/visual_modal/`):**
-  - [`01_literature_fig6_rigid_body/`](modal_analysis/visual_modal/01_literature_fig6_rigid_body/) — Free-Free Rigid-Body Modes 1–6 signed directional contours (`lit_fig6_mode1_uz.png`–`lit_fig6_mode6_ux.png`).
+  - [`01_literature_fig6_rigid_body/`](modal_analysis/visual_modal/01_literature_fig6_rigid_body/) — Free-Free Rigid-Body Modes 1–6 signed directional contours (both standard right-legend `lit_fig6_mode1..6` and report-ready bottom-colorbar `lit_fig6_report_mode1..6`).
   - [`02_config_a_14_3_8_free_free_elastic/`](modal_analysis/visual_modal/02_config_a_14_3_8_free_free_elastic/) — Config A Free-Free Elastic Modes 7–10 (`modal_cfg1000.png`–`modal_cfg1003.png`).
   - [`03_config_a_14_3_8_cantilever/`](modal_analysis/visual_modal/03_config_a_14_3_8_cantilever/) — Config A Clamped-Root Cantilever Modes 1–4 (`modal_cfg1004.png`–`modal_cfg1007.png`).
   - [`04_config_b_9_2_8_and_config_c_7_2_6/`](modal_analysis/visual_modal/04_config_b_9_2_8_and_config_c_7_2_6/) — Config B & Config C internal skeletons and fundamental bending modes (`modal_cfg2000.png`–`modal_cfg3001.png`).
