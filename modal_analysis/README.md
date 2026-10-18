@@ -152,14 +152,18 @@ In [`HTP_BUILD_CORE.mac`](HTP_BUILD_CORE.mac), dynamic safe pillar capping ($\ge
 All rendered verification images are organized into 4 categorized subfolders inside [`visual_modal/`](visual_modal/):
 
 ### 6.1 Subfolder 1: `visual_modal/01_literature_fig6_rigid_body/` (Replication of Palumbo et al., 2026 Figure 6)
-| Image File | Mode & Signed Component Description |
-| :--- | :--- |
-| [`lit_fig6_mode1_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode1_uz.png) | **Free-Free Mode 1 ($0.00\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-1.31` to `+1.47`) |
-| [`lit_fig6_mode2_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode2_uz.png) | **Free-Free Mode 2 ($0.00\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-3.67` to `+5.39`) |
-| [`lit_fig6_mode3_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode3_ux.png) | **Free-Free Mode 3 ($0.00\text{ Hz}$) — `UX` Component** (Straight parallel contours, signed chordwise shift) |
-| [`lit_fig6_mode4_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode4_uz.png) | **Free-Free Mode 4 ($9.31 \times 10^{-5}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-0.80` to `+5.81`) |
-| [`lit_fig6_mode5_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode5_uz.png) | **Free-Free Mode 5 ($1.27 \times 10^{-4}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-3.41` to `+0.30`) |
-| [`lit_fig6_mode6_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode6_ux.png) | **Free-Free Mode 6 ($2.71 \times 10^{-4}\text{ Hz}$) — `UX` Component** (Parallel to Rib, Red at Tip `+3.46` $\to$ Blue at Root `-1.64`) |
+Contains **two complete sets** of the 6 Free-Free Rigid-Body Mode images:
+1. **Standard Right-Legend Set (`lit_fig6_mode1..6_*.png`)** — includes the right-hand ANSYS info column (`FREQ`, `DMX`, `SMN`, `SMX`).
+2. **Report-Ready Bottom-Colorbar Set (`lit_fig6_report_mode1..6_*.png`)** — clean horizontal contour bar at the bottom with no right-hand panel (`/PLOPTS, INFO, 3` + `/UDOC, 1, CNTR, BOTTOM`), matching the exact visual layout of Figure 6 in Palumbo et al. (2026) for direct inclusion in reports and slides.
+
+| Standard Image (Right Legend) | Report-Ready Image (Bottom Colorbar) | Mode & Signed Component Description |
+| :--- | :--- | :--- |
+| [`lit_fig6_mode1_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode1_uz.png) | [`lit_fig6_report_mode1_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode1_uz.png) | **Free-Free Mode 1 ($0.00\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-1.31` to `+1.47`) |
+| [`lit_fig6_mode2_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode2_uz.png) | [`lit_fig6_report_mode2_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode2_uz.png) | **Free-Free Mode 2 ($0.00\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-3.67` to `+5.39`) |
+| [`lit_fig6_mode3_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode3_ux.png) | [`lit_fig6_report_mode3_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode3_ux.png) | **Free-Free Mode 3 ($0.00\text{ Hz}$) — `UX` Component** (Straight parallel contours, signed chordwise shift) |
+| [`lit_fig6_mode4_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode4_uz.png) | [`lit_fig6_report_mode4_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode4_uz.png) | **Free-Free Mode 4 ($9.31 \times 10^{-5}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-0.80` to `+5.81`) |
+| [`lit_fig6_mode5_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode5_uz.png) | [`lit_fig6_report_mode5_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode5_uz.png) | **Free-Free Mode 5 ($1.27 \times 10^{-4}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-3.41` to `+0.30`) |
+| [`lit_fig6_mode6_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode6_ux.png) | [`lit_fig6_report_mode6_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_report_mode6_ux.png) | **Free-Free Mode 6 ($2.71 \times 10^{-4}\text{ Hz}$) — `UX` Component** (Parallel to Rib, Red at Tip `+3.46` $\to$ Blue at Root `-1.64`) |
 
 ### 6.2 Subfolder 2: `visual_modal/02_config_a_14_3_8_free_free_elastic/` (Unconstrained Elastic Modes 7–10)
 | Image File | Mode & Elastic Deformation Description |
