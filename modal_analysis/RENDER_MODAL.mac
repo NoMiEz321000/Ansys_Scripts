@@ -264,8 +264,8 @@ SET, 1, 5
 PLNSOL, U, Z, 0, 1.0
 
 SET, 1, 6
-/TITLE, Free-Free Mode 6 (Rigid Body) - UY Component (Straight Parallel Contours)
-PLNSOL, U, Y, 0, 1.0
+/TITLE, Free-Free Mode 6 (Rigid Body) - UX Component (Straight Parallel Contours)
+PLNSOL, U, X, 0, 1.0
 
 /SHOW, CLOSE
 FINISH

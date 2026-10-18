@@ -140,7 +140,7 @@ All rendered verification images are organized into 4 categorized subfolders ins
 | [`lit_fig6_mode3_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode3_ux.png) | **Free-Free Mode 3 ($0.00\text{ Hz}$) — `UX` Component** (Straight parallel contours, signed chordwise shift) |
 | [`lit_fig6_mode4_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode4_uz.png) | **Free-Free Mode 4 ($9.31 \times 10^{-5}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-0.80` to `+5.81`) |
 | [`lit_fig6_mode5_uz.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode5_uz.png) | **Free-Free Mode 5 ($1.27 \times 10^{-4}\text{ Hz}$) — `UZ` Component** (Straight parallel contours, `-3.41` to `+0.30`) |
-| [`lit_fig6_mode6_uy.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode6_uy.png) | **Free-Free Mode 6 ($2.71 \times 10^{-4}\text{ Hz}$) — `UY` Component** (Straight parallel contours, signed spanwise/yaw) |
+| [`lit_fig6_mode6_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode6_ux.png) | **Free-Free Mode 6 ($2.71 \times 10^{-4}\text{ Hz}$) — `UX` Component** (Parallel to Rib, Red at Tip `+3.46` $\to$ Blue at Root `-1.64`) |
 
 ### 6.2 Subfolder 2: `visual_modal/02_config_a_14_3_8_free_free_elastic/` (Unconstrained Elastic Modes 7–10)
 | Image File | Mode & Elastic Deformation Description |
