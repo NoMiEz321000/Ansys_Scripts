@@ -1,8 +1,10 @@
 ! ================================================================
 !  BLOCK 1: PARAMETRIC INPUT VARIABLES 
 ! ================================================================
-! Test git next round experiment branch new chamge?
-CONFIG = 1  ! 1 = Config A (14-3-8), 2 = Config B (9-2-8), 3 = Config C (7-2-6)
+! Set default CONFIG if not already specified by parent macro
+*IF, CONFIG, LT, 1, OR, CONFIG, GT, 3, THEN
+    CONFIG = 1  ! 1 = Config A (14-3-8), 2 = Config B (9-2-8), 3 = Config C (7-2-6)
+*ENDIF
 
 ! --- FIXED MACRO-GEOMETRY [mm] (DO NOT OPTIMIZE) ---
 SPAN    = 3978
@@ -909,18 +911,33 @@ EPLOT
 /SOLU
 ANTYPE, 0  ! Static Analysis
 
-! Fix root
+! Fix root cantilever boundary condition (Y = 0)
 CSYS, 0
 NSEL, S, LOC, Y, -1, 1
 D, ALL, ALL, 0
 ALLSEL, ALL
 
-! Distributed Load (Simulating balancing tail load, 5 kPa)
-! Apply only to Upper Skin (Z > 0) to prevent load cancellation
-CMSEL, S, COMP_SKINS
-ASEL, R, LOC, Z, 0.1, 1000
-SFA, ALL, 1, PRES, 0.005
-ALLSEL, ALL
+! --- LOAD MODE SELECTOR: 1 = SFBM Nodal Forces (MATLAB), 0 = 5 kPa Pressure Placeholder ---
+LOAD_MODE = 1
+
+*IF, LOAD_MODE, EQ, 1, THEN
+    ! Automatically load the exact file matching the selected CONFIG (1, 2, or 3)
+    ALLSEL, ALL
+    *IF, CONFIG, EQ, 1, THEN
+        /INPUT, htp_loads_D_fwd_cfg1, inp
+    *ELSEIF, CONFIG, EQ, 2, THEN
+        /INPUT, htp_loads_D_fwd_cfg2, inp
+    *ELSEIF, CONFIG, EQ, 3, THEN
+        /INPUT, htp_loads_D_fwd_cfg3, inp
+    *ENDIF
+    ALLSEL, ALL
+*ELSEIF, LOAD_MODE, EQ, 0, THEN
+    ! Distributed Pressure (5 kPa) on Upper Skin (Placeholder)
+    CMSEL, S, COMP_SKINS
+    ASEL, R, LOC, Z, 0.1, 1000
+    SFA, ALL, 1, PRES, 0.005
+    ALLSEL, ALL
+*ENDIF
 
 ! ================================================================
 !  BLOCK 10: SOLVE & POST-PROCESS
@@ -951,7 +968,7 @@ NSORT, U, Z, 0, 0, ALL
 *GET, TIP_UZ, SORT, 0, MIN  ! Use MIN since aerodynamic load is downward
 ALLSEL, ALL
 
-*CFOPEN, HTP_Results, txt
+*CFOPEN, HTP_Results, txt, , APPEND
 *VWRITE, CONFIG, SMAX, TIP_UZ
 ('CONFIG:', F4.0, ' SMAX[MPa]:', F10.2, ' TIP_UZ[mm]:', F10.2)
 *CFCLOS

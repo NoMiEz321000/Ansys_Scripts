@@ -1,0 +1,13 @@
+point,V_kt_EAS,V_ms_EAS,n,weight_kg,description
+A,188.10,96.77,2.5705,18600,Pos. stall meets n_max (maneuver)
+C,250.00,128.61,2.5705,18600,Cruise speed at n_max
+D,312.50,160.76,2.5705,18600,Dive speed at n_max
+E,312.50,160.76,0.0000,18600,Dive speed at n = 0
+F,250.00,128.61,-1.0000,18600,Cruise speed at n_min
+G,143.69,73.92,-1.0000,18600,Neg. stall meets n_min
+GustB+,182.96,94.12,2.3833,18600,Gust +66 ft/s at VB
+GustC+,250.00,128.61,2.4319,18600,Gust +50 ft/s at VC
+GustD+,312.50,160.76,1.8950,18600,Gust +25 ft/s at VD
+GustB-,182.96,94.12,-0.3833,18600,Gust -66 ft/s at VB
+GustC-,250.00,128.61,-0.4319,18600,Gust -50 ft/s at VC
+GustD-,312.50,160.76,0.1050,18600,Gust -25 ft/s at VD
