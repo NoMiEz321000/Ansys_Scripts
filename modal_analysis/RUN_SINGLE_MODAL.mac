@@ -1,0 +1,305 @@
+! =====================================================================
+!  RUN_SINGLE_MODAL.mac — Worker Macro for Stage 3b Verification
+!  Executes for the active CONFIG:
+!    1. Mesh Census (Nodes, SHELL181, BEAM188) & Component Mass Audit
+!    2. 3-Direction 1g Gravity Load Verification (X, Y, Z) [Tables 4, 5, 6]
+!    3. 6-DOF Unit Displacement Stiffness Matrix Check [Section 3, Page 6]
+!    4. Unconstrained Free-Free Modal Analysis (Modes 1..12) [Table 3 & Fig 6]
+!    5. Clamped-Root Cantilever Modal Analysis (Modes 1..6)
+!    6. Appends clean scalar results to CSV & Summary Report files
+! =====================================================================
+
+! --- 1. MESH CENSUS & EXACT ELEMENT VOLUME MASS BREAKDOWN ---
+/PREP7
+ALLSEL, ALL
+*GET, N_NODES, NODE, 0, COUNT
+*GET, N_ELEMS, ELEM, 0, COUNT
+ESEL, S, TYPE, , 1
+*GET, N_SHELL, ELEM, 0, COUNT
+ESEL, S, TYPE, , 2
+*GET, N_BEAM,  ELEM, 0, COUNT
+ALLSEL, ALL
+FINISH
+
+! --- 2. 3-DIRECTION 1g GRAVITY LOAD VERIFICATION (Tables 4, 5, 6) ---
+G_ACCEL = 9810.0
+
+! 2a. Table 4: 1g in X-Direction
+/SOLU
+ANTYPE, STATIC
+ALLSEL, ALL
+DDELE, ALL, ALL
+FDELE, ALL, ALL
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+ACEL, G_ACCEL, 0.0, 0.0
+SOLVE
+FINISH
+
+/POST1
+SET, LAST
+ALLSEL, ALL
+*GET, M_SOLVER_T, ELEM, 0, MTOT, X
+*GET, X_CG,       ELEM, 0, MC, X
+*GET, Y_CG,       ELEM, 0, MC, Y
+*GET, Z_CG,       ELEM, 0, MC, Z
+M_SOLVER_KG = M_SOLVER_T*1000.0
+
+ETABLE, EVOL, VOLU
+ESEL, S, SEC, , 1
+SSUM
+*GET, V_RIB_W, SSUM, 0, ITEM, EVOL
+M_RIB_W_KG = V_RIB_W*DENS_AL*1000.0
+
+ESEL, S, SEC, , 2
+SSUM
+*GET, V_SPAR_W, SSUM, 0, ITEM, EVOL
+M_SPAR_W_KG = V_SPAR_W*DENS_AL*1000.0
+
+ESEL, S, SEC, , 3
+SSUM
+*GET, V_SKIN, SSUM, 0, ITEM, EVOL
+M_SKIN_KG = V_SKIN*DENS_CO*1000.0
+
+ESEL, S, SEC, , 4
+SSUM
+*GET, V_STR, SSUM, 0, ITEM, EVOL
+M_STR_KG = V_STR*DENS_AL*1000.0
+
+ESEL, S, SEC, , 5
+SSUM
+*GET, V_SPAR_F, SSUM, 0, ITEM, EVOL
+M_SPAR_F_KG = V_SPAR_F*DENS_AL*1000.0
+
+ESEL, S, SEC, , 6, 8
+SSUM
+*GET, V_RIB_F, SSUM, 0, ITEM, EVOL
+M_RIB_F_KG = V_RIB_F*DENS_AL*1000.0
+
+ALLSEL, ALL
+M_TOTAL_KG = M_RIB_W_KG + M_SPAR_W_KG + M_SKIN_KG + M_STR_KG + M_SPAR_F_KG + M_RIB_F_KG
+M_TOTAL_T  = M_TOTAL_KG/1000.0
+F_THEO_N   = -1.0*M_TOTAL_T*G_ACCEL
+F_THEO_KN  = -1.0*M_TOTAL_T*9.81
+
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+ESEL, ALL
+FSUM
+*GET, GX_RX_N, FSUM, 0, ITEM, FX
+*GET, GX_RY_N, FSUM, 0, ITEM, FY
+*GET, GX_RZ_N, FSUM, 0, ITEM, FZ
+GX_RX_KN = GX_RX_N/1000.0
+GX_RY_KN = GX_RY_N/1000.0
+GX_RZ_KN = GX_RZ_N/1000.0
+ERR_GX_PCT = ABS((GX_RX_N - F_THEO_N)/F_THEO_N)*100.0
+FINISH
+
+! 2b. Table 5: 1g in Y-Direction
+/SOLU
+ANTYPE, STATIC
+ALLSEL, ALL
+ACEL, 0.0, G_ACCEL, 0.0
+SOLVE
+FINISH
+
+/POST1
+SET, LAST
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+ESEL, ALL
+FSUM
+*GET, GY_RX_N, FSUM, 0, ITEM, FX
+*GET, GY_RY_N, FSUM, 0, ITEM, FY
+*GET, GY_RZ_N, FSUM, 0, ITEM, FZ
+GY_RX_KN = GY_RX_N/1000.0
+GY_RY_KN = GY_RY_N/1000.0
+GY_RZ_KN = GY_RZ_N/1000.0
+ERR_GY_PCT = ABS((GY_RY_N - F_THEO_N)/F_THEO_N)*100.0
+FINISH
+
+! 2c. Table 6: 1g in Z-Direction + Tip Deflection & Max Von Mises Stress
+/SOLU
+ANTYPE, STATIC
+ALLSEL, ALL
+ACEL, 0.0, 0.0, G_ACCEL
+SOLVE
+FINISH
+
+/POST1
+SET, LAST
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+ESEL, ALL
+FSUM
+*GET, GZ_RX_N, FSUM, 0, ITEM, FX
+*GET, GZ_RY_N, FSUM, 0, ITEM, FY
+*GET, GZ_RZ_N, FSUM, 0, ITEM, FZ
+GZ_RX_KN = GZ_RX_N/1000.0
+GZ_RY_KN = GZ_RY_N/1000.0
+GZ_RZ_KN = GZ_RZ_N/1000.0
+ERR_GZ_PCT = ABS((GZ_RZ_N - F_THEO_N)/F_THEO_N)*100.0
+
+ALLSEL, ALL
+NSORT, U, SUM, 0, 0, ALL
+*GET, GZ_UMX_MM, SORT, 0, MAX
+NSORT, S, EQV, 0, 0, ALL
+*GET, GZ_SMX_MPA, SORT, 0, MAX
+FINISH
+
+! --- 3. UNITARY DISPLACEMENT CHECK (Section 3, Page 6) ---
+/SOLU
+ANTYPE, STATIC
+ALLSEL, ALL
+DDELE, ALL, ALL
+ACEL, 0.0, 0.0, 0.0
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, UX, 1.0
+D, ALL, UY, 0.0
+D, ALL, UZ, 0.0
+D, ALL, ROTX, 0.0
+D, ALL, ROTY, 0.0
+D, ALL, ROTZ, 0.0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+SET, LAST
+ALLSEL, ALL
+NSORT, U, X, 0, 0, ALL
+*GET, UNIT_UX_MIN, SORT, 0, MIN
+*GET, UNIT_UX_MAX, SORT, 0, MAX
+NSORT, S, EQV, 0, 0, ALL
+*GET, UNIT_SMX, SORT, 0, MAX
+FINISH
+
+! --- 4. UNCONSTRAINED (FREE-FREE) MODAL SOLVE (Table 3) ---
+/SOLU
+ALLSEL, ALL
+DDELE, ALL, ALL
+FDELE, ALL, ALL
+SFEDELE, ALL, ALL, ALL
+ACEL, 0.0, 0.0, 0.0
+ANTYPE, MODAL
+MODOPT, LANB, 12, -1.0, 10000.0
+MXPAND, 12, , , YES
+SOLVE
+FINISH
+
+/POST1
+ALLSEL, ALL
+SET, 1, 1
+
+*DIM, FF_HZ, ARRAY, 12
+MAX_RBM = 0.0
+*DO, IM, 1, 12
+    *GET, FF_HZ(IM), MODE, IM, FREQ
+    *IF, IM, LE, 6, THEN
+        *IF, ABS(FF_HZ(IM)), GT, MAX_RBM, THEN
+            MAX_RBM = ABS(FF_HZ(IM))
+        *ENDIF
+    *ENDIF
+*ENDDO
+
+FF1  = FF_HZ(1)
+FF2  = FF_HZ(2)
+FF3  = FF_HZ(3)
+FF4  = FF_HZ(4)
+FF5  = FF_HZ(5)
+FF6  = FF_HZ(6)
+FF7  = FF_HZ(7)
+FF8  = FF_HZ(8)
+FF9  = FF_HZ(9)
+FF10 = FF_HZ(10)
+FF11 = FF_HZ(11)
+FF12 = FF_HZ(12)
+
+GATE_PASS = 0
+*IF, MAX_RBM, LT, 1.0E-3, AND, FF7, GT, 1.0, THEN
+    GATE_PASS = 1
+*ENDIF
+FINISH
+
+! --- 5. CLAMPED-ROOT (CANTILEVER) MODAL SOLVE ---
+/SOLU
+ALLSEL, ALL
+ANTYPE, MODAL
+MODOPT, LANB, 6, 0.1, 10000.0
+MXPAND, 6, , , YES
+
+CSYS, 0
+NSEL, S, LOC, Y, -1.0, 1.0
+D, ALL, ALL, 0
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+ALLSEL, ALL
+SET, 1, 1
+*DIM, FC_HZ, ARRAY, 6
+*DO, IM, 1, 6
+    *GET, FC_HZ(IM), MODE, IM, FREQ
+*ENDDO
+FC1 = FC_HZ(1)
+FC2 = FC_HZ(2)
+FC3 = FC_HZ(3)
+FC4 = FC_HZ(4)
+FC5 = FC_HZ(5)
+FC6 = FC_HZ(6)
+FINISH
+
+! --- 6. WRITE RESULTS TO CSV & SUMMARY FILES (in result/) ---
+*CFOPEN, result/STAGE3B_MODAL_FREE_FREE, csv, , APPEND
+*VWRITE, CONFIG, N_NODES, N_ELEMS, M_TOTAL_KG, FF1, FF2, FF3, FF4, FF5, FF6, FF7, FF8, FF9, FF10, FF11, FF12, MAX_RBM, GATE_PASS
+(F3.0,',',F8.0,',',F8.0,',',F10.4,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',E12.5,',',F3.0)
+*CFCLOS
+
+*CFOPEN, result/STAGE3B_MODAL_CANTILEVER, csv, , APPEND
+*VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, M_TOTAL_KG, FC1, FC2, FC3, FC4, FC5, FC6
+(F3.0,',',F4.0,',',F3.0,',',F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4)
+*CFCLOS
+
+*CFOPEN, result/STAGE3B_MASS_BREAKDOWN, csv, , APPEND
+*VWRITE, CONFIG, M_TOTAL_KG, M_SOLVER_KG, M_SKIN_KG, M_SPAR_W_KG, M_RIB_W_KG, M_STR_KG, M_SPAR_F_KG, M_RIB_F_KG, X_CG, Y_CG, Z_CG
+(F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.3,',',F10.3,',',F10.3)
+*CFCLOS
+
+*CFOPEN, result/STAGE3B_GRAVITY_1G_VERIFICATION, csv, , APPEND
+*VWRITE, CONFIG, M_TOTAL_T, F_THEO_N, F_THEO_KN, GX_RX_N, GX_RY_N, GX_RZ_N, GX_RX_KN, ERR_GX_PCT, GY_RX_N, GY_RY_N, GY_RZ_N, GY_RY_KN, ERR_GY_PCT, GZ_RX_N, GZ_RY_N, GZ_RZ_N, GZ_RZ_KN, ERR_GZ_PCT
+(F3.0,',',F9.5,',',F11.4,',',F9.5,',',F11.4,',',E11.4,',',E11.4,',',F9.5,',',E11.4,',',E11.4,',',F11.4,',',E11.4,',',F9.5,',',E11.4,',',E11.4,',',E11.4,',',F11.4,',',F9.5,',',E11.4)
+*CFCLOS
+
+*CFOPEN, result/STAGE3B_STATIC_AND_UNIT_DISP, csv, , APPEND
+*VWRITE, CONFIG, GZ_UMX_MM, GZ_SMX_MPA, UNIT_UX_MIN, UNIT_UX_MAX, UNIT_SMX
+(F3.0,',',F10.5,',',F10.4,',',F10.6,',',F10.6,',',E12.5)
+*CFCLOS
+
+*CFOPEN, result/STAGE3B_VERIFICATION_SUMMARY, txt, , APPEND
+*VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, N_NODES, N_ELEMS, N_SHELL, N_BEAM
+('========================================================================',/,'CONFIG = ',F2.0,'  [Ribs=',F3.0,', Spars=',F2.0,', Stringers=',F2.0,']',/,'Mesh Census: Nodes=',F7.0,' | Total Elems=',F7.0,' (SHELL181=',F7.0,', BEAM188=',F6.0,')')
+*VWRITE, M_TOTAL_KG, M_TOTAL_T, M_SOLVER_KG, X_CG, Y_CG, Z_CG
+('Half-Span Mass: ',F9.3,' kg (',F8.5,' ton) | Solver MTOT = ',F9.3,' kg | CG [mm]: (',F8.2,', ',F8.2,', ',F7.2,')')
+*VWRITE, M_SKIN_KG, M_SPAR_W_KG, M_RIB_W_KG, M_STR_KG, M_SPAR_F_KG, M_RIB_F_KG
+('Mass Breakdown [kg]: Skin=',F7.3,' | SparWeb=',F7.3,' | RibWeb=',F7.3,' | Stringer=',F7.3,' | SparCap=',F7.3,' | RibFlange=',F7.3)
+*VWRITE, FF1, FF2, FF3, FF4, FF5, FF6
+('Free-Free Rigid-Body Modes 1-6 [Hz]: ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4,', ',E11.4)
+*VWRITE, FF7, FF8, FF9, FF10, FF11, FF12
+('Free-Free Elastic Modes 7-12   [Hz]: ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3)
+*VWRITE, FC1, FC2, FC3, FC4, FC5, FC6
+('Cantilever Root-Fixed Modes 1-6[Hz]: ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3,', ',F9.3)
+*VWRITE, GX_RX_N, GX_RY_N, GX_RZ_N, GX_RX_KN, F_THEO_KN, ERR_GX_PCT
+('Table 4 [1g X-Dir]: Rx=',F10.3,' N | Ry=',E10.3,' N | Rz=',E10.3,' N | Rx=',F8.4,' kN (Theo=',F8.4,' kN, Err=',E10.3,' %)')
+*VWRITE, GY_RX_N, GY_RY_N, GY_RZ_N, GY_RY_KN, F_THEO_KN, ERR_GY_PCT
+('Table 5 [1g Y-Dir]: Rx=',E10.3,' N | Ry=',F10.3,' N | Rz=',E10.3,' N | Ry=',F8.4,' kN (Theo=',F8.4,' kN, Err=',E10.3,' %)')
+*VWRITE, GZ_RX_N, GZ_RY_N, GZ_RZ_N, GZ_RZ_KN, F_THEO_KN, ERR_GZ_PCT
+('Table 6 [1g Z-Dir]: Rx=',E10.3,' N | Ry=',E10.3,' N | Rz=',F10.3,' N | Rz=',F8.4,' kN (Theo=',F8.4,' kN, Err=',E10.3,' %)')
+*VWRITE, GZ_UMX_MM, GZ_SMX_MPA, UNIT_UX_MIN, UNIT_UX_MAX, UNIT_SMX
+('1g Z-Static Response: Max Deflection = ',F7.4,' mm | Max Von Mises Stress = ',F7.3,' MPa | Unit Disp UX: [',F7.5,', ',F7.5,'] mm (Stress=',E10.3,' MPa)')
+*VWRITE, MAX_RBM, FF7, GATE_PASS
+('Verification Gate: Max RBM = ',E11.4,' Hz (<1e-3) | Mode 7 = ',F8.3,' Hz (>1.0) | PASS = ',F2.0,/)
+*CFCLOS

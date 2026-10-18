@@ -1,0 +1,926 @@
+! =====================================================================
+!  HTP_BUILD_CORE.mac — Parametric Geometry & Conformal Mesh Builder
+!  Stage 3b Model Verification Suite (Supports CONFIG = 1, 2, 3)
+!  Baseline Architecture: v1.4.5-stable + Multi-Config Safe Pillar Capping
+! =====================================================================
+/PREP7
+/UIS, REPLOT, 0
+
+! Default to CONFIG = 1 if not pre-defined by caller
+*IF, CONFIG, LT, 1, OR, CONFIG, GT, 3, THEN
+    CONFIG = 1
+*ENDIF
+
+! --- FIXED MACRO-GEOMETRY [mm] (DO NOT OPTIMIZE) ---
+SPAN    = 3978
+C_ROOT  = 3090
+C_TIP   = 1860
+DIHED   = 7
+TC      = 0.12
+
+! --- TOPOLOGICAL LAYOUT SELECTOR ---
+*IF,CONFIG,EQ,1,THEN
+    N_RIB  = 14
+    N_SPAR = 3
+    N_STR  = 8
+    N_CUT  = 7
+*ELSEIF,CONFIG,EQ,2
+    N_RIB  = 9
+    N_SPAR = 2
+    N_STR  = 8
+    N_CUT  = 6
+*ELSEIF,CONFIG,EQ,3
+    N_RIB  = 7
+    N_SPAR = 2
+    N_STR  = 6
+    N_CUT  = 5
+*ENDIF
+
+! ================================================================
+! DESIGN VARIABLES (DVs) — BASELINE INITIAL GUESSES
+! ================================================================
+! --- Thicknesses [mm] ---
+T_SKIN     = 2.0    ! Composite skin thickness
+T_SPAR_WEB = 3.0    ! Spar web thickness
+T_RIB_WEB  = 2.0    ! Rib web thickness
+
+! --- Hat-Section Stringer Dimensions [mm] (Optimized Aerospace Scale) ---
+STR_H    = 30.0     ! Stringer Height (W4)
+STR_W3   = 20.0     ! Stringer Crown Width (W3)
+STR_BRIM = 15.0     ! Stringer Brim Width (W1, W2)
+STR_T    = 1.6      ! Stringer Thickness
+
+! --- Spar & Rib Flange Dimensions [mm] ---
+RIB_FW   = 40.0     ! Rib Flange Width
+RIB_FT   = 1.0      ! Rib Flange Thickness
+SPAR_FW  = 45.0     ! Spar Flange Width
+SPAR_FT  = 2.5      ! Spar Flange Thickness
+
+! ================================================================
+! MESH & MICRO-DETAILS CONSTANTS
+! ================================================================
+ESIZE_V    = 100
+HOLE_RATIO = 0.50
+
+! ================================================================
+! MATERIAL PROPERTIES (Unit System: N, mm, tonne, MPa)
+! ================================================================
+! --- Material 1: Al 7075-T6 (Internal Framework) ---
+EX_AL   = 71700     ! Young's Modulus [MPa]
+PRXY_AL = 0.33      ! Poisson's Ratio
+DENS_AL = 2.81e-9   ! Density [tonne/mm^3]
+SY_AL   = 480       ! Tensile Yield Strength [MPa]
+
+! --- Material 2: Equivalent Isotropic Composite (Skins) ---
+EX_COMP = 50000     ! Young's Modulus [MPa]
+PRXY_CO = 0.28      ! Poisson's Ratio
+DENS_CO = 1.6e-9    ! Density [tonne/mm^3]
+
+PI = ACOS(-1)
+DIHED_R = DIHED*PI/180
+
+! ================================================================
+!  BLOCK 2: STATION CALCULATION & AIRFOIL
+! ================================================================
+RIB_SPC = SPAN/(N_RIB - 1)
+*DIM,Y_STA,ARRAY,N_RIB
+*DIM,C_STA,ARRAY,N_RIB
+*DIM,Z_OFF,ARRAY,N_RIB
+
+*DO,I,1,N_RIB
+    Y_STA(I) = (I-1)*RIB_SPC
+    C_STA(I) = C_ROOT + (C_TIP - C_ROOT)*Y_STA(I)/SPAN
+    Z_OFF(I) = Y_STA(I)*TAN(DIHED_R)
+*ENDDO
+
+! Define topological points for Upper Surface
+N_UP = 25
+*DIM,XC_UP,ARRAY,N_UP
+XC_UP(1)  = 0.00, 0.02, 0.065, 0.154, 0.243, 0.27, 0.300, 0.355
+XC_UP(9)  = 0.409, 0.461, 0.512, 0.560, 0.607, 0.649, 0.691, 0.727
+XC_UP(17) = 0.764, 0.796, 0.827, 0.86, 0.89, 0.92, 0.95, 0.97
+XC_UP(25) = 0.98
+
+*DIM,IS_SPAR,ARRAY,N_UP
+*DIM,IS_STR,ARRAY,N_UP
+*DO,I,1,N_UP
+    IS_SPAR(I) = 0
+    IS_STR(I) = 0
+*ENDDO
+
+*IF,CONFIG,EQ,1,THEN
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_SPAR(19) = 1 ! 0.827
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(11) = 1  ! 0.512
+    IS_STR(13) = 1  ! 0.607
+    IS_STR(15) = 1  ! 0.691
+*ELSEIF,CONFIG,EQ,2,THEN
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(11) = 1  ! 0.512
+    IS_STR(13) = 1  ! 0.607
+    IS_STR(15) = 1  ! 0.691
+*ELSEIF,CONFIG,EQ,3,THEN
+    IS_SPAR(7) = 1  ! 0.300
+    IS_SPAR(17) = 1 ! 0.764
+    IS_STR(9)  = 1  ! 0.409
+    IS_STR(12) = 1  ! 0.560
+    IS_STR(15) = 1  ! 0.691
+*ENDIF
+
+! Construct Full Profile (Upper + Lower)
+N_PROF = 2*N_UP - 1
+*DIM,XC_FRAC,ARRAY,N_PROF
+*DIM,Y_SGN,ARRAY,N_PROF
+*DIM,PROF_SPAR,ARRAY,N_PROF
+*DIM,PROF_STR,ARRAY,N_PROF
+
+! Upper Surface (LE to TE)
+*DO,I,1,N_UP
+    XC_FRAC(I) = XC_UP(I)
+    Y_SGN(I) = 1.0
+    PROF_SPAR(I) = IS_SPAR(I)
+    PROF_STR(I) = IS_STR(I)
+*ENDDO
+
+! Lower Surface (TE to LE)
+IDX = N_UP
+*DO,I,N_UP,2,-1
+    IDX = IDX + 1
+    XC_FRAC(IDX) = XC_UP(I)
+    Y_SGN(IDX) = -1.0
+    PROF_SPAR(IDX) = IS_SPAR(I)
+    PROF_STR(IDX) = IS_STR(I)
+*ENDDO
+
+! NACA Polynomial Thickness
+*DIM,YT_FRAC,ARRAY,N_PROF
+TSCALE = TC/0.20
+*DO,J,1,N_PROF
+    XF = XC_FRAC(J)
+    *IF,XF,GT,0,THEN
+        T1 = 0.29690*SQRT(XF)
+        T2 = 0.12600*XF
+        T3 = 0.35160*(XF**2)
+        T4 = 0.28430*(XF**3)
+        T5 = 0.10150*(XF**4)
+        YT_FRAC(J) = TSCALE*(T1 - T2 - T3 + T4 - T5)
+    *ELSE
+        YT_FRAC(J) = 0.0
+    *ENDIF
+*ENDDO
+
+! ================================================================
+!  BLOCK 3: SPAR-AWARE HOLE BAY DEFINITION
+! ================================================================
+*DIM, BAY_START, ARRAY, N_SPAR
+*DIM, BAY_END, ARRAY, N_SPAR
+*DIM, BAY_HOLES, ARRAY, N_SPAR
+
+SPAR_CNT = 0
+PREV_XC = 0.0
+*DO,J,1,N_UP
+    *IF, IS_SPAR(J), EQ, 1, THEN
+        SPAR_CNT = SPAR_CNT + 1
+        *IF, SPAR_CNT, EQ, 1, THEN
+            BAY_START(1) = 0.0
+            BAY_END(1) = XC_UP(J)
+            BAY_HOLES(1) = 0
+            PREV_XC = XC_UP(J)
+        *ELSEIF, SPAR_CNT, EQ, 2, THEN
+            BAY_START(2) = PREV_XC
+            BAY_END(2) = XC_UP(J)
+            *IF, CONFIG, EQ, 1, THEN
+                BAY_HOLES(2) = 5
+            *ELSE
+                BAY_HOLES(2) = N_CUT
+            *ENDIF
+            PREV_XC = XC_UP(J)
+        *ELSEIF, SPAR_CNT, EQ, 3, THEN
+            BAY_START(3) = PREV_XC
+            BAY_END(3) = XC_UP(J)
+            BAY_HOLES(3) = 0
+        *ENDIF
+    *ENDIF
+*ENDDO
+
+! ================================================================
+!  BLOCK 4: KEYPOINTS & LINE GENERATION
+! ================================================================
+*DO,I,1,N_RIB
+    Y_I = Y_STA(I)
+    C_I = C_STA(I)
+    Z_I = Z_OFF(I)
+    KP_BASE = (I-1)*100
+    *DO,J,1,N_PROF
+        X_OFFSET = C_ROOT - C_I
+        X_KP = X_OFFSET + XC_FRAC(J)*C_I
+        Z_KP = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        K, KP_BASE + J, X_KP, Y_I, Z_KP
+    *ENDDO
+*ENDDO
+
+! --- Create Upper Stringer Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, PROF_STR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_STR_UPPER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Lower Stringer Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,N_UP+1,N_PROF
+        *IF, PROF_STR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_STR_LOWER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Upper Spar Flange Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_FLANGE_UPPER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! --- Create Lower Spar Flange Lines ---
+*GET, L_MAX_PRE, LINE, 0, NUM, MAXD
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,N_UP+1,N_PROF
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            L, KB1+J, KB2+J
+        *ENDIF
+    *ENDDO
+*ENDDO
+*GET, L_MAX_POST, LINE, 0, NUM, MAXD
+*IF, L_MAX_POST, GT, L_MAX_PRE, THEN
+    LSEL, S, LINE, , L_MAX_PRE+1, L_MAX_POST
+    CM, COMP_FLANGE_LOWER, LINE
+*ENDIF
+ALLSEL, ALL
+
+! ================================================================
+!  BLOCK 5: AREA GENERATION (RIBS -> HOLES/CUTOUTS -> SKINS -> SPARS)
+! ================================================================
+*GET, A_MAX_PRE, AREA, 0, NUM, MAXD
+
+HW    = 28.0        ! Mousehole half-width (total width 56mm for 50mm stringer base)
+R_FIL = 10.0        ! Tangent corner fillet radius [mm]
+
+*DO,I,1,N_RIB
+    ALLSEL, ALL
+    KB_RIB = 10000 + (I-1)*100
+    Y_I = Y_STA(I)
+    C_I = C_STA(I)
+    Z_I = Z_OFF(I)
+    X_OFFSET = C_ROOT - C_I
+
+    ! 1. Temporary Rib Keypoints
+    *DO,J,1,N_PROF
+        X_KP = X_OFFSET + XC_FRAC(J)*C_I
+        Z_KP = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        K, KB_RIB + J, X_KP, Y_I, Z_KP
+    *ENDDO
+
+    ! 2. Rib boundary lines and solid area (Component-based selection)
+    ALLSEL, ALL
+    CM, PRE_RIB_LINES, LINE
+    *DO,J,1,N_PROF-1
+        L, KB_RIB + J, KB_RIB + J + 1
+    *ENDDO
+    L, KB_RIB + N_PROF, KB_RIB + 1
+    
+    ALLSEL, ALL
+    CMSEL, U, PRE_RIB_LINES
+    CM, PRE_RIB_AREAS, AREA
+    AL, ALL
+    ALLSEL, ALL
+    CMSEL, U, PRE_RIB_AREAS
+    *GET, AR_RIB, AREA, 0, NUM, MAX
+    
+    ! 3. Align Working Plane to Rib I
+    WPCSYS, -1, 0
+    WPOFFS, 0, Y_I, 0
+    WPROTA, 0, 90, 0
+
+    ALLSEL, ALL
+    CM, PRE_TOOLS, AREA
+    
+    ! 4. Lightening Holes with Dynamic Safe Capping (Web Pillar >= 14 mm across all configs)
+    *IF, N_CUT, EQ, 7, THEN
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
+        
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+        
+        RH3 = 0.0379*C_I
+        D_ADJ = (0.4607 - 0.409)*C_I - HW
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, RH3
+
+        RH4 = 0.0335*C_I
+        D_ADJ = (0.5595 - 0.512)*C_I - HW
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, RH4
+
+        RH5 = 0.0284*C_I
+        D_ADJ = (0.6486 - 0.607)*C_I - HW
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, RH5
+
+        RH6 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
+        *IF, RH6, GT, D_ADJ - 14.0, THEN
+            RH6 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH6
+
+        RH7 = 0.0183*C_I
+        D_ADJ = (0.7956 - 0.764)*C_I - 25.0
+        *IF, RH7, GT, D_ADJ - 14.0, THEN
+            RH7 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7956*C_I, Z_I, RH7
+
+    *ELSEIF, N_CUT, EQ, 6, THEN
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
+
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+
+        RH3 = 0.0379*C_I
+        D_ADJ = (0.4607 - 0.409)*C_I - HW
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, RH3
+
+        RH4 = 0.0335*C_I
+        D_ADJ = (0.5595 - 0.512)*C_I - HW
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, RH4
+
+        RH5 = 0.0284*C_I
+        D_ADJ = (0.6486 - 0.607)*C_I - HW
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, RH5
+
+        RH6 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
+        *IF, RH6, GT, D_ADJ - 14.0, THEN
+            RH6 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH6
+
+    *ELSEIF, N_CUT, EQ, 5, THEN
+        CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
+
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+
+        RH3 = 0.0370*C_I
+        D_ADJ = (0.4846 - 0.409)*C_I - HW
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4846*C_I, Z_I, RH3
+
+        RH4 = 0.0298*C_I
+        D_ADJ = (0.6253 - 0.560)*C_I - HW
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6253*C_I, Z_I, RH4
+
+        RH5 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH5
+    *ENDIF
+
+    ! 5. Edge Cutouts (Spar Semicircles & Stringer Chamfered-Rectangles)
+    *DO,J,1,N_PROF
+        X_J = X_OFFSET + XC_FRAC(J)*C_I
+        Z_J = Z_I + Y_SGN(J)*YT_FRAC(J)*C_I
+        Z_HALF = YT_FRAC(J)*C_I
+        SGN = Y_SGN(J)
+        
+        *IF, PROF_SPAR(J), EQ, 1, THEN
+            R_SP = 25.0
+            *IF, R_SP, GT, 0.60*Z_HALF, THEN
+                R_SP = 0.60*Z_HALF
+            *ENDIF
+            CYL4, X_J, Z_J, R_SP
+        *ELSEIF, PROF_STR(J), EQ, 1, THEN
+            H_STR = 34.0
+            *IF, H_STR, GT, 0.65*Z_HALF, THEN
+                H_STR = 0.65*Z_HALF
+            *ENDIF
+            
+            RF = R_FIL
+            *IF, RF, GT, 0.45*H_STR, THEN
+                RF = 0.45*H_STR
+            *ENDIF
+            *IF, RF, GT, 0.45*HW, THEN
+                RF = 0.45*HW
+            *ENDIF
+            D_ARC = 0.2929*RF
+            
+            KP_C = 80000 + (I-1)*1000 + J*10
+            *IF, SGN, GT, 0, THEN
+                K, KP_C+1, X_J - HW,        Y_I, Z_J + 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J - H_STR + RF
+                K, KP_C+3, X_J - HW + D_ARC, Y_I, Z_J - H_STR + D_ARC
+                K, KP_C+4, X_J - HW + RF,   Y_I, Z_J - H_STR
+                K, KP_C+5, X_J + HW - RF,   Y_I, Z_J - H_STR
+                K, KP_C+6, X_J + HW - D_ARC, Y_I, Z_J - H_STR + D_ARC
+                K, KP_C+7, X_J + HW,        Y_I, Z_J - H_STR + RF
+                K, KP_C+8, X_J + HW,        Y_I, Z_J + 30
+                A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6, KP_C+7, KP_C+8
+            *ELSE
+                K, KP_C+1, X_J - HW,        Y_I, Z_J - 30
+                K, KP_C+2, X_J - HW,        Y_I, Z_J + H_STR - RF
+                K, KP_C+3, X_J - HW + D_ARC, Y_I, Z_J + H_STR - D_ARC
+                K, KP_C+4, X_J - HW + RF,   Y_I, Z_J + H_STR
+                K, KP_C+5, X_J + HW - RF,   Y_I, Z_J + H_STR
+                K, KP_C+6, X_J + HW - D_ARC, Y_I, Z_J + H_STR - D_ARC
+                K, KP_C+7, X_J + HW,        Y_I, Z_J + H_STR - RF
+                K, KP_C+8, X_J + HW,        Y_I, Z_J - 30
+                A, KP_C+1, KP_C+2, KP_C+3, KP_C+4, KP_C+5, KP_C+6, KP_C+7, KP_C+8
+            *ENDIF
+        *ENDIF
+    *ENDDO
+
+    ! 6. Subtract all cutouts from AR_RIB
+    ALLSEL, ALL
+    CMSEL, U, PRE_TOOLS
+    ASEL, A, AREA, , AR_RIB
+    ASBA, AR_RIB, ALL
+    WPCSYS, -1, 0
+*ENDDO
+ALLSEL, ALL
+*GET, A_MAX_POST, AREA, 0, NUM, MAXD
+ASEL, S, AREA, , A_MAX_PRE+1, A_MAX_POST
+CM, COMP_RIBS, AREA
+ALLSEL, ALL
+
+! --- Skins ---
+ALLSEL, ALL
+CM, TEMP_PRE_SKINS, AREA
+
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_PROF-1
+        A, KB1+J, KB2+J, KB2+J+1, KB1+J+1
+    *ENDDO
+    A, KB1+N_PROF, KB2+N_PROF, KB2+1, KB1+1
+*ENDDO
+
+ALLSEL, ALL
+CMSEL, U, TEMP_PRE_SKINS
+CM, COMP_SKINS, AREA
+ALLSEL, ALL
+
+! --- Spar Webs ---
+ALLSEL, ALL
+CM, TEMP_PRE_SPARS, AREA
+
+*DO,I,1,N_RIB-1
+    KB1 = (I-1)*100
+    KB2 = I*100
+    *DO,J,1,N_UP
+        *IF, IS_SPAR(J), EQ, 1, THEN
+            *IF, J, EQ, 1, THEN
+                J_LOW = 1
+            *ELSEIF, J, EQ, N_UP, THEN
+                J_LOW = N_UP
+            *ELSE
+                J_LOW = N_PROF - J + 2
+            *ENDIF
+            A, KB1+J, KB2+J, KB2+J_LOW, KB1+J_LOW
+        *ENDIF
+    *ENDDO
+*ENDDO
+
+ALLSEL, ALL
+CMSEL, U, TEMP_PRE_SPARS
+CM, COMP_SPARS, AREA
+ALLSEL, ALL
+
+! Merge topology
+NUMMRG, ALL, 1.0E-4
+NUMCMP, ALL
+
+! ================================================================
+!  BLOCK 7: ELEMENT TYPES, MATERIALS & SECTIONS
+! ================================================================
+ET, 1, SHELL181
+KEYOPT, 1, 3, 2
+
+ET, 2, BEAM188
+KEYOPT, 2, 3, 3
+
+MP, EX, 1, EX_AL
+MP, PRXY, 1, PRXY_AL
+MP, DENS, 1, DENS_AL
+
+MP, EX, 2, EX_COMP
+MP, PRXY, 2, PRXY_CO
+MP, DENS, 2, DENS_CO
+
+SECTYPE, 1, SHELL
+SECDATA, T_RIB_WEB, 1
+
+SECTYPE, 2, SHELL
+SECDATA, T_SPAR_WEB, 1
+
+SECTYPE, 3, SHELL
+SECDATA, T_SKIN, 2
+
+SECTYPE, 4, BEAM, HATS
+SECDATA, STR_BRIM, STR_BRIM, STR_W3, STR_H, STR_T, STR_T, STR_T, STR_T, STR_T
+*GET, STR_YC, SECP, 4, PROP, CGY
+SECOFFSET, USER, STR_YC, 0
+
+SECTYPE, 5, BEAM, RECT
+SECDATA, SPAR_FW, SPAR_FT
+FL_OFFZ = -1*(SPAR_FT/2)
+SECOFFSET, USER, 0, FL_OFFZ
+
+RIB_FW_EDGE = 20.0
+FL_OFFZ_RIB = -1*(RIB_FT/2 + T_SKIN/2)
+
+SECTYPE, 6, BEAM, RECT
+SECDATA, RIB_FW, RIB_FT
+SECOFFSET, USER, 0, FL_OFFZ_RIB
+
+SECTYPE, 7, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER, -RIB_FW_EDGE/2, FL_OFFZ_RIB
+
+SECTYPE, 8, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER,  RIB_FW_EDGE/2, FL_OFFZ_RIB
+
+! ================================================================
+!  BLOCK 8: MESHING
+! ================================================================
+ESIZE_V = 100
+ESIZE, ESIZE_V
+
+! Skins
+CMSEL, S, COMP_SKINS
+AATT, 2, , 1, , 3
+MSHAPE, 0, 2D
+MSHKEY, 1
+AMESH, ALL
+
+! Spar Webs
+CMSEL, S, COMP_SPARS
+AATT, 1, , 1, , 2
+MSHAPE, 0, 2D
+MSHKEY, 1
+AMESH, ALL
+
+! Refine hole lines
+CMSEL, S, COMP_RIBS
+LSLA, S
+CMSEL, S, COMP_SKINS
+LSLA, U
+CMSEL, S, COMP_SPARS
+LSLA, U
+LESIZE, ALL, , , 6
+ALLSEL, ALL
+
+! Ribs
+CMSEL, S, COMP_RIBS
+AATT, 1, , 1, , 1
+MSHAPE, 1, 2D
+MSHKEY, 0
+SHPP, OFF
+ESIZE, 15
+AMESH, ALL
+SHPP, ON
+MSHAPE, 0, 2D
+
+! Orient and Mesh Beams (Stringers & Spar Flanges)
+*DIM, COMP_LIST, STRING, 24, 4
+COMP_LIST(1,1) = 'COMP_STR_UPPER'
+COMP_LIST(1,2) = 'COMP_STR_LOWER'
+COMP_LIST(1,3) = 'COMP_FLANGE_UPPER'
+COMP_LIST(1,4) = 'COMP_FLANGE_LOWER'
+
+K_OR = 90000
+K, K_OR, 0, 1000, 5000
+D_OR = 100
+
+*DO, C_IDX, 1, 4
+    CMSEL, S, %COMP_LIST(1,C_IDX)%
+    *GET, LNUM, LINE, 0, NUM, MIN
+    *DOWHILE, LNUM
+        *IF, C_IDX, LE, 2, THEN
+            SEC_NUM = 4
+        *ELSE
+            SEC_NUM = 5
+        *ENDIF
+        
+        *GET, KP1, LINE, LNUM, KP, 1
+        *GET, KP2, LINE, LNUM, KP, 2
+        *GET, X1, KP, KP1, LOC, X
+        *GET, Y1, KP, KP1, LOC, Y
+        *GET, Z1, KP, KP1, LOC, Z
+        *GET, X2, KP, KP2, LOC, X
+        *GET, Y2, KP, KP2, LOC, Y
+        *GET, Z2, KP, KP2, LOC, Z
+
+        LX = X2-X1
+        LY = Y2-Y1
+        LZ = Z2-Z1
+        LMAG = SQRT(LX**2+LY**2+LZ**2)
+        LX = LX/LMAG
+        LY = LY/LMAG
+        LZ = LZ/LMAG
+
+        C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+        X_OFFSET = C_ROOT - C_I
+        XF  = (X1 - X_OFFSET)/C_I
+        *IF, XF, GT, 1.0E-4, THEN
+            T1 = 0.14845/SQRT(XF) - 0.12600
+            T2 = -0.70320*XF + 0.85290*(XF**2)
+            T3 = -0.40600*(XF**3)
+            DYT = TSCALE*(T1 + T2 + T3)
+        *ELSE
+            DYT = 0.0
+        *ENDIF
+        
+        *IF, C_IDX, EQ, 1, OR, C_IDX, EQ, 3, THEN
+            SGN = 1.0
+        *ELSE
+            SGN = -1.0
+        *ENDIF
+        
+        TX = 1.0
+        TY = 0.0
+        TZ = SGN*DYT
+
+        NX = LY*TZ-LZ*TY
+        NY = LZ*TX-LX*TZ
+        NZ = LX*TY-LY*TX
+        NMAG = SQRT(NX**2+NY**2+NZ**2)
+        NX = NX/NMAG
+        NY = NY/NMAG
+        NZ = NZ/NMAG
+        
+        *IF, SGN*NZ, GT, 0, THEN
+            NX = -NX
+            NY = -NY
+            NZ = -NZ
+        *ENDIF
+
+        K_OR = K_OR + 1
+        K, K_OR, (X1+X2)/2+D_OR*NX, (Y1+Y2)/2+D_OR*NY, (Z1+Z2)/2+D_OR*NZ
+
+        LSEL, S, LINE, , LNUM
+        LATT, 1, , 2, , K_OR, , SEC_NUM
+        LMESH, LNUM
+        
+        CMSEL, S, %COMP_LIST(1,C_IDX)%
+        *GET, LNUM, LINE, LNUM, NXTH
+    *ENDDO
+*ENDDO
+ALLSEL, ALL
+
+! ================================================================
+!  MESH RIB FLANGES (Dual-Zone Sagitta & Normal Blending)
+! ================================================================
+ALLSEL, ALL
+CMSEL, S, COMP_RIBS
+LSLA, S
+*GET, L_COUNT, LINE, 0, COUNT
+
+LNUM = 0
+*DO, L_IDX, 1, L_COUNT
+    LNUM = LSNEXT(LNUM)
+    *GET, KP1, LINE, LNUM, KP, 1
+    *GET, KP2, LINE, LNUM, KP, 2
+    *GET, X1, KP, KP1, LOC, X
+    *GET, Y1, KP, KP1, LOC, Y
+    *GET, Z1, KP, KP1, LOC, Z
+    *GET, X2, KP, KP2, LOC, X
+    *GET, Y2, KP, KP2, LOC, Y
+    *GET, Z2, KP, KP2, LOC, Z
+    
+    C_I = C_ROOT + (C_TIP-C_ROOT)*Y1/SPAN
+    X_OFFSET = C_ROOT - C_I
+    Z_I = Y1*TAN(DIHED_R)
+    DCDY = (C_TIP-C_ROOT)/SPAN
+
+    XF1 = (X1 - X_OFFSET)/C_I
+    *IF, XF1, GE, 0, AND, XF1, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XF1)
+        T2 = 0.12600*XF1
+        T3 = 0.35160*(XF1**2)
+        T4 = 0.28430*(XF1**3)
+        T5 = 0.10150*(XF1**4)
+        YT1 = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YT1 = 0.0
+    *ENDIF
+    D1_UP = ABS(Z1 - (Z_I + YT1))
+    D1_LO = ABS(Z1 - (Z_I - YT1))
+    D1 = D1_UP
+    *IF, D1_LO, LT, D1_UP, THEN
+        D1 = D1_LO
+    *ENDIF
+
+    XF2 = (X2 - X_OFFSET)/C_I
+    *IF, XF2, GE, 0, AND, XF2, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XF2)
+        T2 = 0.12600*XF2
+        T3 = 0.35160*(XF2**2)
+        T4 = 0.28430*(XF2**3)
+        T5 = 0.10150*(XF2**4)
+        YT2 = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YT2 = 0.0
+    *ENDIF
+    D2_UP = ABS(Z2 - (Z_I + YT2))
+    D2_LO = ABS(Z2 - (Z_I - YT2))
+    D2 = D2_UP
+    *IF, D2_LO, LT, D2_UP, THEN
+        D2 = D2_LO
+    *ENDIF
+
+    XM = (X1+X2)/2
+    YM = (Y1+Y2)/2
+    ZM = (Z1+Z2)/2
+    XFM = (XM - X_OFFSET)/C_I
+    *IF, XFM, GE, 0, AND, XFM, LE, 1.0, THEN
+        T1 = 0.29690*SQRT(XFM)
+        T2 = 0.12600*XFM
+        T3 = 0.35160*(XFM**2)
+        T4 = 0.28430*(XFM**3)
+        T5 = 0.10150*(XFM**4)
+        YTM = TSCALE*(T1 - T2 - T3 + T4 - T5)*C_I
+    *ELSE
+        YTM = 0.0
+    *ENDIF
+    DM_UP = ABS(ZM - (Z_I + YTM))
+    DM_LO = ABS(ZM - (Z_I - YTM))
+    DM = DM_UP
+    *IF, DM_LO, LT, DM_UP, THEN
+        DM = DM_LO
+    *ENDIF
+
+    *IF, XFM, LT, 0.05, THEN
+        DM_TOL = 22.0
+    *ELSE
+        DM_TOL = 12.0
+    *ENDIF
+
+    *IF, D1, LT, 2.0, AND, D2, LT, 2.0, THEN
+        *IF, DM, LT, DM_TOL, THEN
+            TX = X2-X1
+            TY = Y2-Y1
+            TZ = Z2-Z1
+            TMAG = SQRT(TX**2+TY**2+TZ**2)
+            *IF, TMAG, GT, 1.0E-4, THEN
+                TX = TX/TMAG
+                TY = TY/TMAG
+                TZ = TZ/TMAG
+
+                XFR = (XM - X_OFFSET)/C_I
+                ZFR = (ZM - Z_I)/C_I
+
+                *IF, XFR, LT, 0.025, THEN
+                    BLEND_FAC = 0.0
+                *ELSEIF, XFR, LT, 0.065, THEN
+                    BLEND_FAC = (XFR-0.025)/0.040
+                *ELSE
+                    BLEND_FAC = 1.0
+                *ENDIF
+
+                NX_IP = -TZ
+                NZ_IP = TX
+                *IF, NX_IP*(X_OFFSET+0.5*C_I-XM) + NZ_IP*(Z_I-ZM), LT, 0, THEN
+                    NX_IP = -NX_IP
+                    NZ_IP = -NZ_IP
+                *ENDIF
+
+                SLOPE_Y = TAN(DIHED_R) + ZFR*DCDY
+                NX = NX_IP
+                NY = (-NZ_IP)*SLOPE_Y*BLEND_FAC
+                NZ = NZ_IP
+                NMAG = SQRT(NX**2+NY**2+NZ**2)
+                NX = NX/NMAG
+                NY = NY/NMAG
+                NZ = NZ/NMAG
+
+                *GET, K_MAX, KP, 0, NUM, MAXD
+                K_OR = K_MAX + 1
+                K, K_OR, XM+100*NX, YM+100*NY, ZM+100*NZ
+
+                SEC_RF = 6
+                EYY = NZ*TX - NX*TZ
+                *IF, Y1, LT, 1.0, THEN
+                    SPAN_IN = 1.0
+                *ELSEIF, Y1, GT, SPAN-1.0, THEN
+                    SPAN_IN = -1.0
+                *ELSE
+                    SPAN_IN = 0.0
+                *ENDIF
+
+                *IF, SPAN_IN, NE, 0, THEN
+                    *IF, EYY*SPAN_IN, GT, 0, THEN
+                        SEC_RF = 7
+                    *ELSE
+                        SEC_RF = 8
+                    *ENDIF
+                *ENDIF
+
+                LSEL, S, LINE, , LNUM
+                LATT, 1, , 2, , K_OR, , SEC_RF
+                LMESH, LNUM
+
+                CMSEL, S, COMP_RIBS
+                LSLA, S
+            *ENDIF
+        *ENDIF
+    *ENDIF
+*ENDDO
+ALLSEL, ALL
+
+! ================================================================
+!  CONFORMAL NODE WELDING & UNATTACHED NODE CLEANUP
+! ================================================================
+ALLSEL, ALL
+NUMMRG, NODE, 0.01
+NUMCMP, NODE
+
+ALLSEL, ALL
+NSLE, S
+NSEL, INVE
+NDELE, ALL
+ALLSEL, ALL
+FINISH

@@ -1,0 +1,43 @@
+STAGE 3b: HTP MULTI-CONFIGURATION MODAL, MASS, UNIT DISPLACEMENT & 1g GRAVITY VERIFICATION AUDIT
+========================================================================
+CONFIG = 1.  [Ribs=14., Spars=3., Stringers=8.]
+Mesh Census: Nodes= 40607. | Total Elems= 63460. (SHELL181= 59948., BEAM188= 3512.)
+Half-Span Mass:   140.463 kg ( 0.14046 ton) | Solver MTOT =   140.463 kg | CG [mm]: ( 1797.99,  1812.76,  222.43)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 19.064 | RibWeb= 28.835 | Stringer= 15.082 | SparCap=  7.671 | RibFlange=  6.147
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.1824E-04,  0.9508E-04,  0.1297E-03,  0.2461E-03
+Free-Free Elastic Modes 7-12   [Hz]:    55.987,    62.864,    64.774,    66.473,    66.754,    67.758
+Cantilever Root-Fixed Modes 1-6[Hz]:    19.702,    65.012,    67.028,    68.508,    71.103,    75.400
+Table 4 [1g X-Dir]: Rx= -1377.946 N | Ry= 0.483E-05 N | Rz=-0.696E-06 N | Rx= -1.3779 kN (Theo= -1.3779 kN, Err= 0.595E-07 %)
+Table 5 [1g Y-Dir]: Rx= 0.641E-06 N | Ry= -1377.946 N | Rz= 0.278E-06 N | Ry= -1.3779 kN (Theo= -1.3779 kN, Err= 0.529E-06 %)
+Table 6 [1g Z-Dir]: Rx= 0.131E-04 N | Ry=-0.138E-04 N | Rz= -1377.946 N | Rz= -1.3779 kN (Theo= -1.3779 kN, Err= 0.897E-06 %)
+1g Z-Static Response: Max Deflection =  1.0802 mm | Max Von Mises Stress =   1.981 MPa | Unit Disp UX: [1.00000, 1.00000] mm (Stress= 0.159E-07 MPa)
+Verification Gate: Max RBM =  0.2461E-03 Hz (<1e-3) | Mode 7 =   55.987 Hz (>1.0) | PASS = 1.
+
+========================================================================
+CONFIG = 2.  [Ribs= 9., Spars=2., Stringers=8.]
+Mesh Census: Nodes= 25063. | Total Elems= 38251. (SHELL181= 36047., BEAM188= 2204.)
+Half-Span Mass:   121.890 kg ( 0.12189 ton) | Solver MTOT =   121.890 kg | CG [mm]: ( 1775.86,  1817.86,  223.04)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 15.208 | RibWeb= 18.928 | Stringer= 15.082 | SparCap=  5.133 | RibFlange=  3.874
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.3870E-04,  0.6971E-04,  0.1359E-03,  0.1969E-03
+Free-Free Elastic Modes 7-12   [Hz]:    52.340,    55.472,    56.367,    60.399,    60.969,    61.115
+Cantilever Root-Fixed Modes 1-6[Hz]:    20.689,    59.850,    63.672,    65.544,    67.409,    69.082
+Table 4 [1g X-Dir]: Rx= -1195.743 N | Ry= 0.747E-06 N | Rz= 0.760E-06 N | Rx= -1.1957 kN (Theo= -1.1957 kN, Err= 0.412E-06 %)
+Table 5 [1g Y-Dir]: Rx=-0.937E-07 N | Ry= -1195.743 N | Rz= 0.140E-05 N | Ry= -1.1957 kN (Theo= -1.1957 kN, Err= 0.622E-06 %)
+Table 6 [1g Z-Dir]: Rx= 0.329E-05 N | Ry=-0.477E-06 N | Rz= -1195.743 N | Rz= -1.1957 kN (Theo= -1.1957 kN, Err= 0.718E-06 %)
+1g Z-Static Response: Max Deflection =  0.9711 mm | Max Von Mises Stress =   1.750 MPa | Unit Disp UX: [1.00000, 1.00000] mm (Stress= 0.202E-07 MPa)
+Verification Gate: Max RBM =  0.1969E-03 Hz (<1e-3) | Mode 7 =   52.340 Hz (>1.0) | PASS = 1.
+
+========================================================================
+CONFIG = 3.  [Ribs= 7., Spars=2., Stringers=6.]
+Mesh Census: Nodes= 19199. | Total Elems= 29815. (SHELL181= 28241., BEAM188= 1574.)
+Half-Span Mass:   113.637 kg ( 0.11364 ton) | Solver MTOT =   113.637 kg | CG [mm]: ( 1775.43,  1811.90,  222.30)
+Mass Breakdown [kg]: Skin= 63.665 | SparWeb= 15.208 | RibWeb= 15.337 | Stringer= 11.314 | SparCap=  5.133 | RibFlange=  2.981
+Free-Free Rigid-Body Modes 1-6 [Hz]:  0.0000E+00,  0.0000E+00,  0.0000E+00,  0.0000E+00,  0.9784E-04,  0.2414E-03
+Free-Free Elastic Modes 7-12   [Hz]:    45.946,    47.273,    48.653,    49.912,    50.432,    51.364
+Cantilever Root-Fixed Modes 1-6[Hz]:    21.009,    48.575,    50.741,    51.843,    53.611,    54.860
+Table 4 [1g X-Dir]: Rx= -1114.784 N | Ry=-0.882E-05 N | Rz=-0.252E-06 N | Rx= -1.1148 kN (Theo= -1.1148 kN, Err= 0.581E-06 %)
+Table 5 [1g Y-Dir]: Rx=-0.576E-06 N | Ry= -1114.784 N | Rz= 0.802E-06 N | Ry= -1.1148 kN (Theo= -1.1148 kN, Err= 0.525E-06 %)
+Table 6 [1g Z-Dir]: Rx= 0.698E-07 N | Ry= 0.151E-04 N | Rz= -1114.784 N | Rz= -1.1148 kN (Theo= -1.1148 kN, Err= 0.101E-06 %)
+1g Z-Static Response: Max Deflection =  0.9378 mm | Max Von Mises Stress =   1.614 MPa | Unit Disp UX: [1.00000, 1.00000] mm (Stress= 0.131E-07 MPa)
+Verification Gate: Max RBM =  0.2414E-03 Hz (<1e-3) | Mode 7 =   45.946 Hz (>1.0) | PASS = 1.
+
