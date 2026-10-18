@@ -1,0 +1,43 @@
+! ================================================================
+!  MACRO: EXPORT_LOAD_NODES.mac
+!  Extract rib-station skin nodes for MATLAB SFBM calculation
+!  Usage: In ANSYS command line or script, run:
+!         /INPUT, EXPORT_LOAD_NODES, mac
+! ================================================================
+CSYS, 0
+ALLSEL, ALL
+
+! Automatically name CSV output file according to current CONFIG
+*IF, CONFIG, EQ, 1, THEN
+    *CFOPEN, htp_nodes_cfg1, csv
+*ELSEIF, CONFIG, EQ, 2, THEN
+    *CFOPEN, htp_nodes_cfg2, csv
+*ELSEIF, CONFIG, EQ, 3, THEN
+    *CFOPEN, htp_nodes_cfg3, csv
+*ELSE
+    *CFOPEN, htp_nodes, csv
+*ENDIF
+
+*VWRITE
+('node,y_mm,x_mm,z_mm')
+
+*DO, I, 2, N_RIB                       ! Skip Rib 1 (Root clamped at Y=0)
+    ALLSEL, ALL
+    ESEL, S, MAT, , 2                   ! Composite Skin elements only
+    NSLE, S                             ! Corner nodes
+    NSEL, R, LOC, Y, Y_STA(I)-0.5, Y_STA(I)+0.5  ! Nodes at Rib Station I
+    *GET, NN, NODE, 0, COUNT
+    NI = 0
+    *DO, K, 1, NN
+        NI = NDNEXT(NI)
+        *GET, YN, NODE, NI, LOC, Y
+        *GET, XN, NODE, NI, LOC, X
+        *GET, ZN, NODE, NI, LOC, Z
+        *VWRITE, NI, YN, XN, ZN
+        (F10.0, ',', F12.4, ',', F12.4, ',', F12.4)
+    *ENDDO
+*ENDDO
+*CFCLOS
+ALLSEL, ALL
+
+/UI, MSG, NOTE, 'Nodes exported successfully to htp_nodes_cfg.csv!'

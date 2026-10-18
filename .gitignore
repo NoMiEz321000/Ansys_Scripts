@@ -1,6 +1,9 @@
 main_run/
 main_run_2/
 main_run_3/
+main_run_4/
+load_main_run*/
+load_sfbm/load_main_run*/
 *.err
 *.out
 *.log

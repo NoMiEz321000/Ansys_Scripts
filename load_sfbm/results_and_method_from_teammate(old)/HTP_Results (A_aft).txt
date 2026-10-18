@@ -1,0 +1,1 @@
+CONFIG:  1. SMAX[MPa]:      1.85 TIP_UZ[mm]:      0.74

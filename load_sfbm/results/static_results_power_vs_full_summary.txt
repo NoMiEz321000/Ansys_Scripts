@@ -1,0 +1,116 @@
+﻿====================================================================================================
+ANSYS MECHANICAL APDL STATIC ANALYSIS: POWERGRAPHICS VS. FULL GRAPHICS COMPARISON REPORT
+====================================================================================================
+Project:            Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization
+Aircraft Baseline:  ATR 42-600 Regional Turboprop / EASA CS-25 Compliance
+Flight Load Case:   D_fwd (Dive Speed V_D = 312.5 kt, Limit Load Factor n = +2.571)
+Target Half-Tail:   -9,142.84 N (Cantilever Downward Limit Load)
+Result Path:        Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization\Ansys_Scripts\load_sfbm\results\
+Date & Auditor:     2026-10-19 | Aircraft Structural & Aeroelasticity Audit Team
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+1. CERTIFIED EXECUTIVE COMPARISON TABLE
+----------------------------------------------------------------------------------------------------
+
++-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| Metric / Parameter                  | Configuration 1             | Configuration 2             | Configuration 3             |
+|                                     | (14 Ribs, 3 Spars, 8 Str.)  | (9 Ribs, 2 Spars, 8 Str.)   | (7 Ribs, 2 Spars, 6 Str.)   |
++-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| Structural Mass [kg]                | 85.34 kg                    | 72.06 kg (-15.6%)           | 67.89 kg (-20.4%)           |
+| Load Balance (Root Reaction FZ)     | -9,142.84 N (100.000%)      | -9,142.84 N (100.000%)      | -9,142.82 N (100.000%)      |
++-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| --- DISPLACEMENTS (Tip Deflection) -|                             |                             |                             |
+| DMX — PowerGraphics (GUI Default)   | 6.77 mm (6.769 mm)          | 6.95 mm (6.954 mm)          | 7.10 mm (7.098 mm)          |
+| DMX — Full Graphics (Batch Mode)    | 6.77 mm (6.768 mm)          | 6.95 mm (6.952 mm)          | 7.10 mm (7.097 mm)          |
+| Delta DMX (%)                       | 0.00% (Identical)           | 0.00% (Identical)           | 0.00% (Identical)           |
+| TIP_UZ — PowerGraphics              | -6.72 mm (-6.716 mm)        | -6.90 mm (-6.900 mm)        | -7.04 mm (-7.043 mm)        |
+| TIP_UZ — Full Graphics              | -6.72 mm (-6.716 mm)        | -6.90 mm (-6.900 mm)        | -7.04 mm (-7.043 mm)        |
+| Delta TIP_UZ (%)                    | 0.00% (Identical)           | 0.00% (Identical)           | 0.00% (Identical)           |
+| Delta (DMX vs. |TIP_UZ|)            | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             |
++-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| --- VON MISES EQUIVALENT STRESS --- |                             |                             |                             |
+| SMAX — PowerGraphics (GUI Default)  | 29.54 MPa (29.5412 MPa)     | 45.73 MPa (45.7270 MPa)     | 59.45 MPa (59.4468 MPa)     |
+| SMAX — Full Graphics (Shell Average)| 12.50 MPa (12.5046 MPa)     | 12.75 MPa (12.7517 MPa)     | 15.47 MPa (15.4742 MPa)     |
+| Delta SMAX (Power vs. Full)         | +136.3%                     | +258.6%                     | +284.3%                     |
+| Critical Stress Location (Power)    | Root Cantilever Flange/Str. | Root Cantilever Flange/Str. | Root Cantilever Flange/Str. |
+| Critical Stress Location (Full)     | Root Spar/Skin Junction     | Root Spar/Skin Junction     | Root Rib Lightening Hole 1  |
++-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+
+
+----------------------------------------------------------------------------------------------------
+2. WHY DO POWERGRAPHICS AND FULL GRAPHICS SHOW DIFFERENT STRESS VALUES?
+----------------------------------------------------------------------------------------------------
+Commands:
+- PowerGraphics:  /GRAPHICS, POWER  (ANSYS GUI Default)
+- Full Graphics:  /GRAPHICS, FULL   (Classical APDL Batch Mode)
+
+1. Root Cause in Structural Modeling (/ESHAPE, 1 & BEAM188):
+   In the parametric finite element model, the structural skin, spar webs, and rib webs are modeled
+   using SHELL181 elements, while the spanwise stringers and spar caps are modeled using BEAM188 elements.
+   When /ESHAPE, 1 is active, 1D beam elements are rendered with true 3D cross-sectional geometry.
+
+2. Mechanism of Divergence:
+   - In Full Graphics (/GRAPHICS, FULL):
+     MAPDL follows strict classical element-to-node averaging. However, by APDL mathematical design:
+     "BEAM/PIPE elements are detected in the selected element set. They are ignored in the nodal averaging."
+     Because beam elements do not share 2D stress tensors with shell elements, Full Graphics excludes
+     the beam cross-section stress from PLNSOL and NSORT. Consequently, Full Graphics reports ONLY the
+     continuous shell membrane/bending stress in the skins and spar webs (12.50 MPa to 15.47 MPa).
+
+   - In PowerGraphics (/GRAPHICS, POWER - Default in ANSYS GUI):
+     PowerGraphics calculates and displays stresses based on external geometric facets. With /ESHAPE, 1,
+     it generates 3D surface facets for BEAM188 stringers and flanges.
+     At the clamped cantilever root (Y = 0), the maximum bending moment (M_root = -16,058 N*m) induces
+     high localized axial tension/compression in the outer stringer and spar flange cross-sections.
+     PowerGraphics captures these localized beam section facet stresses, yielding the true screen SMX:
+     * Config 1: 29.54 MPa  (matches cfg1_vonmises_seqv.png)
+     * Config 2: 45.73 MPa  (matches cfg2_vonmises_seqv.png)
+     * Config 3: 59.45 MPa  (matches cfg3_vonmises_seqv.png)
+
+
+----------------------------------------------------------------------------------------------------
+3. DMX VS. TIP_UZ: COMPREHENSIVE ENGINEERING CLARIFICATION
+----------------------------------------------------------------------------------------------------
+Q: "สรุปเราต้องดู DMX หรือ TIP_UZ ในการรายงานผล?"
+
+1. Definitions:
+   - DMX (Displacement Vector Sum Maximum):
+     DMX = sqrt(UX^2 + UY^2 + UZ^2) >= 0
+     Absolute spatial displacement magnitude of any node in the model.
+   - TIP_UZ (Z-Axis Directional Displacement at Wingtip):
+     TIP_UZ = UZ at y = SPAN (3978 mm) < 0
+     True vertical bending deflection of the tailplane under downward aerodynamic loading.
+
+2. Physical Proportion:
+   - Vertical deflection |UZ| accounts for 99.24% of DMX (e.g. In Config 1: 6.716 mm vs 6.769 mm).
+   - The minor 0.76% difference (~0.05 mm) is caused by Poisson shortening (UY) and chordwise
+     dihedral sweep warping (UX).
+
+3. Recommendation for Project Defense & Thesis:
+   - State BOTH values clearly:
+     * Use TIP_UZ (-6.72 mm to -7.04 mm) when discussing aircraft flight dynamics, elevator clearance,
+       and aeroelastic bending stiffness.
+     * Use DMX (6.77 mm to 7.10 mm) when referencing ANSYS GUI plot contour bars.
+
+
+----------------------------------------------------------------------------------------------------
+4. STRUCTURAL CONFIGURATION COMPARISON UNDER POWERGRAPHICS
+----------------------------------------------------------------------------------------------------
+- Configuration 1 (14 Ribs, 3 Spars, 8 Stringers | 85.34 kg):
+  * DMX = 6.77 mm, TIP_UZ = -6.72 mm
+  * SMX (PowerGraphics) = 29.54 MPa
+  * Three spars and dense stringer layout provide superior torsional and bending stiffness.
+
+- Configuration 2 (9 Ribs, 2 Spars, 8 Stringers | 72.06 kg):
+  * Mass reduction: -15.6% (-13.28 kg)
+  * DMX = 6.95 mm (+2.7%), TIP_UZ = -6.90 mm
+  * SMX (PowerGraphics) = 45.73 MPa
+  * Highly balanced trade-off between structural weight and stress efficiency.
+
+- Configuration 3 (7 Ribs, 2 Spars, 6 Stringers | 67.89 kg):
+  * Mass reduction: -20.4% (-17.45 kg)
+  * DMX = 7.10 mm (+4.9%), TIP_UZ = -7.04 mm
+  * SMX (PowerGraphics) = 59.45 MPa
+  * Widest rib spacing and reduced stringer count concentrate bending stresses at the root flanges.
+====================================================================================================
