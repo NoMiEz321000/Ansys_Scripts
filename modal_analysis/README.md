@@ -40,7 +40,7 @@ A structurally contiguous, mechanism-free 3D assembly in $\mathbb{R}^3$ possesse
 
 ### 2.1 Quantitative Comparison of Free-Free Rigid-Body Modes (Literature Table 3 vs. Our Model)
 
-In **Table 3 (Page 6)** of Palumbo et al. (2026), the authors report the first 6 natural frequencies of the unconstrained HTP model to prove complete nodal connectivity (`NUMMRG`). Our parametric implementation reproduces the exact same physical and numerical behavior across all three configurations (`modal_main_run_1/STAGE3B_MODAL_FREE_FREE.csv`):
+In **Table 3 (Page 6)** of Palumbo et al. (2026), the authors report the first 6 natural frequencies of the unconstrained HTP model to prove complete nodal connectivity (`NUMMRG`). Our parametric implementation reproduces the exact same physical and numerical behavior across all three configurations ([`result/STAGE3B_MODAL_FREE_FREE.csv`](result/STAGE3B_MODAL_FREE_FREE.csv)):
 
 | Mode / Metric | Physical Interpretation | Literature (*Palumbo et al., 2026* — Table 3) | Our Model: Config A (`14-3-8`) | Our Model: Config B (`9-2-8`) | Our Model: Config C (`7-2-6`) | Validation Status |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -74,7 +74,7 @@ A critical visual observation in **Figure 6 (a)–(f) (Page 6)** of Palumbo et a
      $$\theta_x y - \theta_y x = \text{const}$$
      which are **mathematically straight parallel lines** across the entire lifting surface, transitioning smoothly from negative (blue) on one side of the rotation axis to positive (red) on the other.
 
-When we plot **Free-Free Modes 1–6** of our own model using signed directional components (`PLNSOL, U, Z` / `UX` / `UY`), we obtain the exact same straight parallel contour bands and signed legend bars as **Figure 6 (a)–(f)** in Palumbo et al. (2026) (stored in [`visual_modal/01_literature_fig6_rigid_body/`](visual_modal/01_literature_fig6_rigid_body/)).
+When we plot **Free-Free Modes 1–6** of our own model using signed directional components (`PLNSOL, U, Z` / `UX` / `UY`), we obtain the exact same straight parallel contour bands and signed legend bars as **Figure 6 (a)–(f)** in Palumbo et al. (2026) (stored in [`visual_modal/01_literature_fig6_rigid_body/`](visual_modal/01_literature_fig6_rigid_body/); see [`note.md`](note.md) for in-depth Q&A and presentation notes on mode ordering and contour sign symmetry).
 
 ### 2.3 Gravity Load Equilibrium (`1g` in X, Y, Z — Literature Tables 4, 5, 6) & Unit Displacement Verification
 
@@ -82,7 +82,7 @@ In **Section 3 (Page 6, Tables 4–6)** of Palumbo et al. (2026), two additional
 1. **Unitary Displacement Check:** Imposing a unit displacement (`UX = 1.0 mm, UY = UZ = ROTX = ROTY = ROTZ = 0`) at a central node with all other constraints removed to verify stiffness matrix assembly ($\mathbf{K}$).
 2. **Three-Direction $1g$ Gravity Load Verification (Tables 4, 5, 6):** Applying a $1g$ acceleration sequentially along the $X$, $Y$, and $Z$ directions (`ACEL`) with the root clamped (`Y = 0`) and verifying that the root constraint reaction forces (`FSUM`) match the total structural weight ($W = M \cdot g$), while maximum displacements remain within a few millimeters and stresses remain well below material allowables (Strength Ratio $> 1.0$).
 
-> **Note on Units in Literature Tables 4–6:** In Palumbo et al. (2026), multiplying `Model Mass = 0.16602 ton` by `9.81` yields `-1.6287` (which corresponds to **kilonewtons `[kN]`**, or inputting `ACEL = 9.81` instead of `9810 mm/s²` in `(N, mm, tonne)` units). Below, we report both the exact SI force in **Newtons `[N]`** ($g = 9810\text{ mm/s}^2$) and the **Literature-normalized `[kN]`** value ($M[\text{ton}] \times 9.81$) from [`modal_main_run_1/STAGE3B_GRAVITY_1G_VERIFICATION.csv`](modal_main_run_1/STAGE3B_GRAVITY_1G_VERIFICATION.csv):
+> **Note on Units in Literature Tables 4–6:** In Palumbo et al. (2026), multiplying `Model Mass = 0.16602 ton` by `9.81` yields `-1.6287` (which corresponds to **kilonewtons `[kN]`**, or inputting `ACEL = 9.81` instead of `9810 mm/s²` in `(N, mm, tonne)` units). Below, we report both the exact SI force in **Newtons `[N]`** ($g = 9810\text{ mm/s}^2$) and the **Literature-normalized `[kN]`** value ($M[\text{ton}] \times 9.81$) from [`result/STAGE3B_GRAVITY_1G_VERIFICATION.csv`](result/STAGE3B_GRAVITY_1G_VERIFICATION.csv):
 
 #### Table 4, 5 & 6 Comparison: $1g$ Gravity Load Verification Across X, Y, and Z Directions
 
@@ -97,7 +97,7 @@ In **Section 3 (Page 6, Tables 4–6)** of Palumbo et al. (2026), two additional
 
 ---
 
-## 3. Baseline Structural Mass & Component Breakdown Audit (`modal_main_run_1/STAGE3B_MASS_BREAKDOWN.csv`)
+## 3. Baseline Structural Mass & Component Breakdown Audit (`result/STAGE3B_MASS_BREAKDOWN.csv`)
 
 Using the consistent unit system `(N, mm, tonne, MPa)` with $\rho_{\text{Al 7075-T6}} = 2.81 \times 10^{-9}\text{ tonne/mm}^3$ and $\rho_{\text{Comp}} = 1.60 \times 10^{-9}\text{ tonne/mm}^3$, the baseline structural mass (at initial sizing thicknesses $t_{\text{skin}} = 2.0\text{ mm}$, $t_{\text{spar}} = 3.0\text{ mm}$, $t_{\text{rib}} = 2.0\text{ mm}$) is verified across all three topologies and compared against the initial baseline mass reported in **Tables 4–6 (Page 6)** of Palumbo et al. (2026) (`0.16602 ton` = `166.02 kg` half-span, where our refined stringer/flange cross-sections yield `0.14046 ton` = `140.46 kg` half-span):
 
@@ -118,7 +118,7 @@ Using the consistent unit system `(N, mm, tonne, MPa)` with $\rho_{\text{Al 7075
 
 ---
 
-## 4. Clamped-Root (Cantilever) Modal Analysis (`modal_main_run_1/STAGE3B_MODAL_CANTILEVER.csv`)
+## 4. Clamped-Root (Cantilever) Modal Analysis (`result/STAGE3B_MODAL_CANTILEVER.csv`)
 
 With the root rib ($Y = 0$) fully clamped (`D, ALL, ALL, 0`), the first 6 structural natural frequencies characterize the dynamic stiffness-to-mass behavior of each configuration:
 
@@ -196,13 +196,15 @@ modal_analysis/
 ├── VERIFY_MODAL.mac                                # Master batch verification driver across CONFIG = 1, 2, 3
 ├── RENDER_MODAL.mac                                # High-resolution mode shape, skeleton, and Literature Fig. 6 visualizer
 ├── README.md                                       # Stage 3b verification & literature validation documentation
-├── modal_main_run_1/                               # Execution outputs, CSV datasets, verification summary & solver logs
+├── note.md                                         # In-depth physics/math notes, Q&A cheat sheet & presentation/report guide
+├── result/                                         # Extracted verification CSV datasets & human-readable summary report
 │   ├── STAGE3B_VERIFICATION_SUMMARY.txt            # Human-readable verification log and gate report
 │   ├── STAGE3B_MODAL_FREE_FREE.csv                 # Machine-readable Free-Free frequencies (f1..f12) and gate flags
 │   ├── STAGE3B_MODAL_CANTILEVER.csv                # Machine-readable Cantilever frequencies (fc1..fc6)
 │   ├── STAGE3B_MASS_BREAKDOWN.csv                  # Machine-readable component mass breakdown and CG coordinates
 │   ├── STAGE3B_GRAVITY_1G_VERIFICATION.csv         # Machine-readable 3-axis 1g gravity equilibrium checks (Tables 4, 5, 6)
 │   └── STAGE3B_STATIC_AND_UNIT_DISP.csv            # Machine-readable 1g Z-static deflection/stress & unit displacement check
+├── modal_main_run_1/                               # Raw ANSYS MAPDL execution logs and binary solver files (*.out, *.rst, etc.)
 └── visual_modal/                                   # Categorized mode shape & structural skeleton visual gallery
     ├── 01_literature_fig6_rigid_body/              # Free-Free Modes 1-6 signed directional contours (Lit. Fig. 6a-f)
     ├── 02_config_a_14_3_8_free_free_elastic/       # Config A Free-Free elastic modes (Modes 7-10)

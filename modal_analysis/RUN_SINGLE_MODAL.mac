@@ -253,33 +253,33 @@ FC5 = FC_HZ(5)
 FC6 = FC_HZ(6)
 FINISH
 
-! --- 6. WRITE RESULTS TO CSV & SUMMARY FILES (in modal_main_run_1/) ---
-*CFOPEN, modal_main_run_1/STAGE3B_MODAL_FREE_FREE, csv, , APPEND
+! --- 6. WRITE RESULTS TO CSV & SUMMARY FILES (in result/) ---
+*CFOPEN, result/STAGE3B_MODAL_FREE_FREE, csv, , APPEND
 *VWRITE, CONFIG, N_NODES, N_ELEMS, M_TOTAL_KG, FF1, FF2, FF3, FF4, FF5, FF6, FF7, FF8, FF9, FF10, FF11, FF12, MAX_RBM, GATE_PASS
 (F3.0,',',F8.0,',',F8.0,',',F10.4,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',E12.5,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',E12.5,',',F3.0)
 *CFCLOS
 
-*CFOPEN, modal_main_run_1/STAGE3B_MODAL_CANTILEVER, csv, , APPEND
+*CFOPEN, result/STAGE3B_MODAL_CANTILEVER, csv, , APPEND
 *VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, M_TOTAL_KG, FC1, FC2, FC3, FC4, FC5, FC6
 (F3.0,',',F4.0,',',F3.0,',',F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4)
 *CFCLOS
 
-*CFOPEN, modal_main_run_1/STAGE3B_MASS_BREAKDOWN, csv, , APPEND
+*CFOPEN, result/STAGE3B_MASS_BREAKDOWN, csv, , APPEND
 *VWRITE, CONFIG, M_TOTAL_KG, M_SOLVER_KG, M_SKIN_KG, M_SPAR_W_KG, M_RIB_W_KG, M_STR_KG, M_SPAR_F_KG, M_RIB_F_KG, X_CG, Y_CG, Z_CG
 (F3.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.3,',',F10.3,',',F10.3)
 *CFCLOS
 
-*CFOPEN, modal_main_run_1/STAGE3B_GRAVITY_1G_VERIFICATION, csv, , APPEND
+*CFOPEN, result/STAGE3B_GRAVITY_1G_VERIFICATION, csv, , APPEND
 *VWRITE, CONFIG, M_TOTAL_T, F_THEO_N, F_THEO_KN, GX_RX_N, GX_RY_N, GX_RZ_N, GX_RX_KN, ERR_GX_PCT, GY_RX_N, GY_RY_N, GY_RZ_N, GY_RY_KN, ERR_GY_PCT, GZ_RX_N, GZ_RY_N, GZ_RZ_N, GZ_RZ_KN, ERR_GZ_PCT
 (F3.0,',',F9.5,',',F11.4,',',F9.5,',',F11.4,',',E11.4,',',E11.4,',',F9.5,',',E11.4,',',E11.4,',',F11.4,',',E11.4,',',F9.5,',',E11.4,',',E11.4,',',E11.4,',',F11.4,',',F9.5,',',E11.4)
 *CFCLOS
 
-*CFOPEN, modal_main_run_1/STAGE3B_STATIC_AND_UNIT_DISP, csv, , APPEND
+*CFOPEN, result/STAGE3B_STATIC_AND_UNIT_DISP, csv, , APPEND
 *VWRITE, CONFIG, GZ_UMX_MM, GZ_SMX_MPA, UNIT_UX_MIN, UNIT_UX_MAX, UNIT_SMX
 (F3.0,',',F10.5,',',F10.4,',',F10.6,',',F10.6,',',E12.5)
 *CFCLOS
 
-*CFOPEN, modal_main_run_1/STAGE3B_VERIFICATION_SUMMARY, txt, , APPEND
+*CFOPEN, result/STAGE3B_VERIFICATION_SUMMARY, txt, , APPEND
 *VWRITE, CONFIG, N_RIB, N_SPAR, N_STR, N_NODES, N_ELEMS, N_SHELL, N_BEAM
 ('========================================================================',/,'CONFIG = ',F2.0,'  [Ribs=',F3.0,', Spars=',F2.0,', Stringers=',F2.0,']',/,'Mesh Census: Nodes=',F7.0,' | Total Elems=',F7.0,' (SHELL181=',F7.0,', BEAM188=',F6.0,')')
 *VWRITE, M_TOTAL_KG, M_TOTAL_T, M_SOLVER_KG, X_CG, Y_CG, Z_CG
