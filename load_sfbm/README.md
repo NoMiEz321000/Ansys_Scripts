@@ -233,25 +233,31 @@ During pipeline integration, three major structural and numerical traps were ide
 
 Finite element static evaluation under critical aerodynamic flight load case **`D_fwd`** (Dive Speed $V_D = 312.5\text{ kt}$, Limit Load Factor $n = +2.571$, Half-Tail Cantilever Load $P = -9,142.84\text{ N}$) across all three structural layouts:
 
-### Certified Results Matrix (PowerGraphics vs. Full Graphics):
+### Certified Results Matrix (PowerGraphics vs. Full Graphics — Synchronized Baseline):
 
 | Parameter / Metric | Configuration 1<br>(14 Ribs, 3 Spars, 8 Str.) | Configuration 2<br>(9 Ribs, 2 Spars, 8 Str.) | Configuration 3<br>(7 Ribs, 2 Spars, 6 Str.) | Verification / Difference |
-| :--- | :---: | :---: | :---: | :---: |
-| **Structural Mass (kg)** | **85.34 kg** | **72.06 kg** (-15.6%) | **67.89 kg** (-20.4%) | Certified APDL Volume Integrals |
+| :--- | :---: | :---: | :---: | :--- |
+| **Structural Mass (kg)** | **140.46 kg** (`140.4634 kg`) | **121.89 kg** (-13.22%) | **113.64 kg** (-19.10%) | Certified APDL Volume Integrals (`MTOT` = `ETAB`) |
 | **Applied Load ($F_Z$)** | -9,142.84 N | -9,142.84 N | -9,142.84 N | Target Downward Limit Load |
 | **Root Reaction ($F_Z$)** | **-9,142.84 N** | **-9,142.84 N** | **-9,142.82 N** | $\Delta < 0.001\%$ (**100.0% Equilibrium**) |
 | <td colspan="5">**DISPLACEMENTS: DMX vs. TIP_UZ**</td> |
-| **DMX — PowerGraphics (GUI)** | **6.77 mm** (6.769 mm) | **6.95 mm** (6.954 mm) | **7.10 mm** (7.098 mm) | Matches ANSYS GUI Plot Legends |
-| **DMX — Full Graphics (Batch)** | **6.77 mm** (6.768 mm) | **6.95 mm** (6.952 mm) | **7.10 mm** (7.097 mm) | $\Delta = 0.000\%$ (**Identical**) |
-| **TIP_UZ — PowerGraphics** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.900 mm) | **-7.04 mm** (-7.043 mm) | True Vertical Downward Bending |
-| **TIP_UZ — Full Graphics** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.900 mm) | **-7.04 mm** (-7.043 mm) | $\Delta = 0.000\%$ (**Identical**) |
+| **DMX — PowerGraphics & Full Graphics** | **6.77 mm** (6.768 mm) | **6.95 mm** (6.951 mm) | **7.10 mm** (7.096 mm) | Matches ANSYS GUI Plot Legends |
+| **TIP_UZ — PowerGraphics & Full Graphics** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.898 mm) | **-7.04 mm** (-7.042 mm) | True Vertical Downward Bending |
 | **$\Delta$ (DMX vs. \|TIP_UZ\|)** | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | 3D In-plane / Poisson Coupling |
 | <td colspan="5">**EQUIVALENT VON MISES STRESS: $\sigma_{\text{vM}}$ [MPa]**</td> |
-| **SMAX — PowerGraphics (GUI)** | **29.54 MPa** (29.5412 MPa) | **45.73 MPa** (45.7270 MPa) | **59.45 MPa** (59.4468 MPa) | **Directly matches GUI & Plots** |
-| **SMAX — Full Graphics (Shell)**| **12.50 MPa** (12.5046 MPa) | **12.75 MPa** (12.7517 MPa) | **15.47 MPa** (15.4742 MPa) | **Nodal-averaged Shell Stress** |
-| **$\Delta$ SMAX (Power vs. Full)** | **+136.3%** | **+258.6%** | **+284.3%** | Captures 3D Beam Flange Bending |
-| **Critical Location (PowerGraphics)** | Root Cantilever Stringer Flange | Root Cantilever Stringer Flange | Root Cantilever Stringer Flange | Maximum Bending Moment Zone |
-| **Critical Location (Full Graphics)** | Root Spar/Skin Junction | Root Spar/Skin Junction | Root Rib Lightening Hole 1 | Continuous Mid-Surface Shells |
+| **SMAX — PowerGraphics (`/ESHAPE, 1` Global)** | **29.54 MPa** (29.5412 MPa) | **46.78 MPa** (46.7829 MPa)\* | **59.15 MPa** (59.1507 MPa)\* | **Interior Rib Flange (`SEC 6` `BEAM188`)** |
+| **SMAX — PowerGraphics Skin (`SEC 3`)** | **12.59 MPa** (12.5948 MPa) | **19.86 MPa** (19.8587 MPa) | **25.32 MPa** (25.3180 MPa) | Unaveraged Composite Skin Peak |
+| **SMAX — PowerGraphics Spar Web (`SEC 2`)** | **18.49 MPa** (18.4858 MPa) | **23.14 MPa** (23.1440 MPa) | **28.49 MPa** (28.4858 MPa) | Unaveraged Al 7075-T6 Spar Web Peak |
+| **SMAX — PowerGraphics Stringer (`SEC 4`)** | **15.00 MPa** (14.9957 MPa) | **15.72 MPa** (15.7151 MPa) | **16.09 MPa** (16.0949 MPa) | 3D Hat-Section Facet Peak |
+| **SMAX — PowerGraphics Spar Cap (`SEC 5`)** | **19.66 MPa** (19.6608 MPa) | **20.60 MPa** (20.6026 MPa) | **19.97 MPa** (19.9727 MPa) | 3D Spar Cap Flange Peak |
+| **SMAX — Full Graphics (Mixed Shell Avg.)**| **12.50 MPa** (12.5046 MPa) | **12.76 MPa** (12.7557 MPa) | **15.57 MPa** (15.5658 MPa) | **Shared-Node Blended Shell Stress** |
+| **SMAX — Full Graphics Skin (`SEC 3` Isolated)**| **11.15 MPa** (11.1461 MPa) | **12.41 MPa** (12.4126 MPa) | **13.31 MPa** (13.3129 MPa) | **Element-Isolated Composite Skin** |
+| **SMAX — Full Graphics Spar Web (`SEC 2` Isolated)**| **16.90 MPa** (16.9037 MPa) | **20.04 MPa** (20.0368 MPa) | **24.76 MPa** (24.7645 MPa) | **Element-Isolated Spar Web** |
+| **SMAX — Full Graphics Rib Web (`SEC 1` Isolated)**| **7.83 MPa** (7.8321 MPa) | **10.94 MPa** (10.9374 MPa) | **15.57 MPa** (15.5658 MPa) | **Element-Isolated Rib Web** |
+| **Critical Location (PowerGraphics)** | Interior Rib Flange (`SEC 6`) | Interior Rib Flange (`SEC 6`) | Interior Rib Flange (`SEC 6`) | Chordwise Rib Bending Transfer |
+| **Critical Location (Full Isolated)** | Spar Web (`SEC 2`) | Spar Web (`SEC 2`) | Spar Web (`SEC 2`) | Primary Vertical Shear / Bending Web |
+
+*\*Note: Prior to synchronizing the Dynamic Safe Pillar Capping (`RH <= D_ADJ - 14.0`) for `N_CUT = 6` and `N_CUT = 5` in Block 5, Config 2 and Config 3 PowerGraphics peaks were `45.73 MPa` and `59.45 MPa`, respectively, matching the legacy right-legend screenshots in `visual_load/with_powergraph/`.*
 
 ---
 
@@ -284,19 +290,21 @@ Finite element static evaluation under critical aerodynamic flight load case **`
    Because nodal displacements exist uniquely at each node in the FEA mesh, graphics display modes do not recalculate, smooth, or interpolate them. Hence, both modes yield **100.000% identical displacement values**.
 
 2. **Why Stresses Differ between PowerGraphics and Full Graphics:**
-   In this model, the outer composite skin, spar webs, and ribs are modeled with `SHELL181` elements, while the longitudinal stringers and spar caps are modeled with `BEAM188` elements. When cross-section rendering is active (`/ESHAPE, 1`):
+   In this model, the outer composite skin (`SEC 3`), spar webs (`SEC 2`), and ribs (`SEC 1`) are modeled with `SHELL181` elements, while the longitudinal stringers (`SEC 4`), spar caps (`SEC 5`), and rib flanges (`SEC 6..8`) are modeled with `BEAM188` elements. When cross-section rendering is active (`/ESHAPE, 1`):
    * **Full Graphics (`/GRAPHICS, FULL`):** ANSYS APDL applies classical element-to-node averaging. However, APDL standard formulation explicitly notes:
      > *"BEAM/PIPE elements are detected in the selected element set. They are ignored in the nodal averaging."*  
-     Because beam elements do not share 2D stress tensors with shell elements, Full Graphics excludes 3D beam cross-section stresses from `PLNSOL`. Consequently, Full Graphics reports **only the nominal shell membrane and bending stress** in the skins and webs (**$12.50 - 15.47\text{ MPa}$**).
-   * **PowerGraphics (`/GRAPHICS, POWER` - Default in ANSYS GUI):** PowerGraphics calculates stresses across external geometric facets. With `/ESHAPE, 1`, it generates 3D surface facets for the `BEAM188` hat-section stringers and spar flanges. Under the large root cantilever bending moment ($M_{\text{root}} = -16,058\text{ N}\cdot\text{m}$), high axial tension/compression develops in the outermost stringer and spar flange cross-sections at the clamped boundary ($Y = 0$). PowerGraphics captures these critical beam section facet stresses, yielding the true screen values:
-     * **Config 1:** $\mathbf{29.54\text{ MPa}}$ (matches [`cfg1_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg1_vonmises_seqv.png))
-     * **Config 2:** $\mathbf{45.73\text{ MPa}}$ (matches [`cfg2_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg2_vonmises_seqv.png))
-     * **Config 3:** $\mathbf{59.45\text{ MPa}}$ (matches [`cfg3_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg3_vonmises_seqv.png))
+     Because beam elements do not share 2D stress tensors with shell elements, Full Graphics excludes 3D beam cross-section stresses from `PLNSOL` and `NSORT`. Furthermore, if all `SHELL181` elements remain selected simultaneously, nodal averaging at shared Spar-Skin T-junctions blends the higher Spar Web stress ($16.90 - 24.76\text{ MPa}$) with the lower Composite Skin stress ($11.15 - 13.31\text{ MPa}$), reporting a mixed shell value ($12.50 - 15.57\text{ MPa}$). Filtering elements by Section ID (`ESEL, S, SEC, , k` $\to$ `NSLE, S`) isolates the exact unblended shell stress for each component.
+   * **PowerGraphics (`/GRAPHICS, POWER` + `/ESHAPE, 1` - Default in ANSYS GUI):** PowerGraphics calculates stresses across external geometric facets, including the 3D surface facets for `BEAM188` sections. Component-by-component isolation (`m0_audit_stress_breakdown.csv`) proves that the global PowerGraphics peak occurs in **`SEC 6` (Interior Rib Flanges, $40 \times 1.0\text{ mm}$ `BEAM188`)** as chordwise rib bending increases with wider bay spacing ($13 \to 8 \to 6$ bays):
+     * **Config 1:** $\mathbf{29.54\text{ MPa}}$ (matches [`cfg1_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/with_powergraph/cfg1_vonmises_seqv.png))
+     * **Config 2:** $\mathbf{46.78\text{ MPa}}$ (`45.73 MPa` pre-sync; see [`cfg2_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/with_powergraph/cfg2_vonmises_seqv.png))
+     * **Config 3:** $\mathbf{59.15\text{ MPa}}$ (`59.45 MPa` pre-sync; see [`cfg3_vonmises_seqv.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/with_powergraph/cfg3_vonmises_seqv.png))
 
 ---
 
 ### 📁 Certified Result Data Files:
 * Machine-Readable CSV Database: [`static_results_power_vs_full.csv`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/results/static_results_power_vs_full.csv)
+* Component Mass Audit CSV: [`m0_audit_mass_breakdown.csv`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/results/m0_audit_mass_breakdown.csv)
+* Component Stress Audit CSV: [`m0_audit_stress_breakdown.csv`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/results/m0_audit_stress_breakdown.csv)
 * Detailed Engineering Summary Report: [`static_results_power_vs_full_summary.txt`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/results/static_results_power_vs_full_summary.txt)
 
 ---
@@ -318,9 +326,9 @@ To enable direct $1:1$ visual comparison across Configurations 1, 2, and 3 witho
 ### Visual Assets Directory (`visual_load/`):
 
 * **Applied Aerodynamic Loads & Cantilever Root BC (Blue BC):**
-  * Config 1: [`cfg1_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg1_bottom_loads_bc.png)
-  * Config 2: [`cfg2_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg2_bottom_loads_bc.png)
-  * Config 3: [`cfg3_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/cfg3_bottom_loads_bc.png)
+  * Config 1: [`cfg1_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/loads_bc_cfg1.png)
+  * Config 2: [`cfg2_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/loads_bc_cfg2.png)
+  * Config 3: [`cfg3_bottom_loads_bc.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/loads_bc_cfg3.png)
 
 * **Deflection Contours ($0 - 7.2\text{ mm}$):**
   * Config 1: [`dmx_cfg1_bottom_deformed_7p2mm.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/dmx_cfg1_bottom_deformed_7p2mm.png)
@@ -328,9 +336,9 @@ To enable direct $1:1$ visual comparison across Configurations 1, 2, and 3 witho
   * Config 3: [`dmx_cfg3_bottom_deformed_7p2mm.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/dmx_cfg3_bottom_deformed_7p2mm.png)
 
 * **Von Mises Equivalent Stress ($0 - 15\text{ MPa}$):**
-  * Config 1: [`vonmises_cfg1_bottom_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises/vonmises_cfg1_bottom_seqv_15mpa.png)
-  * Config 2: [`cfg2_bottom_vonmises_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises/cfg2_bottom_vonmises_seqv_15mpa.png)
-  * Config 3: [`cfg3_bottom_vonmises_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises/cfg3_bottom_vonmises_seqv_15mpa.png)
+  * Config 1: [`vonmises_cfg1_bottom_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises_cfg1_bottom_seqv_15mpa.png)
+  * Config 2: [`cfg2_bottom_vonmises_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises_cfg2_bottom_seqv_15mpa.png)
+  * Config 3: [`cfg3_bottom_vonmises_seqv_15mpa.png`](file:///E:/___%20KMITL%20___/Y3/Aircraft%20Structure/Mini%20Ansys%20Project/Parametric%20APDL-Based%20Horizontal%20Tailplane%20Structural%20Analysis%20and%20Optimization/Ansys_Scripts/load_sfbm/visual_load/for_report/vonmises_cfg3_bottom_seqv_15mpa.png)
 
 ---
 
@@ -362,27 +370,31 @@ Because `.inp` load files contain explicit Node IDs, adhere to the following val
 ```
 Ansys_Scripts/load_sfbm/
 ├── README.md                          <-- Master Stage 2b Technical Documentation
+├── AUDIT_M0_MASS_AND_STRESS.mac       <-- Milestone 0 Unified Mass & Component Stress Audit Macro
+├── RENDER_FINAL_UNIFIED_SCALES.mac    <-- Unified 15 MPa / 7.2 mm Production Render Macro
+├── RENDER_LOADS_BC_BLUE.mac           <-- Deep Blue BC Rendering Macro
+├── RENDER_STATIC_BOTTOM_BAR.mac       <-- Bottom Horizontal Contour Bar Macro
+├── RUN_EXTRACT_CLEAN.mac              <-- Production Batch Post-Processing & Metrics Extraction
 ├── results/                           <-- Certified Static FEA Results & Comparison Database
+│   ├── m0_audit_mass_breakdown.csv               <-- Dual-method component mass breakdown (SEC 1..8)
+│   ├── m0_audit_stress_breakdown.csv             <-- Full Graphics vs PowerGraphics (/ESHAPE 1) stresses
 │   ├── static_results_power_vs_full.csv          <-- Machine-readable results (DMX, TIP_UZ, SEQV)
 │   └── static_results_power_vs_full_summary.txt  <-- Comprehensive engineering comparison report
+├── results_and_method_from_teammate(old)/ <-- Archival Benchmark from Teammate Handover
 ├── matlab/                            <-- MATLAB Aerodynamic Pre-processing Scripts
 │   ├── vn_diagram.m                   <-- Step 1: V-n diagram generator
 │   ├── tail_load.m                    <-- Step 2: Pitch trim equilibrium solver
 │   ├── htp_sfbm.m                     <-- Step 3: Schrenk spanwise SFBM integrator
 │   ├── htp_nodal_forces.m             <-- Step 5: Least-norm nodal force mapper
 │   └── results/                       <-- CSV database outputs (vn, tail, sfbm, nodes)
-├── load_main_run_1/                   <-- ANSYS Batch Solving & Diagnostic Workspace
-│   ├── HTP_PARAMETRIC.mac             <-- Master Parametric Finite Element Model (v1.4.5)
-│   ├── RENDER_FINAL_UNIFIED_SCALES.mac<-- Unified 15 MPa / 7.2 mm Render Macro
-│   ├── RENDER_LOADS_BC_BLUE.mac       <-- Deep Blue BC Rendering Macro
-│   └── final_scale.rst / final_scale.db
-└── visual_load/                       <-- Final Production Visual Assets
-    ├── cfg1_bottom_loads_bc.png       <-- Config 1 Loads & Blue Root BC (1920x1440)
-    ├── cfg2_bottom_loads_bc.png       <-- Config 2 Loads & Blue Root BC (1920x1440)
-    ├── cfg3_bottom_loads_bc.png       <-- Config 3 Loads & Blue Root BC (1920x1440)
-    ├── for_report/                    <-- User-Curated Report Gallery
-    │   ├── dmx/                       <-- Unified Deflection Contours (0 - 7.2 mm)
-    │   └── vonmises/                  <-- Unified Von Mises Contours (0 - 15.0 MPa)
+└── visual_load/                       <-- Production Visual Assets
+    ├── cfg[1-3]_bottom_loads_bc.png   <-- Synchronized Root Copies of Applied Loads & BC
+    ├── for_report/                    <-- Curated Publication Gallery (Unified Scales)
+    │   ├── loads_bc_cfg1.png          <-- Config 1 Flight Loads & Deep Blue Root BC
+    │   ├── loads_bc_cfg2.png          <-- Config 2 Flight Loads & Deep Blue Root BC
+    │   ├── loads_bc_cfg3.png          <-- Config 3 Flight Loads & Deep Blue Root BC
+    │   ├── dmx_cfg[1-3]_bottom_deformed_7p2mm.png   <-- Unified 0-7.2 mm Deflection Contours
+    │   └── vonmises_cfg[1-3]_bottom_seqv_15mpa.png  <-- Unified 0-15.0 MPa Von Mises Contours
     ├── colour_sample/                 <-- Boundary Condition Color Samples (Blue, Orange, Magenta)
     └── with_powergraph/               <-- Legacy Right-Legend Visuals
 ```

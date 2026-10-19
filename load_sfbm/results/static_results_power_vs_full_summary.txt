@@ -1,4 +1,4 @@
-﻿====================================================================================================
+====================================================================================================
 ANSYS MECHANICAL APDL STATIC ANALYSIS: POWERGRAPHICS VS. FULL GRAPHICS COMPARISON REPORT
 ====================================================================================================
 Project:            Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization
@@ -6,67 +6,80 @@ Aircraft Baseline:  ATR 42-600 Regional Turboprop / EASA CS-25 Compliance
 Flight Load Case:   D_fwd (Dive Speed V_D = 312.5 kt, Limit Load Factor n = +2.571)
 Target Half-Tail:   -9,142.84 N (Cantilever Downward Limit Load)
 Result Path:        Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization\Ansys_Scripts\load_sfbm\results\
-Date & Auditor:     2026-10-19 | Aircraft Structural & Aeroelasticity Audit Team
+Date & Auditor:     2026-10-19 | Aircraft Structural & Aeroelasticity Audit Team (Milestone 0 Unified)
 ====================================================================================================
 
 ----------------------------------------------------------------------------------------------------
-1. CERTIFIED EXECUTIVE COMPARISON TABLE
+1. CERTIFIED EXECUTIVE COMPARISON TABLE (SYNCHRONIZED CODEBASE)
 ----------------------------------------------------------------------------------------------------
 
-+-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
-| Metric / Parameter                  | Configuration 1             | Configuration 2             | Configuration 3             |
-|                                     | (14 Ribs, 3 Spars, 8 Str.)  | (9 Ribs, 2 Spars, 8 Str.)   | (7 Ribs, 2 Spars, 6 Str.)   |
-+-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
-| Structural Mass [kg]                | 85.34 kg                    | 72.06 kg (-15.6%)           | 67.89 kg (-20.4%)           |
-| Load Balance (Root Reaction FZ)     | -9,142.84 N (100.000%)      | -9,142.84 N (100.000%)      | -9,142.82 N (100.000%)      |
-+-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
-| --- DISPLACEMENTS (Tip Deflection) -|                             |                             |                             |
-| DMX — PowerGraphics (GUI Default)   | 6.77 mm (6.769 mm)          | 6.95 mm (6.954 mm)          | 7.10 mm (7.098 mm)          |
-| DMX — Full Graphics (Batch Mode)    | 6.77 mm (6.768 mm)          | 6.95 mm (6.952 mm)          | 7.10 mm (7.097 mm)          |
-| Delta DMX (%)                       | 0.00% (Identical)           | 0.00% (Identical)           | 0.00% (Identical)           |
-| TIP_UZ — PowerGraphics              | -6.72 mm (-6.716 mm)        | -6.90 mm (-6.900 mm)        | -7.04 mm (-7.043 mm)        |
-| TIP_UZ — Full Graphics              | -6.72 mm (-6.716 mm)        | -6.90 mm (-6.900 mm)        | -7.04 mm (-7.043 mm)        |
-| Delta TIP_UZ (%)                    | 0.00% (Identical)           | 0.00% (Identical)           | 0.00% (Identical)           |
-| Delta (DMX vs. |TIP_UZ|)            | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             |
-+-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
-| --- VON MISES EQUIVALENT STRESS --- |                             |                             |                             |
-| SMAX — PowerGraphics (GUI Default)  | 29.54 MPa (29.5412 MPa)     | 45.73 MPa (45.7270 MPa)     | 59.45 MPa (59.4468 MPa)     |
-| SMAX — Full Graphics (Shell Average)| 12.50 MPa (12.5046 MPa)     | 12.75 MPa (12.7517 MPa)     | 15.47 MPa (15.4742 MPa)     |
-| Delta SMAX (Power vs. Full)         | +136.3%                     | +258.6%                     | +284.3%                     |
-| Critical Stress Location (Power)    | Root Cantilever Flange/Str. | Root Cantilever Flange/Str. | Root Cantilever Flange/Str. |
-| Critical Stress Location (Full)     | Root Spar/Skin Junction     | Root Spar/Skin Junction     | Root Rib Lightening Hole 1  |
-+-------------------------------------+-----------------------------+-----------------------------+-----------------------------+
++-----------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| Metric / Parameter                      | Configuration 1             | Configuration 2             | Configuration 3             |
+|                                         | (14 Ribs, 3 Spars, 8 Str.)  | (9 Ribs, 2 Spars, 8 Str.)   | (7 Ribs, 2 Spars, 6 Str.)   |
++-----------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| Total Structural Mass (M_MTOT = M_ETAB) | 140.46 kg (140.4634 kg)     | 121.89 kg (-13.22%)         | 113.64 kg (-19.10%)         |
+|   - Composite Skin (SEC 3)              |  63.67 kg                   |  63.67 kg                   |  63.67 kg                   |
+|   - Spar Webs (SEC 2)                   |  19.06 kg                   |  15.21 kg                   |  15.21 kg                   |
+|   - Rib Webs (SEC 1)                    |  28.83 kg                   |  18.93 kg                   |  15.34 kg                   |
+|   - Hat Stringers (SEC 4)               |  15.08 kg                   |  15.08 kg                   |  11.31 kg                   |
+|   - Spar Caps (SEC 5)                   |   7.67 kg                   |   5.13 kg                   |   5.13 kg                   |
+|   - Rib Flanges (SEC 6..8)              |   6.15 kg                   |   3.87 kg                   |   2.98 kg                   |
+| Load Balance (Root Reaction FZ)         | -9,142.84 N (100.000%)      | -9,142.84 N (100.000%)      | -9,142.82 N (100.000%)      |
++-----------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| --- DISPLACEMENTS (Tip Deflection) ---  |                             |                             |                             |
+| DMX — PowerGraphics / Full Graphics     | 6.77 mm (6.768 mm)          | 6.95 mm (6.951 mm)          | 7.10 mm (7.096 mm)          |
+| TIP_UZ — PowerGraphics / Full Graphics  | -6.72 mm (-6.716 mm)        | -6.90 mm (-6.898 mm)        | -7.04 mm (-7.042 mm)        |
+| Delta (DMX vs. |TIP_UZ|)                | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             | 0.05 mm (0.76%)             |
++-----------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+| --- VON MISES EQUIVALENT STRESS ---     |                             |                             |                             |
+| SMAX — PowerGraphics (/ESHAPE, 1 Global)| 29.54 MPa (29.5412 MPa)     | 46.78 MPa (46.7829 MPa)*    | 59.15 MPa (59.1507 MPa)*    |
+|   * PowerGraphics Skin (SEC 3)          | 12.59 MPa                   | 19.86 MPa                   | 25.32 MPa                   |
+|   * PowerGraphics Spar Web (SEC 2)      | 18.49 MPa                   | 23.14 MPa                   | 28.49 MPa                   |
+|   * PowerGraphics Rib Web (SEC 1)       | 12.23 MPa                   | 17.12 MPa                   | 21.55 MPa                   |
+|   * PowerGraphics Stringers (SEC 4)     | 15.00 MPa                   | 15.72 MPa                   | 16.09 MPa                   |
+|   * PowerGraphics Spar Caps (SEC 5)     | 19.66 MPa                   | 20.60 MPa                   | 19.97 MPa                   |
+|   * PowerGraphics Int. Rib Flange(SEC 6)| 29.54 MPa (Global Peak)     | 46.78 MPa (Global Peak)     | 59.15 MPa (Global Peak)     |
+| SMAX — Full Graphics (Mixed Shell Avg.) | 12.50 MPa (12.5046 MPa)     | 12.76 MPa (12.7557 MPa)     | 15.57 MPa (15.5658 MPa)     |
+|   * Element-Isolated Skin (SEC 3)       | 11.15 MPa (11.1461 MPa)     | 12.41 MPa (12.4126 MPa)     | 13.31 MPa (13.3129 MPa)     |
+|   * Element-Isolated Spar Web (SEC 2)   | 16.90 MPa (16.9037 MPa)     | 20.04 MPa (20.0368 MPa)     | 24.76 MPa (24.7645 MPa)     |
+|   * Element-Isolated Rib Web (SEC 1)    |  7.83 MPa ( 7.8321 MPa)     | 10.94 MPa (10.9374 MPa)     | 15.57 MPa (15.5658 MPa)     |
+| Critical Stress Location (PowerGraphics)| Interior Rib Flange (SEC 6) | Interior Rib Flange (SEC 6) | Interior Rib Flange (SEC 6) |
+| Critical Stress Location (Full Isolated)| Spar Web (SEC 2)            | Spar Web (SEC 2)            | Spar Web (SEC 2)            |
++-----------------------------------------+-----------------------------+-----------------------------+-----------------------------+
+(*Note: Prior to synchronizing the Dynamic Safe Pillar Capping for N_CUT=6/5 in Block 5, Config 2 & 3 PowerGraphics
+peaks were 45.73 MPa and 59.45 MPa, respectively, as shown on the legacy right-legend screenshots in with_powergraph/.)
 
 
 ----------------------------------------------------------------------------------------------------
 2. WHY DO POWERGRAPHICS AND FULL GRAPHICS SHOW DIFFERENT STRESS VALUES?
 ----------------------------------------------------------------------------------------------------
 Commands:
-- PowerGraphics:  /GRAPHICS, POWER  (ANSYS GUI Default)
-- Full Graphics:  /GRAPHICS, FULL   (Classical APDL Batch Mode)
+- PowerGraphics:  /GRAPHICS, POWER + /ESHAPE, 1  (ANSYS GUI 3D Section Display)
+- Full Graphics:  /GRAPHICS, FULL                (Classical APDL Nodal-Averaged Mode)
 
 1. Root Cause in Structural Modeling (/ESHAPE, 1 & BEAM188):
-   In the parametric finite element model, the structural skin, spar webs, and rib webs are modeled
-   using SHELL181 elements, while the spanwise stringers and spar caps are modeled using BEAM188 elements.
-   When /ESHAPE, 1 is active, 1D beam elements are rendered with true 3D cross-sectional geometry.
+   In the parametric finite element model, the structural skin (SEC 3), spar webs (SEC 2), and rib webs (SEC 1)
+   are modeled using SHELL181 elements, while the spanwise stringers (SEC 4), spar caps (SEC 5), and rib flanges
+   (SEC 6..8) are modeled using BEAM188 elements. When /ESHAPE, 1 is active, 1D beam elements are rendered with
+   true 3D cross-sectional geometry.
 
-2. Mechanism of Divergence:
+2. Mechanism of Divergence & Component-Level Isolation:
    - In Full Graphics (/GRAPHICS, FULL):
-     MAPDL follows strict classical element-to-node averaging. However, by APDL mathematical design:
+     MAPDL follows classical element-to-node averaging, explicitly ignoring BEAM188 elements:
      "BEAM/PIPE elements are detected in the selected element set. They are ignored in the nodal averaging."
-     Because beam elements do not share 2D stress tensors with shell elements, Full Graphics excludes
-     the beam cross-section stress from PLNSOL and NSORT. Consequently, Full Graphics reports ONLY the
-     continuous shell membrane/bending stress in the skins and spar webs (12.50 MPa to 15.47 MPa).
+     Furthermore, when all SHELL181 elements (Skin + Spar + Rib) are active simultaneously, nodal averaging at
+     shared Spar-Skin junction nodes blends the higher Spar Web stress (16.90 / 20.04 / 24.76 MPa) with the lower
+     Skin stress (11.15 / 12.41 / 13.31 MPa), yielding the mixed nodal-averaged values (12.50 / 12.76 / 15.57 MPa).
+     Isolating each shell component by Section ID (ESEL, S, SEC, , k -> NSLE, S) reveals the true unblended shell
+     stresses: Spar Webs (SEC 2) carry 16.90 to 24.76 MPa, while Composite Skins (SEC 3) carry 11.15 to 13.31 MPa.
 
-   - In PowerGraphics (/GRAPHICS, POWER - Default in ANSYS GUI):
-     PowerGraphics calculates and displays stresses based on external geometric facets. With /ESHAPE, 1,
-     it generates 3D surface facets for BEAM188 stringers and flanges.
-     At the clamped cantilever root (Y = 0), the maximum bending moment (M_root = -16,058 N*m) induces
-     high localized axial tension/compression in the outer stringer and spar flange cross-sections.
-     PowerGraphics captures these localized beam section facet stresses, yielding the true screen SMX:
-     * Config 1: 29.54 MPa  (matches cfg1_vonmises_seqv.png)
-     * Config 2: 45.73 MPa  (matches cfg2_vonmises_seqv.png)
-     * Config 3: 59.45 MPa  (matches cfg3_vonmises_seqv.png)
+   - In PowerGraphics (/GRAPHICS, POWER + /ESHAPE, 1):
+     PowerGraphics computes stresses across external geometric facets, including the 3D surface facets of BEAM188
+     elements, without cross-component nodal smoothing at T-junctions.
+     Component-by-component isolation proves that the global PowerGraphics peak (29.54 / 46.78 / 59.15 MPa) occurs
+     in SEC 6 (Interior Rib Flanges, 40 x 1.0 mm BEAM188). As rib count decreases from 14 -> 9 -> 7 (rib bays
+     decreasing from 13 -> 8 -> 6), each interior rib flange absorbs a proportionally larger share of the chordwise
+     airfoil camber/bending transfer between upper and lower skins.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -83,7 +96,7 @@ Q: "สรุปเราต้องดู DMX หรือ TIP_UZ ในกา
      True vertical bending deflection of the tailplane under downward aerodynamic loading.
 
 2. Physical Proportion:
-   - Vertical deflection |UZ| accounts for 99.24% of DMX (e.g. In Config 1: 6.716 mm vs 6.769 mm).
+   - Vertical deflection |UZ| accounts for 99.24% of DMX (e.g. In Config 1: 6.716 mm vs 6.768 mm).
    - The minor 0.76% difference (~0.05 mm) is caused by Poisson shortening (UY) and chordwise
      dihedral sweep warping (UX).
 
@@ -95,22 +108,23 @@ Q: "สรุปเราต้องดู DMX หรือ TIP_UZ ในกา
 
 
 ----------------------------------------------------------------------------------------------------
-4. STRUCTURAL CONFIGURATION COMPARISON UNDER POWERGRAPHICS
+4. STRUCTURAL CONFIGURATION COMPARISON (CERTIFIED BASELINE)
 ----------------------------------------------------------------------------------------------------
-- Configuration 1 (14 Ribs, 3 Spars, 8 Stringers | 85.34 kg):
-  * DMX = 6.77 mm, TIP_UZ = -6.72 mm
-  * SMX (PowerGraphics) = 29.54 MPa
-  * Three spars and dense stringer layout provide superior torsional and bending stiffness.
+- Configuration 1 (14 Ribs, 3 Spars, 8 Stringers | 140.46 kg):
+  * DMX = 6.77 mm (6.768 mm), TIP_UZ = -6.72 mm (-6.716 mm)
+  * Shell Isolated SMAX: Skin = 11.15 MPa, Spar Web = 16.90 MPa, Rib Web = 7.83 MPa (Mixed = 12.50 MPa)
+  * PowerGraphics (/ESHAPE, 1) SMAX = 29.54 MPa (Interior Rib Flange SEC 6)
 
-- Configuration 2 (9 Ribs, 2 Spars, 8 Stringers | 72.06 kg):
-  * Mass reduction: -15.6% (-13.28 kg)
-  * DMX = 6.95 mm (+2.7%), TIP_UZ = -6.90 mm
-  * SMX (PowerGraphics) = 45.73 MPa
-  * Highly balanced trade-off between structural weight and stress efficiency.
+- Configuration 2 (9 Ribs, 2 Spars, 8 Stringers | 121.89 kg):
+  * Mass reduction: -13.22% (-18.57 kg)
+  * DMX = 6.95 mm (6.951 mm, +2.70%), TIP_UZ = -6.90 mm (-6.898 mm)
+  * Shell Isolated SMAX: Skin = 12.41 MPa, Spar Web = 20.04 MPa, Rib Web = 10.94 MPa (Mixed = 12.76 MPa)
+  * PowerGraphics (/ESHAPE, 1) SMAX = 46.78 MPa (45.73 MPa pre-sync)
 
-- Configuration 3 (7 Ribs, 2 Spars, 6 Stringers | 67.89 kg):
-  * Mass reduction: -20.4% (-17.45 kg)
-  * DMX = 7.10 mm (+4.9%), TIP_UZ = -7.04 mm
-  * SMX (PowerGraphics) = 59.45 MPa
-  * Widest rib spacing and reduced stringer count concentrate bending stresses at the root flanges.
+- Configuration 3 (7 Ribs, 2 Spars, 6 Stringers | 113.64 kg):
+  * Mass reduction: -19.10% (-26.83 kg)
+  * DMX = 7.10 mm (7.096 mm, +4.85%), TIP_UZ = -7.04 mm (-7.042 mm)
+  * Shell Isolated SMAX: Skin = 13.31 MPa, Spar Web = 24.76 MPa, Rib Web = 15.57 MPa (Mixed = 15.57 MPa)
+  * PowerGraphics (/ESHAPE, 1) SMAX = 59.15 MPa (59.45 MPa pre-sync)
 ====================================================================================================
+

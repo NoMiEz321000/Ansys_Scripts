@@ -392,17 +392,72 @@ R_FIL = 10.0        ! Tangent corner fillet radius [mm]
         CYL4, X_OFFSET + 0.7956*C_I, Z_I, RH7
     *ELSEIF, N_CUT, EQ, 6, THEN
         CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
-        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, X_OFFSET + 0.4607*C_I, Z_I, 0.0379*C_I
-        CYL4, X_OFFSET + 0.5595*C_I, Z_I, 0.0335*C_I
-        CYL4, X_OFFSET + 0.6486*C_I, Z_I, 0.0284*C_I
-        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
+
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+
+        RH3 = 0.0379*C_I
+        D_ADJ = (0.4607 - 0.409)*C_I - HW
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4607*C_I, Z_I, RH3
+
+        RH4 = 0.0335*C_I
+        D_ADJ = (0.5595 - 0.512)*C_I - HW
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.5595*C_I, Z_I, RH4
+
+        RH5 = 0.0284*C_I
+        D_ADJ = (0.6486 - 0.607)*C_I - HW
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6486*C_I, Z_I, RH5
+
+        RH6 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
+        *IF, RH6, GT, D_ADJ - 14.0, THEN
+            RH6 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH6
+
     *ELSEIF, N_CUT, EQ, 5, THEN
         CYL4, X_OFFSET + 0.1535*C_I, Z_I, 0.0369*C_I
-        CYL4, X_OFFSET + 0.3546*C_I, Z_I, 0.0407*C_I
-        CYL4, X_OFFSET + 0.4846*C_I, Z_I, 0.0370*C_I
-        CYL4, X_OFFSET + 0.6253*C_I, Z_I, 0.0298*C_I
-        CYL4, X_OFFSET + 0.7273*C_I, Z_I, 0.0233*C_I
+
+        RH2 = 0.0407*C_I
+        D_ADJ = (0.3546 - 0.300)*C_I - 25.0
+        *IF, RH2, GT, D_ADJ - 14.0, THEN
+            RH2 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.3546*C_I, Z_I, RH2
+
+        RH3 = 0.0370*C_I
+        D_ADJ = (0.4846 - 0.409)*C_I - HW
+        *IF, RH3, GT, D_ADJ - 14.0, THEN
+            RH3 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.4846*C_I, Z_I, RH3
+
+        RH4 = 0.0298*C_I
+        D_ADJ = (0.6253 - 0.560)*C_I - HW
+        *IF, RH4, GT, D_ADJ - 14.0, THEN
+            RH4 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.6253*C_I, Z_I, RH4
+
+        RH5 = 0.0233*C_I
+        D_ADJ = (0.7273 - 0.691)*C_I - HW
+        *IF, RH5, GT, D_ADJ - 14.0, THEN
+            RH5 = D_ADJ - 14.0
+        *ENDIF
+        CYL4, X_OFFSET + 0.7273*C_I, Z_I, RH5
     *ENDIF
 
     ! 5. Edge Cutouts (Spar Semicircles & Stringer Chamfered-Rectangles)
@@ -945,7 +1000,8 @@ LOAD_MODE = 1
 ! Clean up unattached nodes to prevent singular matrix/license errors
 /PREP7
 ALLSEL, ALL
-NSEL, U, ATTA
+NSLE, S
+NSEL, INVE
 NDELE, ALL
 ALLSEL, ALL
 

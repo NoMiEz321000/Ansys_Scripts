@@ -1,0 +1,160 @@
+! =====================================================================
+!  RENDER_FINAL_UNIFIED_SCALES.mac
+!  Generates:
+!    1. Deflection Contour (DMX): 0 to 7.2 mm (Step 0.8 mm)
+!    2. Von Mises Stress (SEQV): 0 to 15 MPa (High-Contrast Skin Scale)
+!  for CONFIG = 1, 2, 3
+! =====================================================================
+
+! =====================================================================
+!  CONFIGURATION 1: (14 Ribs, 3 Spars, 8 Stringers)
+! =====================================================================
+/CLEAR, NOSTART
+CONFIG = 1
+/INPUT, HTP_PARAMETRIC, mac
+
+/POST1
+SET, LAST
+
+/GRAPHICS, POWER
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+/AUTO, 1
+/ESHAPE, 1
+/EDGE, 1, 0
+/DEVICE, VECTOR, 0
+
+/PLOPTS, INFO, 3
+/PLOPTS, LEG1, 0
+/PLOPTS, LEG2, 0
+/PLOPTS, LEG3, 1
+/PLOPTS, FRAME, 0
+/PLOPTS, TITLE, 0
+/PLOPTS, MINM, 1
+/PLOPTS, DATE, 0
+/PLOPTS, LOGO, 0
+/PLOPTS, WINS, 1
+/UDOC, 1, CNTR, BOTTOM
+
+/SHOW, PNG, , 0
+PNGR, COMP, 1, -1
+PNGR, ORIENT, HORIZ
+PNGR, COLOR, 2
+PNGR, TMOD, 1
+/GFILE, 1920
+
+! Plot 1: Total Displacement (DMX: 0 to 7.2 mm, step 0.8 mm)
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+
+! Plot 2: Von Mises Equivalent Stress (SEQV: 0 to 15 MPa)
+/CONTOUR, 1, 9, 0, , 15
+PLNSOL, S, EQV, 0
+
+/SHOW, CLOSE
+
+
+! =====================================================================
+!  CONFIGURATION 2: (9 Ribs, 2 Spars, 8 Stringers)
+! =====================================================================
+/CLEAR, NOSTART
+CONFIG = 2
+/INPUT, HTP_PARAMETRIC, mac
+
+/POST1
+SET, LAST
+
+/GRAPHICS, POWER
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+/AUTO, 1
+/ESHAPE, 1
+/EDGE, 1, 0
+/DEVICE, VECTOR, 0
+
+/PLOPTS, INFO, 3
+/PLOPTS, LEG1, 0
+/PLOPTS, LEG2, 0
+/PLOPTS, LEG3, 1
+/PLOPTS, FRAME, 0
+/PLOPTS, TITLE, 0
+/PLOPTS, MINM, 1
+/PLOPTS, DATE, 0
+/PLOPTS, LOGO, 0
+/PLOPTS, WINS, 1
+/UDOC, 1, CNTR, BOTTOM
+
+/SHOW, PNG, , 0
+PNGR, COMP, 1, -1
+PNGR, ORIENT, HORIZ
+PNGR, COLOR, 2
+PNGR, TMOD, 1
+/GFILE, 1920
+
+! Plot 1: Total Displacement (DMX: 0 to 7.2 mm, step 0.8 mm)
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+
+! Plot 2: Von Mises Equivalent Stress (SEQV: 0 to 15 MPa)
+/CONTOUR, 1, 9, 0, , 15
+PLNSOL, S, EQV, 0
+
+/SHOW, CLOSE
+
+
+! =====================================================================
+!  CONFIGURATION 3: (7 Ribs, 2 Spars, 6 Stringers)
+! =====================================================================
+/CLEAR, NOSTART
+CONFIG = 3
+/INPUT, HTP_PARAMETRIC, mac
+
+/POST1
+SET, LAST
+
+/GRAPHICS, POWER
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+/AUTO, 1
+/ESHAPE, 1
+/EDGE, 1, 0
+/DEVICE, VECTOR, 0
+
+/PLOPTS, INFO, 3
+/PLOPTS, LEG1, 0
+/PLOPTS, LEG2, 0
+/PLOPTS, LEG3, 1
+/PLOPTS, FRAME, 0
+/PLOPTS, TITLE, 0
+/PLOPTS, MINM, 1
+/PLOPTS, DATE, 0
+/PLOPTS, LOGO, 0
+/PLOPTS, WINS, 1
+/UDOC, 1, CNTR, BOTTOM
+
+/SHOW, PNG, , 0
+PNGR, COMP, 1, -1
+PNGR, ORIENT, HORIZ
+PNGR, COLOR, 2
+PNGR, TMOD, 1
+/GFILE, 1920
+
+! Plot 1: Total Displacement (DMX: 0 to 7.2 mm, step 0.8 mm)
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+
+! Plot 2: Von Mises Equivalent Stress (SEQV: 0 to 15 MPa)
+/CONTOUR, 1, 9, 0, , 15
+PLNSOL, S, EQV, 0
+
+/SHOW, CLOSE
+FINISH

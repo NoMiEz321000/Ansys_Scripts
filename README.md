@@ -19,25 +19,32 @@ In accordance with aircraft flight mechanics and airworthiness standards (**EASA
 6. **APDL Static Solution & Boundary Enforcement (`HTP_PARAMETRIC.mac`):** Clamped cantilever root ($Y = 0$, $U = 0$) under full flight loads.
 7. **Equilibrium Audit:** Confirms root reaction force $F_Z = -9,142.84\text{ N}$ matches applied load to machine precision ($\Delta < 0.001\%$, 100.000% force transmission).
 
-#### 2. Certified Static FEA Results Matrix: PowerGraphics vs. Full Graphics (Load Case `D_fwd`)
+##### 2. Certified Static FEA Results Matrix: PowerGraphics vs. Full Graphics (Load Case `D_fwd`)
 
 | Parameter / Metric | Configuration 1<br>(14 Ribs, 3 Spars, 8 Str.) | Configuration 2<br>(9 Ribs, 2 Spars, 8 Str.) | Configuration 3<br>(7 Ribs, 2 Spars, 6 Str.) | Verification Status / Remarks |
-| :--- | :---: | :---: | :---: | :---: |
-| **Structural Mass (kg)** | **85.34 kg** | **72.06 kg** (-15.6%) | **67.89 kg** (-20.4%) | Certified Volume Integrals |
+| :--- | :---: | :---: | :---: | :--- |
+| **Total Structural Mass (`MTOT` = `ETAB`)** | **140.46 kg** (`140.4634 kg`) | **121.89 kg** (-13.22%) | **113.64 kg** (-19.10%) | Dual-Method Exact Match (`0.000%` error) |
 | **Applied Flight Load ($F_Z$)** | -9,142.84 N | -9,142.84 N | -9,142.84 N | Target Downward Limit Load |
 | **Root Reaction ($F_Z$)** | **-9,142.84 N** | **-9,142.84 N** | **-9,142.82 N** | $\Delta < 0.001\%$ (**100.0% Equilibrium**) |
-| **Tip Deflection (DMX)** | **6.77 mm** (6.769 mm) | **6.95 mm** (6.954 mm) | **7.10 mm** (7.098 mm) | Matches ANSYS GUI Plot Legends |
-| **Tip Bending (TIP_UZ)** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.900 mm) | **-7.04 mm** (-7.043 mm) | True Vertical Downward Bending |
+| **Tip Deflection (DMX)** | **6.77 mm** (6.768 mm) | **6.95 mm** (6.951 mm) | **7.10 mm** (7.096 mm) | Matches ANSYS GUI Plot Legends |
+| **Tip Bending (TIP_UZ)** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.898 mm) | **-7.04 mm** (-7.042 mm) | True Vertical Downward Bending |
 | **$\Delta$ (DMX vs. \|TIP_UZ\|)** | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | In-plane Poisson Warping Coupling |
-| **Peak Stress — PowerGraphics** | **29.54 MPa** (29.5412 MPa) | **45.73 MPa** (45.7270 MPa) | **59.45 MPa** (59.4468 MPa) | **GUI Default (/ESHAPE, 1 Beam Flange)** |
-| **Peak Stress — Full Graphics** | **12.50 MPa** (12.5046 MPa) | **12.75 MPa** (12.7517 MPa) | **15.47 MPa** (15.4742 MPa) | **Nodal-averaged Shell Membrane/Bending** |
-| **Critical Stress Hotspot** | Root Cantilever Stringer Flange | Root Cantilever Stringer Flange | Root Cantilever Stringer Flange | Maximum Bending Moment Zone ($Y = 0$) |
+| **Peak Stress — PowerGraphics (`/ESHAPE, 1`)** | **29.54 MPa** (29.5412 MPa) | **46.78 MPa** (46.7829 MPa)\* | **59.15 MPa** (59.1507 MPa)\* | **Interior Rib Flange (`SEC 6` `BEAM188`)** |
+| **Peak Stress — PowerGraphics Skin (`SEC 3`)** | **12.59 MPa** (12.5948 MPa) | **19.86 MPa** (19.8587 MPa) | **25.32 MPa** (25.3180 MPa) | Unaveraged Composite Skin Peak |
+| **Peak Stress — PowerGraphics Spar Web (`SEC 2`)** | **18.49 MPa** (18.4858 MPa) | **23.14 MPa** (23.1440 MPa) | **28.49 MPa** (28.4858 MPa) | Unaveraged Al 7075-T6 Spar Web Peak |
+| **Peak Stress — Full Graphics (Mixed Shell)** | **12.50 MPa** (12.5046 MPa) | **12.76 MPa** (12.7557 MPa) | **15.57 MPa** (15.5658 MPa) | **Shared-Node Blended Shell Stress** |
+| **Peak Stress — Full Graphics Skin (`SEC 3`)** | **11.15 MPa** (11.1461 MPa) | **12.41 MPa** (12.4126 MPa) | **13.31 MPa** (13.3129 MPa) | **Element-Isolated Composite Skin** |
+| **Peak Stress — Full Graphics Spar Web (`SEC 2`)** | **16.90 MPa** (16.9037 MPa) | **20.04 MPa** (20.0368 MPa) | **24.76 MPa** (24.7645 MPa) | **Element-Isolated Spar Web** |
+| **Critical Stress Hotspot (Power / Full Iso.)** | Interior Rib Flange / Spar Web | Interior Rib Flange / Spar Web | Interior Rib Flange / Spar Web | `SEC 6` Chordwise Rib Bending / `SEC 2` Shear |
+
+*\*Note: Prior to synchronizing the Dynamic Safe Pillar Capping (`RH <= D_ADJ - 14.0`) for `N_CUT = 6` and `N_CUT = 5` in Block 5, Config 2 and Config 3 PowerGraphics peaks were `45.73 MPa` and `59.45 MPa`, respectively.*
 
 #### 3. Key Findings & Engineering Clarifications
 - **DMX vs. TIP_UZ Metric Choice:** Directional bending $|U_Z|$ comprises $99.24\%$ of total displacement DMX; report `TIP_UZ` ($-6.72\text{ mm}$ to $-7.04\text{ mm}$) for aeroelastic wash-in/out and elevator clearance, and `DMX` ($6.77\text{ mm}$ to $7.10\text{ mm}$) for FEA contour legend consistency.
-- **PowerGraphics vs. Full Graphics Divergence:** In Full Graphics (`/GRAPHICS, FULL`), APDL mathematically ignores `BEAM188` elements in nodal averaging, reporting only continuous shell stress ($12.50 - 15.47\text{ MPa}$). In PowerGraphics (`/GRAPHICS, POWER`), 3D beam cross-sectional surface facets are rendered, capturing peak axial and bending stresses in the stringer/spar flanges at the clamped root ($29.54, 45.73, 59.45\text{ MPa}$).
+- **PowerGraphics vs. Full Graphics Divergence:** In Full Graphics (`/GRAPHICS, FULL`), APDL mathematically ignores `BEAM188` elements in nodal averaging, reporting only continuous shell stress ($12.50 - 15.57\text{ MPa}$ mixed; $16.90 - 24.76\text{ MPa}$ isolated Spar Web; $11.15 - 13.31\text{ MPa}$ isolated Skin). In PowerGraphics (`/GRAPHICS, POWER` + `/ESHAPE, 1`), 3D beam cross-sectional surface facets are rendered, capturing peak chordwise bending stresses in the interior rib flanges (`SEC 6`, $29.54, 46.78, 59.15\text{ MPa}$).
 - **Result Database & Visual Assets:**
   - Machine-Readable CSV: [`load_sfbm/results/static_results_power_vs_full.csv`](load_sfbm/results/static_results_power_vs_full.csv)
+  - Component Mass & Stress Audits: [`load_sfbm/results/m0_audit_mass_breakdown.csv`](load_sfbm/results/m0_audit_mass_breakdown.csv), [`load_sfbm/results/m0_audit_stress_breakdown.csv`](load_sfbm/results/m0_audit_stress_breakdown.csv)
   - Detailed Audit Summary: [`load_sfbm/results/static_results_power_vs_full_summary.txt`](load_sfbm/results/static_results_power_vs_full_summary.txt)
   - Unified Report-Ready Visuals: [`load_sfbm/visual_load/for_report/`](load_sfbm/visual_load/for_report/) ($0-7.2\text{ mm}$ DMX, $0-15\text{ MPa}$ SEQV, Blue BCs)
 
@@ -78,6 +85,16 @@ In accordance with **Section 3 (Pages 5–6)** of the reference literature, unco
   - [`02_config_a_14_3_8_free_free_elastic/`](modal_analysis/visual_modal/02_config_a_14_3_8_free_free_elastic/) — Config A Free-Free Elastic Modes 7–10 (`modal_cfg1000.png`–`modal_cfg1003.png`).
   - [`03_config_a_14_3_8_cantilever/`](modal_analysis/visual_modal/03_config_a_14_3_8_cantilever/) — Config A Clamped-Root Cantilever Modes 1–4 (`modal_cfg1004.png`–`modal_cfg1007.png`).
   - [`04_config_b_9_2_8_and_config_c_7_2_6/`](modal_analysis/visual_modal/04_config_b_9_2_8_and_config_c_7_2_6/) — Config B & Config C internal skeletons and fundamental bending modes (`modal_cfg2000.png`–`modal_cfg3001.png`).
+
+---
+
+## 🚀 Version 1.5.0-stable (Unified Stage 2b, Stage 3b & Milestone 0 Baseline Freeze)
+
+### Highlights & Unified Multi-Configuration Certification
+- **Codebase Synchronization (`HTP_PARAMETRIC.mac` $\leftrightarrow$ `HTP_BUILD_CORE.mac`):** Synchronized **Dynamic Safe Pillar Capping (`RH <= D_ADJ - 14.0`)** across all three configuration cutout blocks (`N_CUT = 7, 6, 5`) and replaced the legacy `NSEL, U, ATTA` cleanup with strict `NSLE, S -> NSEL, INVE -> NDELE, ALL` node filtering.
+- **Unified Dual-Method Mass Certification (`0.0000%` Discrepancy):** Verified across both Stage 2b (`load_sfbm/AUDIT_M0_MASS_AND_STRESS.mac`) and Stage 3b (`modal_analysis/VERIFY_MODAL.mac`) that solver mass (`MTOT`) and component volume integration (`ETABLE, VOLU` across `SEC 1..8`) match to 4 decimal places: **Config 1 = `140.4634 kg`**, **Config 2 = `121.8902 kg`** (`-13.22%`), and **Config 3 = `113.6375 kg`** (`-19.10%`), with `100.000%` root force equilibrium (`FZ_REAC = -9,142.84 N`) using the conformal MATLAB SFBM `.inp` nodal force files.
+- **Component-Isolated Stress Audit (PowerGraphics vs. Full Graphics):** Isolated 3D facet stresses (`/ESHAPE, 1`) and element-level shell stresses across `SEC 1..8` (`m0_audit_stress_breakdown.csv`), proving that global PowerGraphics peaks (`29.54 / 46.78 / 59.15 MPa`) occur in **`SEC 6` (Interior Rib Flanges, `BEAM188` $40\times 1.0\text{ mm}$)** due to chordwise rib bending transfer, while the highest unblended nominal shell stresses occur in **`SEC 2` (Spar Webs: `16.90 / 20.04 / 24.76 MPa` Full Graphics; `18.49 / 23.14 / 28.49 MPa` PowerGraphics)**.
+- **Tracked Production Render & Extraction Macros (`load_sfbm/`):** Added `AUDIT_M0_MASS_AND_STRESS.mac`, `RENDER_FINAL_UNIFIED_SCALES.mac`, `RENDER_LOADS_BC_BLUE.mac`, `RENDER_STATIC_BOTTOM_BAR.mac`, `RUN_EXTRACT_CLEAN.mac`, and synchronized visual/tabular assets (`m0_audit_mass_breakdown.csv`, `m0_audit_stress_breakdown.csv`) ready for Stage 3c & 3d sizing optimization.
 
 ---
 

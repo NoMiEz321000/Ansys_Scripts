@@ -1,0 +1,257 @@
+! ==============================================================================
+! AUDIT_M0_MASS_AND_STRESS.mac
+! Purpose: Forensic Verification of Synchronized HTP_PARAMETRIC.mac
+!          1. Mass Breakdown (MTOT vs ETABLE VOLU across SEC 1..8) -> Issue A
+!          2. Root Reaction Force Equilibrium (FZ_REAC = -9142.84 N)
+!          3. Shell & Beam Stress Forensic Breakdown + PowerGraphics /ESHAPE=1 Peak -> Issue B
+! CRITICAL APDL RULE: Never put a space before '*' in multiplication (A*B, never A * B)!
+! ==============================================================================
+
+*CFOPEN, results/m0_audit_mass_breakdown, csv
+*VWRITE, 'CFG,M_MTOT_KG,M_ETAB_KG,M_SKIN_KG,M_SPAR_W_KG,M_RIB_W_KG,M_STR_KG,M_CAP_KG,M_RFL_KG,FZ_REAC_N,DMX_MM,TIP_UZ_MM'
+(A120)
+*CFCLOS
+
+*CFOPEN, results/m0_audit_stress_breakdown, csv
+*VWRITE, 'CFG,S_FULL_SH,S_SKIN,S_SKIN_Y25,S_SPAR,S_SPAR_Y25,S_RIB,PWR_ALL,PWR_ALL_Y25,PWR_SKIN,PWR_SPAR,PWR_RIB,PWR_STR,PWR_CAP,PWR_RFL_INT,PWR_RFL_EDG'
+(A150)
+*CFCLOS
+
+*CREATE, _M0_EXTRACT_ONE, mac
+    /POST1
+    SET, LAST
+    ALLSEL, ALL
+
+    ! --- 1. Solver Total Mass (MTOT in tonnes -> kg, NO SPACE BEFORE *) ---
+    *GET, M_SLV_TON, ELEM, 0, MTOT, X
+    M_MTOT_KG = M_SLV_TON*1000.0
+
+    ! --- 2. Component Mass Breakdown via ETABLE Volume Integration ---
+    ! SEC 1 = Rib Web (MAT 1, Al 7075-T6, DENS_AL = 2.81e-9)
+    ! SEC 2 = Spar Web (MAT 1, Al 7075-T6, DENS_AL = 2.81e-9)
+    ! SEC 3 = Skin (MAT 2, CFRP Composite, DENS_CO = 1.60e-9)
+    ! SEC 4 = Hat Stringer (MAT 1, Al 7075-T6)
+    ! SEC 5 = Spar Cap Flange (MAT 1, Al 7075-T6)
+    ! SEC 6..8 = Rib Flanges (MAT 1, Al 7075-T6)
+    ALLSEL, ALL
+    ETABLE, EVOL, VOLU
+
+    ESEL, S, SEC, , 1
+    SSUM
+    *GET, V_RIB, SSUM, 0, ITEM, EVOL
+    M_RIB_KG = V_RIB*DENS_AL*1000.0
+
+    ESEL, S, SEC, , 2
+    SSUM
+    *GET, V_SPAR, SSUM, 0, ITEM, EVOL
+    M_SPAR_KG = V_SPAR*DENS_AL*1000.0
+
+    ESEL, S, SEC, , 3
+    SSUM
+    *GET, V_SKIN, SSUM, 0, ITEM, EVOL
+    M_SKIN_KG = V_SKIN*DENS_CO*1000.0
+
+    ESEL, S, SEC, , 4
+    SSUM
+    *GET, V_STR, SSUM, 0, ITEM, EVOL
+    M_STR_KG = V_STR*DENS_AL*1000.0
+
+    ESEL, S, SEC, , 5
+    SSUM
+    *GET, V_CAP, SSUM, 0, ITEM, EVOL
+    M_CAP_KG = V_CAP*DENS_AL*1000.0
+
+    ESEL, S, SEC, , 6, 8, 1
+    SSUM
+    *GET, V_RFL, SSUM, 0, ITEM, EVOL
+    M_RFL_KG = V_RFL*DENS_AL*1000.0
+
+    M_ETAB_KG = M_SKIN_KG + M_SPAR_KG + M_RIB_KG + M_STR_KG + M_CAP_KG + M_RFL_KG
+    ALLSEL, ALL
+
+    ! --- 3. Displacements & Root Reaction ---
+    NSORT, U, SUM, 0, 0, ALL
+    *GET, DMX_VAL, SORT, 0, MAX
+
+    NSEL, S, LOC, Y, SPAN-10.0, SPAN+10.0
+    NSORT, U, Z, 0, 0, ALL
+    *GET, TIP_UZ_VAL, SORT, 0, MIN
+    ALLSEL, ALL
+
+    NSEL, S, LOC, Y, -1.0, 1.0
+    FSUM
+    *GET, FZ_VAL, FSUM, 0, ITEM, FZ
+    ALLSEL, ALL
+
+    ! --- 4. Standard Shell Nodal Stresses (SHELL, TOP & BOT, Element-Filtered by SEC) ---
+    /GRAPHICS, FULL
+    ESEL, S, TYPE, , 1
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SF_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SF_B, SORT, 0, MAX
+    S_FULL_SH = SF_T
+    *IF, SF_B, GT, S_FULL_SH, THEN
+        S_FULL_SH = SF_B
+    *ENDIF
+
+    ! SEC 3: Composite Skins (Element-Isolated so Spar/Rib stresses are not averaged in)
+    ESEL, S, SEC, , 3
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SK_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SK_B, SORT, 0, MAX
+    S_SKIN_MAX = SK_T
+    *IF, SK_B, GT, S_SKIN_MAX, THEN
+        S_SKIN_MAX = SK_B
+    *ENDIF
+
+    NSEL, R, LOC, Y, 25.0, SPAN+10.0
+    ESLN, R, 1
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SK_T25, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SK_B25, SORT, 0, MAX
+    S_SKIN_Y25 = SK_T25
+    *IF, SK_B25, GT, S_SKIN_Y25, THEN
+        S_SKIN_Y25 = SK_B25
+    *ENDIF
+
+    ! SEC 2: Spar Webs (Element-Isolated)
+    ESEL, S, SEC, , 2
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SP_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SP_B, SORT, 0, MAX
+    S_SPAR_MAX = SP_T
+    *IF, SP_B, GT, S_SPAR_MAX, THEN
+        S_SPAR_MAX = SP_B
+    *ENDIF
+
+    NSEL, R, LOC, Y, 25.0, SPAN+10.0
+    ESLN, R, 1
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SP_T25, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, SP_B25, SORT, 0, MAX
+    S_SPAR_Y25 = SP_T25
+    *IF, SP_B25, GT, S_SPAR_Y25, THEN
+        S_SPAR_Y25 = SP_B25
+    *ENDIF
+
+    ! SEC 1: Rib Webs (Element-Isolated)
+    ESEL, S, SEC, , 1
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, RB_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, RB_B, SORT, 0, MAX
+    S_RIB_MAX = RB_T
+    *IF, RB_B, GT, S_RIB_MAX, THEN
+        S_RIB_MAX = RB_B
+    *ENDIF
+
+    ! --- 5. PowerGraphics + /ESHAPE, 1 Component Decomposition (Issue B Exact Match) ---
+    /SHOW, PNG
+    /GRAPHICS, POWER
+    /ESHAPE, 1
+
+    ALLSEL, ALL
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_ALL, PLNSOL, 0, MAX
+
+    NSEL, S, LOC, Y, 25.0, SPAN+10.0
+    ESLN, S, 1
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_Y25, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 3
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_SKIN, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 2
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_SPAR, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 1
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_RIB, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 4
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_STR, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 5
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_CAP, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 6
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_RFL6, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 7, 8, 1
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_RFL78, PLNSOL, 0, MAX
+
+    /SHOW, CLOSE
+    ALLSEL, ALL
+
+    *CFOPEN, results/m0_audit_mass_breakdown, csv, , APPEND
+    *VWRITE, CONFIG, M_MTOT_KG, M_ETAB_KG, M_SKIN_KG, M_SPAR_KG, M_RIB_KG, M_STR_KG, M_CAP_KG, M_RFL_KG, FZ_VAL, DMX_VAL, TIP_UZ_VAL
+(F2.0,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.4,',',F10.2,',',F8.4,',',F8.4)
+    *CFCLOS
+
+    *CFOPEN, results/m0_audit_stress_breakdown, csv, , APPEND
+    *VWRITE, CONFIG, S_FULL_SH, S_SKIN_MAX, S_SKIN_Y25, S_SPAR_MAX, S_SPAR_Y25, S_RIB_MAX, S_PWR_ALL, S_PWR_Y25, S_PWR_SKIN, S_PWR_SPAR, S_PWR_RIB, S_PWR_STR, S_PWR_CAP, S_PWR_RFL6, S_PWR_RFL78
+(F2.0,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4)
+    *CFCLOS
+*END
+
+! --- Run Config 1 ---
+/CLEAR, NOSTART
+CONFIG = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _M0_EXTRACT_ONE, mac
+
+! --- Run Config 2 ---
+/CLEAR, NOSTART
+CONFIG = 2
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _M0_EXTRACT_ONE, mac
+
+! --- Run Config 3 ---
+/CLEAR, NOSTART
+CONFIG = 3
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _M0_EXTRACT_ONE, mac
+/DELETE, _M0_EXTRACT_ONE, mac
+

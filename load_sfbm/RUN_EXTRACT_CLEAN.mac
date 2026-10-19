@@ -1,0 +1,137 @@
+! =====================================================================
+!  RUN_EXTRACT_CLEAN.mac
+!  Certified Static FEA Extraction Macro (Config 1, 2, 3)
+!  - Extracts Dual-Method Mass (MTOT & ETABLE)
+!  - Extracts Displacements (DMX, TIP_UZ) & Root Equilibrium (FZ_REAC)
+!  - Extracts Full Graphics Element-Isolated Shell Stresses (SEC 1..3)
+!  - Extracts PowerGraphics (/ESHAPE, 1) 3D Facet Stresses (SEC 1..8)
+! =====================================================================
+
+*DO, CFG_ID, 1, 3
+    PARSAV, SCALAR, _run_loop_state, parm
+    /CLEAR, NOSTART
+    PARRES, CHANGE, _run_loop_state, parm
+    CONFIG = CFG_ID
+    /INPUT, HTP_PARAMETRIC, mac, ..
+
+    /POST1
+    SET, LAST
+    ALLSEL, ALL
+
+    ! --- 1. Structural Mass (Solver MTOT in tonnes -> kg) ---
+    *GET, M_SLV_TON, ELEM, 0, MTOT, X
+    M_MTOT_KG = M_SLV_TON*1000.0
+
+    ! --- 2. Displacements & Root Equilibrium ---
+    NSORT, U, SUM, 0, 0, ALL
+    *GET, DMX_V, SORT, 0, MAX
+    *GET, NOD_DMX, SORT, 0, IMAX
+
+    NSEL, S, LOC, Y, SPAN-10, SPAN+10
+    NSORT, U, Z, 0, 0, ALL
+    *GET, TIP_UZ_V, SORT, 0, MIN
+    *GET, NOD_TIP, SORT, 0, IMIN
+    ALLSEL, ALL
+
+    NSEL, S, LOC, Y, -1, 1
+    FSUM
+    *GET, FZ_REAC_V, FSUM, 0, ITEM, FZ
+    ALLSEL, ALL
+
+    ! --- 3. Full Graphics Stresses (SHELL, TOP/BOT without slash!) ---
+    /GRAPHICS, FULL
+    ESEL, S, TYPE, , 1
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_FULL_TOP, SORT, 0, MAX
+    *GET, NOD_F_TOP, SORT, 0, IMAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_FULL_BOT, SORT, 0, MAX
+    *GET, NOD_F_BOT, SORT, 0, IMAX
+    SHELL, MID
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_FULL_MID, SORT, 0, MAX
+
+    ! Element-Isolated Component Shell Stresses (SEC 3=Skin, SEC 2=Spar, SEC 1=Rib)
+    ALLSEL, ALL
+    ESEL, S, SEC, , 3
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_SK_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_SK_B, SORT, 0, MAX
+    S_SKIN = S_SK_T
+    *IF, S_SK_B, GT, S_SKIN, THEN
+        S_SKIN = S_SK_B
+    *ENDIF
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 2
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_SP_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_SP_B, SORT, 0, MAX
+    S_SPAR = S_SP_T
+    *IF, S_SP_B, GT, S_SPAR, THEN
+        S_SPAR = S_SP_B
+    *ENDIF
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 1
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_RB_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, S_RB_B, SORT, 0, MAX
+    S_RIB = S_RB_T
+    *IF, S_RB_B, GT, S_RIB, THEN
+        S_RIB = S_RB_B
+    *ENDIF
+
+    ! --- 4. PowerGraphics 3D Facet Stresses (/SHOW, PNG + /ESHAPE, 1) ---
+    ALLSEL, ALL
+    /SHOW, PNG
+    /GRAPHICS, POWER
+    /ESHAPE, 1
+    SHELL, TOP
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_ALL, PLNSOL, 0, MAX
+
+    ESEL, S, SEC, , 3
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_SKIN, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 6
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, S_PWR_RFL6, PLNSOL, 0, MAX
+
+    /SHOW, CLOSE
+    /ESHAPE, 0
+    /GRAPHICS, FULL
+    ALLSEL, ALL
+
+    *CFOPEN, out_cfg%CFG_ID%, txt
+    *VWRITE, M_MTOT_KG, DMX_V, NOD_DMX, TIP_UZ_V, NOD_TIP, FZ_REAC_V
+('MASS_KG:    ', F12.4, /'DMX:        ', F12.5, ' at Node: ', F10.0, /'TIP_UZ:     ', F12.5, ' at Node: ', F10.0, /'FZ_REAC:    ', F12.2)
+    *VWRITE, S_FULL_TOP, NOD_F_TOP, S_FULL_BOT, NOD_F_BOT, S_FULL_MID
+('S_FULL_TOP: ', F12.5, ' at Node: ', F10.0, /'S_FULL_BOT: ', F12.5, ' at Node: ', F10.0, /'S_FULL_MID: ', F12.5)
+    *VWRITE, S_SKIN, S_SPAR, S_RIB, S_PWR_SKIN, S_PWR_RFL6, S_PWR_ALL
+('S_SKIN_ISO: ', F12.5, /'S_SPAR_ISO: ', F12.5, /'S_RIB_ISO:  ', F12.5, /'S_PWR_SKIN: ', F12.5, /'S_PWR_RFL6: ', F12.5, /'S_PWR_ALL:  ', F12.5)
+    *CFCLOS
+*ENDDO
+
+/DELETE, _run_loop_state, parm
+/EXIT, NOSAVE
+
