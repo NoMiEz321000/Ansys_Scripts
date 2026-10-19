@@ -1,0 +1,173 @@
+! ==============================================================================
+! UPDATE_SECTIONS_AND_SOLVE.mac
+! Purpose: Fast-path update of SEC 1..8 (SECDATA + SECOFFSET) on RESUMEd database
+! Exact Section Mapping matching HTP_PARAMETRIC.mac lines 594-628:
+!   SEC 1 = T_RIB_WEB  (MAT 1, Al 7075-T6)
+!   SEC 2 = T_SPAR_WEB (MAT 1, Al 7075-T6)
+!   SEC 3 = T_SKIN     (MAT 2, Composite)
+!   SEC 4 = Hat Stringer (STR_BRIM=15, STR_W3=20, STR_H=30, STR_T)
+!   SEC 5 = Spar Flange  (SPAR_FW=45, SPAR_FT)
+!   SEC 6..8 = Rib Flanges (RIB_FW=40, RIB_FW_EDGE=20, RIB_FT)
+! Inputs expected:
+!   T_RIB_WEB, T_SPAR_WEB, T_SKIN, STR_T, SPAR_FT, RIB_FT
+!   RUN_BUCKLE_FLAG (1 = solve linear buckling, 0 = skip)
+! CRITICAL RULE: Never put a space before '*' in multiplication (A*B, never A * B)!
+! ==============================================================================
+
+SPAN = 3978.0
+STR_H = 30.0
+STR_W3 = 20.0
+STR_BRIM = 15.0
+SPAR_FW = 45.0
+RIB_FW = 40.0
+RIB_FW_EDGE = 20.0
+
+/PREP7
+
+! 1. Update Shell Sections (SEC 1, 2, 3)
+SECTYPE, 1, SHELL
+SECDATA, T_RIB_WEB, 1
+
+SECTYPE, 2, SHELL
+SECDATA, T_SPAR_WEB, 1
+
+SECTYPE, 3, SHELL
+SECDATA, T_SKIN, 2
+
+! 2. Update Hat Stringer Section (SEC 4)
+SECTYPE, 4, BEAM, HATS
+SECDATA, STR_BRIM, STR_BRIM, STR_W3, STR_H, STR_T, STR_T, STR_T, STR_T, STR_T
+*GET, STR_YC, SECP, 4, PROP, CGY
+SECOFFSET, USER, STR_YC, 0
+
+! 3. Update Spar Cap Flange Section (SEC 5)
+SECTYPE, 5, BEAM, RECT
+SECDATA, SPAR_FW, SPAR_FT
+FL_OFFZ = -1*(SPAR_FT/2)
+SECOFFSET, USER, 0, FL_OFFZ
+
+! 4. Update Interior & Edge Rib Flange Sections (SEC 6, 7, 8)
+FL_OFFZ_RIB = -1*(RIB_FT/2+T_SKIN/2)
+
+SECTYPE, 6, BEAM, RECT
+SECDATA, RIB_FW, RIB_FT
+SECOFFSET, USER, 0, FL_OFFZ_RIB
+
+SECTYPE, 7, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER, -RIB_FW_EDGE/2, FL_OFFZ_RIB
+
+SECTYPE, 8, BEAM, RECT
+SECDATA, RIB_FW_EDGE, RIB_FT
+SECOFFSET, USER, RIB_FW_EDGE/2, FL_OFFZ_RIB
+
+FINISH
+
+! 5. Solve Linear Static Analysis
+/SOLU
+ANTYPE, 0
+PSTRES, ON
+ALLSEL, ALL
+SOLVE
+FINISH
+
+! 6. Extract Mass, Displacements, Reaction, and Component Stresses
+/POST1
+SET, LAST
+ALLSEL, ALL
+
+*GET, M_SLV_TON, ELEM, 0, MTOT, X
+M_MTOT_KG = M_SLV_TON*1000.0
+
+NSORT, U, SUM, 0, 0, ALL
+*GET, DMX_V, SORT, 0, MAX
+
+NSEL, S, LOC, Y, SPAN-10.0, SPAN+10.0
+NSORT, U, Z, 0, 0, ALL
+*GET, TIP_UZ_V, SORT, 0, MIN
+ALLSEL, ALL
+
+NSEL, S, LOC, Y, -1.0, 1.0
+FSUM
+*GET, FZ_VAL, FSUM, 0, ITEM, FZ
+ALLSEL, ALL
+
+! PowerGraphics 3D Facet Component Stresses
+ALLSEL, ALL
+/SHOW, PNG
+/GRAPHICS, POWER
+/ESHAPE, 1
+
+ESEL, S, SEC, , 3
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_SKIN, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 2
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_SPAR, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 1
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_RIB, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 4
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_STR, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 5
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_CAP, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 6
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_RFL6, PLNSOL, 0, MAX
+
+ALLSEL, ALL
+ESEL, S, SEC, , 7, 8, 1
+NSLE, S
+PLNSOL, S, EQV, 0, 1.0
+*GET, P_RFL78, PLNSOL, 0, MAX
+
+/SHOW, CLOSE
+/ESHAPE, 0
+/GRAPHICS, FULL
+ALLSEL, ALL
+FINISH
+
+! 7. Safety Factors and Margins of Safety
+FS_SKIN_PWR = 300.0/P_SKIN
+MS_SKIN_PWR = (200.0/P_SKIN)-1.0
+FS_SPAR_PWR = 480.0/P_SPAR
+MS_SPAR_PWR = (320.0/P_SPAR)-1.0
+FS_RFL_PWR  = 480.0/P_RFL6
+MS_RFL_PWR  = (320.0/P_RFL6)-1.0
+
+! 8. Optional Eigenvalue Buckling Solve
+B_L1 = 0.0
+B_L2 = 0.0
+MS_BUCKLE = 0.0
+*IF, RUN_BUCKLE_FLAG, EQ, 1, THEN
+    /SOLU
+    ANTYPE, BUCKLE
+    BUCOPT, LANB, 5
+    MXPAND, 5, , , YES
+    ALLSEL, ALL
+    SOLVE
+    FINISH
+    /POST1
+    *GET, B_L1, MODE, 1, FREQ
+    *GET, B_L2, MODE, 2, FREQ
+    MS_BUCKLE = (ABS(B_L1)/1.50)-1.0
+    FINISH
+*ENDIF

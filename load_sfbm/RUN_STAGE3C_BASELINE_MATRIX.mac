@@ -1,0 +1,181 @@
+! ==============================================================================
+! RUN_STAGE3C_BASELINE_MATRIX.mac
+! Purpose: Extract Complete Stage 3c Baseline Matrix (Mass, Displacements,
+!          Component Stresses, FS, MS, and Linear Eigenvalue Buckling Factors)
+! Execution Cwd: Ansys_Scripts/load_sfbm/
+! CRITICAL RULE: Never put a space before '*' in multiplication (A*B, never A * B)!
+! ==============================================================================
+
+*CFOPEN, results/STAGE3C_BASELINE_COMPONENT_MATRIX, csv
+*VWRITE
+('CFG,M_MTOT_KG,FZ_REAC_N,DMX_MM,TIP_UZ_MM,S_SKIN_FULL,S_SPAR_FULL,S_RIB_FULL,PWR_SKIN,PWR_SPAR,PWR_RIB,PWR_STR,PWR_CAP,PWR_RFL_INT,PWR_RFL_EDG,FS_SKIN_PWR,MS_SKIN_PWR,FS_SPAR_PWR,MS_SPAR_PWR,FS_RFL_PWR,MS_RFL_PWR,BUCKLE_L1,BUCKLE_L2,MS_BUCKLE')
+*CFCLOS
+
+*CREATE, _S3C_EVAL_ONE, mac
+    /POST1
+    SET, LAST
+    ALLSEL, ALL
+
+    *GET, M_SLV_TON, ELEM, 0, MTOT, X
+    M_MTOT_KG = M_SLV_TON*1000.0
+
+    NSORT, U, SUM, 0, 0, ALL
+    *GET, DMX_V, SORT, 0, MAX
+
+    NSEL, S, LOC, Y, SPAN-10.0, SPAN+10.0
+    NSORT, U, Z, 0, 0, ALL
+    *GET, TIP_UZ_V, SORT, 0, MIN
+    ALLSEL, ALL
+
+    NSEL, S, LOC, Y, -1.0, 1.0
+    FSUM
+    *GET, FZ_VAL, FSUM, 0, ITEM, FZ
+    ALLSEL, ALL
+
+    ! --- Full Graphics Element-Isolated Shell Stresses ---
+    /GRAPHICS, FULL
+    ESEL, S, SEC, , 3
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_B, SORT, 0, MAX
+    S_SKIN_F = V_T
+    *IF, V_B, GT, S_SKIN_F, THEN
+        S_SKIN_F = V_B
+    *ENDIF
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 2
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_B, SORT, 0, MAX
+    S_SPAR_F = V_T
+    *IF, V_B, GT, S_SPAR_F, THEN
+        S_SPAR_F = V_B
+    *ENDIF
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 1
+    NSLE, S
+    SHELL, TOP
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_T, SORT, 0, MAX
+    SHELL, BOT
+    NSORT, S, EQV, 0, 0, ALL
+    *GET, V_B, SORT, 0, MAX
+    S_RIB_F = V_T
+    *IF, V_B, GT, S_RIB_F, THEN
+        S_RIB_F = V_B
+    *ENDIF
+
+    ! --- PowerGraphics 3D Facet Stresses (/SHOW, PNG + /ESHAPE, 1) ---
+    ALLSEL, ALL
+    /SHOW, PNG
+    /GRAPHICS, POWER
+    /ESHAPE, 1
+
+    ESEL, S, SEC, , 3
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_SKIN, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 2
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_SPAR, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 1
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_RIB, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 4
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_STR, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 5
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_CAP, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 6
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_RFL6, PLNSOL, 0, MAX
+
+    ALLSEL, ALL
+    ESEL, S, SEC, , 7, 8, 1
+    NSLE, S
+    PLNSOL, S, EQV, 0, 1.0
+    *GET, P_RFL78, PLNSOL, 0, MAX
+
+    /SHOW, CLOSE
+    /ESHAPE, 0
+    /GRAPHICS, FULL
+    ALLSEL, ALL
+    FINISH
+
+    ! --- Safety Factors & Margins of Safety ---
+    FS_SK = 300.0/P_SKIN
+    MS_SK = (200.0/P_SKIN)-1.0
+    FS_SP = 480.0/P_SPAR
+    MS_SP = (320.0/P_SPAR)-1.0
+    FS_RF = 480.0/P_RFL6
+    MS_RF = (320.0/P_RFL6)-1.0
+
+    ! --- Linear Eigenvalue Buckling Analysis ---
+    /SOLU
+    ANTYPE, BUCKLE
+    BUCOPT, LANB, 5
+    MXPAND, 5, , , YES
+    ALLSEL, ALL
+    SOLVE
+    FINISH
+
+    /POST1
+    *GET, B_L1, MODE, 1, FREQ
+    *GET, B_L2, MODE, 2, FREQ
+    MS_BK = (ABS(B_L1)/1.50)-1.0
+
+    *CFOPEN, results/STAGE3C_BASELINE_COMPONENT_MATRIX, csv, , APPEND
+    *VWRITE, CONFIG, M_MTOT_KG, FZ_VAL, DMX_V, TIP_UZ_V, S_SKIN_F, S_SPAR_F, S_RIB_F, P_SKIN, P_SPAR, P_RIB, P_STR, P_CAP, P_RFL6, P_RFL78
+(F2.0,',',F10.4,',',F10.2,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,$)
+    *VWRITE, FS_SK, MS_SK, FS_SP, MS_SP, FS_RF, MS_RF, B_L1, B_L2, MS_BK
+(',',F8.2,',',F8.2,',',F8.2,',',F8.2,',',F8.2,',',F8.2,',',F10.4,',',F10.4,',',F8.2)
+    *CFCLOS
+    FINISH
+*END
+
+! --- Unrolled Run 1..3 ---
+/CLEAR, NOSTART
+CONFIG = 1
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _S3C_EVAL_ONE, mac
+
+/CLEAR, NOSTART
+CONFIG = 2
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _S3C_EVAL_ONE, mac
+
+/CLEAR, NOSTART
+CONFIG = 3
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+/INPUT, _S3C_EVAL_ONE, mac
+
+/DELETE, _S3C_EVAL_ONE, mac

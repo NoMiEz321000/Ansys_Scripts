@@ -55,6 +55,22 @@ RIB_FT  = 1.0       ! Rib Flange Thickness
 SPAR_FW = 45.0      ! Spar Flange Width
 SPAR_FT = 2.5       ! Spar Flange Thickness
 
+! --- Stage 3d Sizing Optimization Override Hook ---
+*IF, OPT_OVERRIDE, EQ, 1, THEN
+    T_SKIN     = T_SKIN_IN
+    T_SPAR_WEB = T_SPAR_IN
+    T_RIB_WEB  = T_RIB_IN
+    STR_T      = STR_T_IN
+    SPAR_FT    = SPAR_FT_IN
+    RIB_FT     = RIB_FT_IN
+*ENDIF
+
+! --- Material Strength Allowables [MPa] & Required FoS ---
+SY_AL_ASM  = 503.0      ! Al 7075-T6 Typical ASM Yield Strength [MPa]
+SU_AL_ASM  = 572.0      ! Al 7075-T6 Typical ASM Ultimate Strength [MPa]
+SU_SKIN    = 300.0      ! CFRP Quasi-Isotropic Skin Design Ultimate Allowable [MPa]
+FOS_REQ    = 1.50       ! EASA CS-25.303 Required Factor of Safety
+
 ! ================================================================
 ! MESH & MICRO-DETAILS CONSTANTS
 ! ================================================================
@@ -967,6 +983,9 @@ EPLOT
 ! ================================================================
 /SOLU
 ANTYPE, 0  ! Static Analysis
+*IF, PSTRES_OPT, EQ, 1, THEN
+    PSTRES, ON
+*ENDIF
 
 ! Fix root cantilever boundary condition (Y = 0)
 CSYS, 0
@@ -1008,6 +1027,9 @@ NDELE, ALL
 ALLSEL, ALL
 
 /SOLU
+*IF, PSTRES_OPT, EQ, 1, THEN
+    PSTRES, ON
+*ENDIF
 SOLVE
 FINISH
 

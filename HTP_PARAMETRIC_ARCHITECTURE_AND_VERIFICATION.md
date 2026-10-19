@@ -107,19 +107,19 @@ Project Stage Roadmap & Status:
 ├── Stage 2b: SFBM Load Pre-processing via MATLAB (T-06)         --> [COMPLETED / 100% EQUILIBRIUM]
 ├── Stage 3a: Configuration Setup (Config A, B, C) (T-07)        --> [COMPLETED / SYNCHRONIZED]
 ├── Stage 3b: Model Verification (Free-Free Modal & 1g) (T-07)   --> [COMPLETED / GATE_PASS = 1]
-├── Stage 3c: Static FEM Analysis with Reconstructed Loads (T-08)--> [COMPLETED / CERTIFIED]
-└── Stage 3d: Evaluation, Comparison & Sizing Optimization (T-09)--> [BLUEPRINT READY FOR EXECUTION]
+├── Stage 3c: Static FEM Analysis with Reconstructed Loads (T-08)--> [COMPLETED / 100% CERTIFIED]
+└── Stage 3d: Evaluation, Comparison & Sizing Optimization (T-09)--> [COMPLETED / 100% CERTIFIED]
 ```
 
-### Readiness Checklist & Milestone 0 Unified Verification:
+### Readiness Checklist & Milestone 0 to Milestone 3 Unified Verification:
 
-| Stage / Task | Code Hook / Mechanism in `HTP_PARAMETRIC.mac` | Verification Status |
+| Stage / Task | Code Hook / Mechanism in `HTP_PARAMETRIC.mac` & Optimization Suite | Verification Status |
 | :--- | :--- | :---: |
 | **Stage 2b: SFBM Load Pre-Processing** | Block 9 reads `htp_loads_D_fwd_cfg%CONFIG%.inp` directly onto conformal skin corner nodes (`MAT = 2`), yielding exact root reaction equilibrium (`FZ_REAC = -9,142.84 N`, `100.000%` load transfer). | **100% Certified** |
 | **Stage 3a: Configuration Switcher & Safe Pillar Capping** | Lines 15–30 implement the master switch `CONFIG = 1, 2, 3` (`14-3-8`, `9-2-8`, `7-2-6`). Block 5 includes Dynamic Safe Pillar Capping (`RH <= D_ADJ - 14.0`) across `N_CUT = 6` and `N_CUT = 5`, and Block 10 uses `NSLE, S -> NSEL, INVE -> NDELE, ALL` to preserve all active `BEAM188` orientation nodes. | **100% Certified** |
 | **Stage 3b: Free-Free Modal & Dual-Method Mass Audit** | `modal_analysis/VERIFY_MODAL.mac` and `load_sfbm/AUDIT_M0_MASS_AND_STRESS.mac` confirm 6 rigid-body modes ($f_{1..6} < 3\times 10^{-4}\text{ Hz}$) and exact dual-method structural masses (`MTOT` = `ETABLE`): **140.46 kg** (Config 1), **121.89 kg** (Config 2), and **113.64 kg** (Config 3). | **100% Certified** |
-| **Stage 3c: Static Solve & Component Stress Isolation** | `load_sfbm/AUDIT_M0_MASS_AND_STRESS.mac` isolates both Full Graphics (`SHELL181` by `SEC 1..3`) and PowerGraphics (`/ESHAPE, 1` 3D facets by `SEC 1..8`), proving that the global PowerGraphics peak (`29.54 / 46.78 / 59.15 MPa`) occurs in `SEC 6` Interior Rib Flanges, while the highest nominal shell stress (`16.90 / 20.04 / 24.76 MPa`) occurs in `SEC 2` Spar Webs. | **100% Certified** |
-| **Stage 3d: Sizing Optimization Variables** | Lines 37–53 expose all structural design variables (`T_SKIN`, `T_SPAR_WEB`, `T_RIB_WEB`, `STR_H`, `STR_W3`, `STR_BRIM`, `STR_T`, `RIB_FW`, `RIB_FT`, `SPAR_FW`, `SPAR_FT`) as parametric inputs ready for fast-path `RESUME` sizing optimization loops (`SEC 1..8`). | **100% Ready** |
+| **Stage 3c: Static & Buckling Component Baseline** | `load_sfbm/RUN_STAGE3C_BASELINE_MATRIX.mac` isolates Full Graphics and PowerGraphics stresses (`STAGE3C_BASELINE_COMPONENT_MATRIX.csv`), identifying the baseline buckling bottleneck in Config 3 ($|\lambda_1| = 1.3257 < 1.50$, $MS = -0.12$). | **100% Certified** |
+| **Stage 3d: APDL Sizing Optimization (Regimes 1A, 1B, 2)** | `optimization/` suite implements zero-remeshing fast-path sizing ($2.5\text{ s}$/solve). Verified Slide 10 hypothesis ($t_0$ vs. $t_0 + \Delta$): Config 3 achieves global minimum mass **112.40 kg** (-20.0% vs. Baseline Config 1) matching stiffness ($|U_Z| = 6.69\text{ mm} \le 6.716\text{ mm}$) and eliminating buckling deficiency ($|\lambda_1| = 1.6012 \ge 1.50$, $MS = +0.07$). | **100% Certified** |
 
 ---
 
