@@ -1,0 +1,200 @@
+! ==============================================================================
+! RENDER_STAGE3D_RESULTS.mac
+! Purpose: Render publication-quality Before/After Static & Buckling visualizations
+! Output images:
+!   - cfg1_opt_regime1a_dmx.png
+!   - cfg1_opt_regime1a_seqv.png
+!   - cfg1_buckle_mode1.png
+!   - cfg2_opt_regime1a_dmx.png
+!   - cfg2_opt_regime1a_seqv.png
+!   - cfg2_buckle_mode1.png
+!   - cfg3_baseline_buckle_mode1.png
+!   - cfg3_opt_regime1a_dmx.png
+!   - cfg3_opt_regime1a_seqv.png
+!   - cfg3_opt_regime1a_buckle_mode1.png
+! Execution Cwd: Ansys_Scripts/optimization/
+! ==============================================================================
+
+! Common Display Settings
+/PLOPTS, INFO, 3
+/PLOPTS, LEG1, 0
+/PLOPTS, LEG2, 0
+/PLOPTS, LEG3, 1
+/PLOPTS, FRAME, 0
+/PLOPTS, TITLE, 0
+/PLOPTS, MINM, 1
+/PLOPTS, DATE, 0
+/PLOPTS, LOGO, 0
+/PLOPTS, WINS, 1
+/UDOC, 1, CNTR, BOTTOM
+/VIEW, 1, 1, 1, 1
+/ANG, 1, 0
+/AUTO, 1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+
+! Macro to configure high-res PNG export
+*CREATE, _SET_PNG, mac
+    /SHOW, PNG, , 0
+    PNGR, COMP, 1, -1
+    PNGR, ORIENT, HORIZ
+    PNGR, COLOR, 2
+    PNGR, TMOD, 1
+    /GFILE, 1920
+*END
+
+! ==============================================================================
+! 1. CONFIG 1 REGIME 1A (Optimized)
+! ==============================================================================
+RESUME, '_scratch_base_cfg1', 'db'
+T_SKIN = 2.05 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.20 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
+RUN_BUCKLE_FLAG = 0
+/INPUT, UPDATE_SECTIONS_AND_SOLVE, mac
+
+/POST1
+SET, LAST
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+/CONTOUR, 1, 9, 0, , 30.0
+PLNSOL, S, EQV, 0
+/SHOW, CLOSE
+FINISH
+
+! Buckling Solve
+/SOLU
+ANTYPE, BUCKLE
+BUCOPT, LANB, 5
+MXPAND, 5, , , YES
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+SET, 1, 1
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, , 1.0
+PLNSOL, U, SUM, 1
+/SHOW, CLOSE
+FINISH
+
+
+! ==============================================================================
+! 2. CONFIG 2 REGIME 1A (Optimized)
+! ==============================================================================
+RESUME, '_scratch_base_cfg2', 'db'
+T_SKIN = 2.12 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.20 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
+RUN_BUCKLE_FLAG = 0
+/INPUT, UPDATE_SECTIONS_AND_SOLVE, mac
+
+/POST1
+SET, LAST
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+/CONTOUR, 1, 9, 0, , 45.0
+PLNSOL, S, EQV, 0
+/SHOW, CLOSE
+FINISH
+
+! Buckling Solve
+/SOLU
+ANTYPE, BUCKLE
+BUCOPT, LANB, 5
+MXPAND, 5, , , YES
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+SET, 1, 1
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, , 1.0
+PLNSOL, U, SUM, 1
+/SHOW, CLOSE
+FINISH
+
+
+! ==============================================================================
+! 3. CONFIG 3 BASELINE (Failing Buckling State)
+! ==============================================================================
+RESUME, '_scratch_base_cfg3', 'db'
+T_SKIN = 2.00 $ T_SPAR_WEB = 3.00 $ T_RIB_WEB = 2.00 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 1.00
+RUN_BUCKLE_FLAG = 0
+/INPUT, UPDATE_SECTIONS_AND_SOLVE, mac
+
+! Buckling Solve
+/SOLU
+ANTYPE, BUCKLE
+BUCOPT, LANB, 5
+MXPAND, 5, , , YES
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+SET, 1, 1
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, , 1.0
+PLNSOL, U, SUM, 1
+/SHOW, CLOSE
+FINISH
+
+
+! ==============================================================================
+! 4. CONFIG 3 REGIME 1A (Optimized Passing State)
+! ==============================================================================
+RESUME, '_scratch_base_cfg3', 'db'
+T_SKIN = 2.18 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.50 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
+RUN_BUCKLE_FLAG = 0
+/INPUT, UPDATE_SECTIONS_AND_SOLVE, mac
+
+/POST1
+SET, LAST
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, 0.8, 7.2
+PLNSOL, U, SUM, 1
+/CONTOUR, 1, 9, 0, , 55.0
+PLNSOL, S, EQV, 0
+/SHOW, CLOSE
+FINISH
+
+! Buckling Solve
+/SOLU
+ANTYPE, BUCKLE
+BUCOPT, LANB, 5
+MXPAND, 5, , , YES
+ALLSEL, ALL
+SOLVE
+FINISH
+
+/POST1
+SET, 1, 1
+ALLSEL, ALL
+/ESHAPE, 1
+/GRAPHICS, POWER
+/INPUT, _SET_PNG, mac
+/CONTOUR, 1, 9, 0, , 1.0
+PLNSOL, U, SUM, 1
+/SHOW, CLOSE
+FINISH
+
+/DELETE, _SET_PNG, mac
