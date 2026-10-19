@@ -1,0 +1,221 @@
+! =====================================================================
+!  RENDER_STAGE2A_COMPONENTS.mac — Component & Assembly Visualizer
+!  Generates 15 PNG snapshots across CONFIG = 1, 2, 3
+!  Matches modal_analysis visual style (1920p, white background, /ESHAPE, 1)
+! =====================================================================
+
+! ---------------------------------------------------------------------
+!  CONFIG A (14-3-8)
+! ---------------------------------------------------------------------
+/CLEAR, NOSTART
+/FILNAME, cfg1_comp, 1
+CONFIG = 1
+/INPUT, HTP_BUILD_CORE, mac
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! 1. Skeleton (Internal Substructure, Skin Hidden)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Internal Structural Framework (Skin Hidden)
+EPLOT
+
+! 2. Transverse Ribs Only (Webs + Flanges)
+ALLSEL, ALL
+ESEL, S, SEC, , 1
+ESEL, A, SEC, , 6, 8
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Transverse Rib Subassembly (14 Ribs: Webs and Flanges)
+EPLOT
+
+! 3. Longitudinal Spars Only (Webs + Caps)
+ALLSEL, ALL
+ESEL, S, SEC, , 2
+ESEL, A, SEC, , 5
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Longitudinal Spar Subassembly (3 Spars: Webs and Caps)
+EPLOT
+
+! 4. Stringers Only (Hat Stringers)
+ALLSEL, ALL
+ESEL, S, SEC, , 4
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Spanwise Hat Stringer Subassembly (8 Stringers)
+EPLOT
+
+! 5. Full Assembly (Skin + Substructure)
+ALLSEL, ALL
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Full Structural Assembly (Skin and Internal Framework)
+EPLOT
+
+/SHOW, CLOSE
+FINISH
+
+! ---------------------------------------------------------------------
+!  CONFIG B (9-2-8)
+! ---------------------------------------------------------------------
+/CLEAR, NOSTART
+/FILNAME, cfg2_comp, 1
+CONFIG = 2
+/INPUT, HTP_BUILD_CORE, mac
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! 1. Skeleton (Internal Substructure, Skin Hidden)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Internal Structural Framework (Skin Hidden)
+EPLOT
+
+! 2. Transverse Ribs Only (Webs + Flanges)
+ALLSEL, ALL
+ESEL, S, SEC, , 1
+ESEL, A, SEC, , 6, 8
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Transverse Rib Subassembly (9 Ribs: Webs and Flanges)
+EPLOT
+
+! 3. Longitudinal Spars Only (Webs + Caps)
+ALLSEL, ALL
+ESEL, S, SEC, , 2
+ESEL, A, SEC, , 5
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Longitudinal Spar Subassembly (2 Spars: Webs and Caps)
+EPLOT
+
+! 4. Stringers Only (Hat Stringers)
+ALLSEL, ALL
+ESEL, S, SEC, , 4
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Spanwise Hat Stringer Subassembly (8 Stringers)
+EPLOT
+
+! 5. Full Assembly (Skin + Substructure)
+ALLSEL, ALL
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config B [9-2-8] Full Structural Assembly (Skin and Internal Framework)
+EPLOT
+
+/SHOW, CLOSE
+FINISH
+
+! ---------------------------------------------------------------------
+!  CONFIG C (7-2-6)
+! ---------------------------------------------------------------------
+/CLEAR, NOSTART
+/FILNAME, cfg3_comp, 1
+CONFIG = 3
+/INPUT, HTP_BUILD_CORE, mac
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! 1. Skeleton (Internal Substructure, Skin Hidden)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Internal Structural Framework (Skin Hidden)
+EPLOT
+
+! 2. Transverse Ribs Only (Webs + Flanges)
+ALLSEL, ALL
+ESEL, S, SEC, , 1
+ESEL, A, SEC, , 6, 8
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Transverse Rib Subassembly (7 Ribs: Webs and Flanges)
+EPLOT
+
+! 3. Longitudinal Spars Only (Webs + Caps)
+ALLSEL, ALL
+ESEL, S, SEC, , 2
+ESEL, A, SEC, , 5
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Longitudinal Spar Subassembly (2 Spars: Webs and Caps)
+EPLOT
+
+! 4. Stringers Only (Hat Stringers)
+ALLSEL, ALL
+ESEL, S, SEC, , 4
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Spanwise Hat Stringer Subassembly (6 Stringers)
+EPLOT
+
+! 5. Full Assembly (Skin + Substructure)
+ALLSEL, ALL
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config C [7-2-6] Full Structural Assembly (Skin and Internal Framework)
+EPLOT
+
+/SHOW, CLOSE
+FINISH

@@ -1,0 +1,63 @@
+! =====================================================================
+!  RENDER_STAGE2A_ADDITIONAL.mac — Additional Stage 2a Visualizations
+!  Image 1: Isolated Transverse Rib 2 Elevation (LE Left, TE Right)
+!  Image 2: Root Section Assembly (Skin, Spars & Stringers, Ribs Hidden)
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, stage2a_add, 1
+CONFIG = 1
+/INPUT, HTP_BUILD_CORE, mac
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! ---------------------------------------------------------------------
+! 1. Isolated Transverse Rib 2 Elevation Profile (Y = 306 mm)
+! LE on Left, TE on Right, Normal to Rib Face (View along -Y)
+! ---------------------------------------------------------------------
+ALLSEL, ALL
+NSEL, S, LOC, Y, 305.5, 306.5
+ESLN, S, 1
+/PNUM, SEC, 1
+/NUM, 1
+/VIEW, 1, 0, -1, 0
+/VUP, 1, Z
+/ANG, 1, 0
+/AUTO, 1
+/TITLE, Config A [14-3-8] Transverse Rib 2 Elevation Profile (Y = 306 mm, Normal to Face)
+EPLOT
+
+! ---------------------------------------------------------------------
+! 2. Root Section Assembly Zoom (Skin, Spars & Stringers, Ribs Hidden)
+! Oblique perspective looking into open root carry-through cross-section
+! ---------------------------------------------------------------------
+ALLSEL, ALL
+ESEL, U, SEC, , 1
+ESEL, U, SEC, , 6
+ESEL, U, SEC, , 7
+ESEL, U, SEC, , 8
+NSLE, S
+
+/PNUM, SEC, 1
+/NUM, 1
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+/FOCUS, 1, 1500.0, 200.0, 0.0
+/DIST, 1, 1850.0
+/TITLE, Config A [14-3-8] Root Section Assembly (Skin, Spars & Stringers, Ribs Hidden)
+EPLOT
+
+/SHOW, CLOSE
+FINISH
+/EXIT, ALL

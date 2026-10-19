@@ -1,0 +1,35 @@
+! =====================================================================
+!  RENDER_STAGE3A_CFGA.mac — Standardized Config A Skeleton Render
+! =====================================================================
+/CLEAR, NOSTART
+/FILNAME, stage3a_cfgA, 1
+CONFIG = 1
+/INPUT, HTP_BUILD_CORE, mac
+
+/POST1
+/RGB, INDEX, 100, 100, 100, 0
+/RGB, INDEX, 0, 0, 0, 15
+/PLOPTS, INFO, 1
+/PLOPTS, LEG1, 1
+/PLOPTS, WINS, 0
+/ESHAPE, 1
+/EDGE, 1, 1
+/DEVICE, VECTOR, 0
+/VIEW, 1, 0.55, -0.70, 0.45
+/VUP, 1, Z
+/ANG, 1, 0
+
+/SHOW, PNG, REV
+/GFILE, 1920
+
+! Isolate internal framework (hide composite skin SEC 3)
+ALLSEL, ALL
+ESEL, U, SEC, , 3
+NSLE, S
+/PNUM, SEC, 1
+/NUM, 1
+/TITLE, Config A [14-3-8] Internal Structural Framework (14 Ribs, 3 Spars, 8 Stringers)
+EPLOT
+
+/SHOW, CLOSE
+/EXIT, ALL

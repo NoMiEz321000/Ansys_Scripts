@@ -24,7 +24,7 @@ load_sfbm/load_main_run*/
 *.prs
 *.parm
 *.mlv
-file.bat
+file*.bat
 _scratch*/
 m_run.*
 file.*
