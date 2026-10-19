@@ -31,33 +31,73 @@ The project scope is focused on three certified core objectives:
 
 ### 🗺️ System Architecture & Workflow Diagram
 
-[![Architecture diagram of nomiez321000/ansys_scripts](assets/architecture_diagram.png)](https://gitdiagram.com/nomiez321000/ansys_scripts?utm_source=readme&utm_medium=picture)
-*Interactive live architecture diagram powered by [GitDiagram](https://gitdiagram.com/nomiez321000/ansys_scripts?utm_source=readme&utm_medium=picture).*
+```mermaid
+flowchart TD
 
+subgraph group_model["Parametric Modeling"]
+  node_parametric["HTP Model Builder<br/>[HTP_PARAMETRIC.mac]"]
+  node_configurations["HTP Configurations<br/>[HTP_PARAMETRIC.mac]"]
+end
+
+subgraph group_loads["Flight Load Processing"]
+  node_load_analysis["Aerodynamic Load Analysis"]
+  node_nodal_mapping["Nodal Force Mapping<br/>[htp_nodal_forces.m]"]
+  node_node_export["Load Node Export"]
+  node_load_cards["Mapped Load Inputs"]
+end
+
+subgraph group_verification["Model Verification"]
+  node_verification["Acceptance Gates<br/>[VERIFY_MODAL.mac]"]
+  node_modal_runs["Modal Verification"]
+end
+
+subgraph group_analysis["Advanced Analysis"]
+  node_static_extension["Static and Buckling"]
+  node_sensitivity["Sensitivity and Sizing"]
+  node_optimization_results["Sizing Results"]
+end
+
+subgraph group_visual["Visual Inspection"]
+  node_load_visuals["Load Visualization"]
+  node_rib_visuals["Rib Inspection<br/>[RENDER_RIBS.mac]"]
+  node_visual_check["Batch Visual Checks<br/>[VERIFY_VISUAL.mac]"]
+end
+
+node_engineer(("Engineer"))
+node_ansys["ANSYS MAPDL"]
+node_matlab["MATLAB"]
+
+node_engineer -->|"runs"| node_parametric
+node_parametric -->|"generates"| node_configurations
+node_parametric -->|"builds model in"| node_ansys
+node_load_analysis -->|"runs in"| node_matlab
+node_load_analysis -->|"preprocesses loads for"| node_nodal_mapping
+node_node_export -->|"exports nodes for"| node_nodal_mapping
+node_nodal_mapping -->|"produces mapped forces"| node_load_cards
+node_configurations -->|"undergoes"| node_verification
+node_verification -->|"checks modes with"| node_modal_runs
+node_configurations -->|"supports downstream analysis"| node_static_extension
+node_static_extension -.->|"informs"| node_sensitivity
+node_sensitivity -.->|"records results"| node_optimization_results
+node_engineer -->|"runs"| node_load_visuals
+node_engineer -->|"runs"| node_rib_visuals
+node_engineer -->|"runs"| node_visual_check
+node_load_visuals -->|"renders in"| node_ansys
+node_rib_visuals -->|"inspects in"| node_ansys
+node_visual_check -->|"verifies in"| node_ansys
+
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+class node_parametric,node_configurations toneBlue
+class node_load_analysis,node_nodal_mapping,node_node_export,node_load_cards toneAmber
+class node_verification,node_modal_runs toneMint
+class node_static_extension,node_sensitivity,node_optimization_results toneRose
+class node_load_visuals,node_rib_visuals,node_visual_check,node_engineer,node_ansys,node_matlab toneIndigo
 ```
-  ┌─────────────────────────────────┐
-  │   Step 1: Data Collection       │
-  │   ATR 42-600, CS-25, Materials  │
-  └────────────────┬────────────────┘
-                   │
-         ┌─────────┴─────────┐
-         ▼                   ▼
-┌──────────────────┐ ┌───────────────────────────┐
-│ Step 2: APDL     │ │ Step 3: SFBM Load         │
-│ Parametric Model │ │ Pre-processing (MATLAB)   │
-└────────┬─────────┘ └─────────────┬─────────────┘
-         └─────────┬───────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │ Step 4: Configuration Setup     │
-  │ Config A 14-3-8, B 9-2-8, C 7-2-6│
-  └────────────────┬────────────────┘
-                   ▼
-  ┌─────────────────────────────────┐
-  │ Step 5: Model Verification      │
-  │ Three Acceptance Gates (PASS)   │
-  └─────────────────────────────────┘
-```
+*(Vector architecture diagram rendered natively by GitHub. Raw SVG vector is also available at [`assets/architecture_diagram.svg`](assets/architecture_diagram.svg)).*
 
 1. **Objective 1 (Parametric APDL Model):** Develop a unified APDL macro (`HTP_PARAMETRIC.mac`) that generates three complete internal airframe topologies from parameters alone:
    * **Configuration A (Reference Baseline):** 14 ribs, 3 spars, 8 stringers (2-cell box)
