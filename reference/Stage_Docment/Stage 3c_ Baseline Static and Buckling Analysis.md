@@ -1,10 +1,15 @@
 # Stage 3c: Baseline Static and Buckling Analysis
 
-**Project Title:** Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization  
-**Stage Reference:** Stage 3c (Task T-08, Milestone M3c)  
-**Aircraft Baseline:** ATR 42-600 Regional Turboprop / EASA CS-25 Certification Basis  
-**Author:** Structural Engineering Team (Antigravity Assistant Pair Programming)  
-**Date:** October 2026  
+| Item | Detail |
+| :--- | :--- |
+| Project | Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization |
+| Stage / Task | Stage 3c / Task T-08 (Step 6: Static analysis & Step 7: Baseline validation) |
+| Aircraft Baseline | ATR 42-600 Regional Turboprop / EASA CS-25 Certification Basis |
+| Schedule Dates | 17–18 October 2026 (2 Days) |
+| Deliverable Status | Completed (Static Stresses, Hotspots & Buckling Deficiency Identified) |
+| Prepared by | Archawin Chindarattanaporn (67130043), Aryan Sajith (67130044), Thanatchai Khunpiluke (67130036), Sirasak Permsup (67130029), Peeradol Singsamran (67130061) |
+| Primary Code Artifacts | `HTP_PARAMETRIC.mac`, `RUN_SINGLE_STATIC.mac` |
+| Primary Output Visuals | `figures/stage3c/` (Figures 3c.1 to 3c.8) |
 
 ---
 

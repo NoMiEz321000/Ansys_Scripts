@@ -3,12 +3,12 @@
 | Item | Detail |
 | :--- | :--- |
 | Project | Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization |
-| Stage / Task | Stage 2b / Task T-06 |
-| Planned Schedule | 1–2 October 2026 |
+| Stage / Task | Stage 2b / Task T-06 (Step 3: SFBM load pre-processing (MATLAB)) |
+| Schedule Dates | 05–17 October 2026 (13 Days) |
 | Deliverable Status | Completed (Force Equilibrium Verified across Config A, B, C; $\Delta < 0.001\%$) |
 | Prepared by | Archawin Chindarattanaporn (67130043), Aryan Sajith (67130044), Thanatchai Khunpiluke (67130036), Sirasak Permsup (67130029), Peeradol Singsamran (67130061) |
 | Primary Code Artifacts | `load_sfbm/matlab/{vn_diagram.m, tail_load.m, htp_sfbm.m, htp_nodal_forces.m}`, `htp_loads_D_fwd_cfg{1,2,3}.inp` |
-| Primary Output Visuals | `load_sfbm/matlab/results/`, `load_sfbm/visual_load/for_report/` |
+| Primary Output Visuals | `load_sfbm/visual_load/for_report/` (Figures 2b.1 to 2b.9), `load_sfbm/matlab/results/` |
 
 In aircraft structural design, aerodynamic loads delivered from conceptual aero-data or flight dynamic evaluations are typically provided as continuous spanwise distributions of internal Shear Force and Bending Moment (SFBM). Conversely, displacement-based Finite Element (FE) solvers require discrete external forces applied directly to nodal degrees of freedom ($F_z$). 
 

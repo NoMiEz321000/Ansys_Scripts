@@ -3,12 +3,12 @@
 | Item | Detail |
 | :--- | :--- |
 | Project | Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization |
-| Stage / Task | Stage 3a / Task T-07 (Part 1) |
-| Planned Schedule | 3 October 2026 |
+| Stage / Task | Stage 3a / Task T-07 Part 1 (Step 4: Configuration setup) |
+| Schedule Dates | 17–18 October 2026 (2 Days) |
 | Deliverable Status | Completed (Topological Switcher Synchronized across Config A, B, and C) |
 | Prepared by | Archawin Chindarattanaporn (67130043), Aryan Sajith (67130044), Thanatchai Khunpiluke (67130036), Sirasak Permsup (67130029), Peeradol Singsamran (67130061) |
-| Primary Code Artifacts | `HTP_PARAMETRIC.mac` (Lines 1–35, 113–148, 193–224, 366–480), `HTP_BUILD_CORE.mac` |
-| Primary Output Visuals | `visual_log/snapshot_v1.4.5/`, `modal_analysis/visual_modal/04_config_b_9_2_8_and_config_c_7_2_6/` |
+| Primary Code Artifacts | `HTP_PARAMETRIC.mac` (Lines 1–35, 113–148, 193–224, 366–480), `HTP_BUILD_CORE.mac`, `RENDER_STAGE3A_CFGA.mac` |
+| Primary Output Visuals | `figures/stage3a/` (Figures 3a.1 to 3a.3), `visual_log/stage2a_component_gallery/` |
 
 A fundamental advantage of parametric finite element scripting over traditional CAD-based workflows is the capability to explore diverse structural topologies without rebuilding geometric models from scratch. Following the design exploration strategy established in the project proposal and Palumbo et al. (2026), Stage 3a formalizes the setup of three distinct horizontal tailplane structural configurations within a single master script. 
 

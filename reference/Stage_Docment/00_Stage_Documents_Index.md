@@ -21,19 +21,35 @@ Building upon the foundational parametric methodology proposed by Palumbo et al.
 
 ## 2. Master Stage Map & Document Index
 
-The complete documentation suite comprises seven technical reports (the existing Stage 1 PDF report and six newly generated markdown volumes covering Stages 2a through 3d, accompanied by high-resolution visual figure archives in `figures/`):
+The complete documentation suite comprises technical reports covering Stages 1 through 3d, accompanied by high-resolution visual figure archives in `figures/` and synthesis indices:
 
-**Table 0.1: Master project stage documentation directory and delivery index**
+**Table 0.1a: Master project task breakdown, lifecycle milestones, and schedule**
 
-| Stage Reference | Task ID | Document Title | Planned Schedule Dates | Delivery Status | Document File / Relative Link |
+| Task ID | Task Name | Category / Deliverable | Status | Start Date | End Date | Duration (Days) |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| **T-01** | Initial topic study (aircraft window structure) | Topic Selection & Literature | Completed | 2026-09-16 | 2026-09-22 | 7 |
+| **T-02** | Topic change to horizontal tailplane; literature review | Topic Selection & Literature | Completed | 2026-09-23 | 2026-09-25 | 3 |
+| **T-03** | Step 1: Data collection & parameter definition | Stage 1: Input Data | Completed | 2026-09-26 | 2026-09-27 | 2 |
+| **T-04** | Step 2: Parametric APDL script development | Stage 2a: APDL Script | Completed | 2026-09-28 | 2026-10-15 | 18 |
+| **T-05** | Proposal presentation for project approval | Major Milestone | Completed | 2026-09-30 | 2026-09-30 | 1 |
+| **T-06** | Step 3: SFBM load pre-processing (MATLAB) | Stage 2b: Load Reconstruction | Completed | 2026-10-05 | 2026-10-17 | 13 |
+| **T-07** | Step 4: Configuration setup & Step 5: Model verification | Stage 3a-b: Setup & Verification | Completed | 2026-10-17 | 2026-10-18 | 2 |
+| **T-08** | Step 6: Static analysis & Step 7: Baseline validation | Stage 3c: Static FEM Analysis | Completed | 2026-10-17 | 2026-10-18 | 2 |
+| **T-09** | Step 8: Evaluation & comparison (Config A, B, C) | Stage 3d: Optimization | Completed | 2026-10-19 | 2026-10-19 | 1 |
+| **T-10** | Step 9: Final Report preparation | Documentation & Submission | In Progress | 2026-10-19 | 2026-10-20 | 2 |
+
+**Table 0.1b: Master project stage documentation directory and delivery index**
+
+| Stage Reference | Task ID | Document Title / Scope | Schedule Dates | Delivery Status | Document File / Relative Link |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **Stage 1** | T-01 / T-02 | Problem Definition, Aircraft Baseline & Geometry Parameterization | 22–24 Sep 2026 | Completed | `Finished Stage 1 Aircraft Baseline and Parameter.pdf` |
-| **Stage 2a** | T-03 | Parametric APDL Script Development | 26–27 Sep 2026 | Completed | [Stage 2a: Parametric APDL Script Development](Stage%202a_%20Parametric%20APDL%20Script%20Development.md) |
-| **Stage 2b** | T-04 | SFBM Load Pre-processing and Nodal Force Mapping | 28–30 Sep 2026 | Completed | [Stage 2b: SFBM Load Pre-processing and Nodal Force Mapping](Stage%202b_%20SFBM%20Load%20Pre-processing%20and%20Nodal%20Force%20Mapping.md) |
-| **Stage 3a** | T-06 | Configuration Setup (Topologies A, B, C) | 01–02 Oct 2026 | Completed | [Stage 3a: Configuration Setup](Stage%203a_%20Configuration%20Setup.md) |
-| **Stage 3b** | T-07 | Model Verification (5-Gate Mathematical Qualification) | 03–04 Oct 2026 | Completed | [Stage 3b: Model Verification](Stage%203b_%20Model%20Verification.md) |
-| **Stage 3c** | T-08 | Baseline Static and Buckling Analysis | 05–06 Oct 2026 | Completed | [Stage 3c: Baseline Static and Buckling Analysis](Stage%203c_%20Baseline%20Static%20and%20Buckling%20Analysis.md) |
-| **Stage 3d** | T-09 | Sensitivity Analysis and Sizing Optimization | 07–08 Oct 2026 | Completed | [Stage 3d: Sensitivity Analysis and Sizing Optimization](Stage%203d_%20Sensitivity%20Analysis%20and%20Sizing%20Optimization.md) |
+| **Stage 1** | T-03 | Step 1: Data Collection & Parameter Definition | 26–27 Sep 2026 | Completed | `Finished Stage 1 Aircraft Baseline and Parameter.pdf` |
+| **Stage 2a** | T-04 | Step 2: Parametric APDL Script Development | 28 Sep – 15 Oct 2026 | Completed | [Stage 2a: Parametric APDL Script Development](Stage%202a_%20Parametric%20APDL%20Script%20Development.md) |
+| **Stage 2b** | T-06 | Step 3: SFBM Load Pre-processing and Nodal Force Mapping | 05–17 Oct 2026 | Completed | [Stage 2b: SFBM Load Pre-processing and Nodal Force Mapping](Stage%202b_%20SFBM%20Load%20Pre-processing%20and%20Nodal%20Force%20Mapping.md) |
+| **Stage 3a** | T-07 (Part 1) | Step 4: Configuration Setup (Topologies A, B, C) | 17–18 Oct 2026 | Completed | [Stage 3a: Configuration Setup](Stage%203a_%20Configuration%20Setup.md) |
+| **Stage 3b** | T-07 (Part 2) | Step 5: Model Verification (5-Gate Mathematical Qualification) | 17–18 Oct 2026 | Completed | [Stage 3b: Model Verification](Stage%203b_%20Model%20Verification.md) |
+| **Stage 3c** | T-08 | Step 6: Static Analysis & Step 7: Baseline Validation | 17–18 Oct 2026 | Completed | [Stage 3c: Baseline Static and Buckling Analysis](Stage%203c_%20Baseline%20Static%20and%20Buckling%20Analysis.md) |
+| **Stage 3d** | T-09 | Step 8: Evaluation & Comparison (Sensitivity & Sizing Optimization) | 19 Oct 2026 | Completed | [Stage 3d: Sensitivity Analysis and Sizing Optimization](Stage%203d_%20Sensitivity%20Analysis%20and%20Sizing%20Optimization.md) |
+| **Synthesis** | T-10 | Step 9: Final Report Preparation (Master Documentation Index) | 19–20 Oct 2026 | In Progress | [Master Stage Documentation Index](00_Stage_Documents_Index.md) |
 
 ---
 

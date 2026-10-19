@@ -1,10 +1,15 @@
 # Stage 3d: Sensitivity Analysis and Sizing Optimization
 
-**Project Title:** Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization  
-**Stage Reference:** Stage 3d (Task T-09, Milestone M3d)  
-**Aircraft Baseline:** ATR 42-600 Regional Turboprop / EASA CS-25 Certification Basis  
-**Author:** Structural Engineering Team (Antigravity Assistant Pair Programming)  
-**Date:** October 2026  
+| Item | Detail |
+| :--- | :--- |
+| Project | Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization |
+| Stage / Task | Stage 3d / Task T-09 (Step 8: Evaluation & comparison (Config A, B, C)) |
+| Aircraft Baseline | ATR 42-600 Regional Turboprop / EASA CS-25 Certification Basis |
+| Schedule Dates | 19 October 2026 (1 Day) |
+| Deliverable Status | Completed (Optimal Regime 1A Identified: -19.98% Mass Reduction, Buckling Compliant) |
+| Prepared by | Archawin Chindarattanaporn (67130043), Aryan Sajith (67130044), Thanatchai Khunpiluke (67130036), Sirasak Permsup (67130029), Peeradol Singsamran (67130061) |
+| Primary Code Artifacts | `optimization/` scripts, `HTP_BUILD_CORE.mac`, `RENDER_STAGE3D_RESULTS.mac` |
+| Primary Output Visuals | `figures/stage3d/` (Figures 3d.1 to 3d.9), `optimization/visual_opt/` |
 
 ---
 

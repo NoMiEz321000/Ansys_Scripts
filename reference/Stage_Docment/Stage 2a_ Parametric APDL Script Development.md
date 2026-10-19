@@ -3,12 +3,12 @@
 | Item | Detail |
 | :--- | :--- |
 | Project | Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization |
-| Stage / Task | Stage 2a / Task T-04 |
-| Planned Schedule | 28–30 September 2026 |
+| Stage / Task | Stage 2a / Task T-04 (Step 2: Parametric APDL script development) |
+| Schedule Dates | 28 September – 15 October 2026 (18 Days) |
 | Deliverable Status | Completed (Baseline Codebase Frozen at Release `v1.4.5-stable`, synchronized in `v1.5.0`) |
 | Prepared by | Archawin Chindarattanaporn (67130043), Aryan Sajith (67130044), Thanatchai Khunpiluke (67130036), Sirasak Permsup (67130029), Peeradol Singsamran (67130061) |
-| Primary Code Artifacts | `HTP_PARAMETRIC.mac`, `VERIFY_VISUAL.mac`, `RENDER_RIBS.mac` |
-| Primary Output Visuals | `visual_log/snapshot_v1.4.5/` (Snapshots 01–18) |
+| Primary Code Artifacts | `HTP_PARAMETRIC.mac`, `VERIFY_VISUAL.mac`, `RENDER_RIBS.mac`, `RENDER_STAGE2A_COMPONENTS.mac`, `RENDER_STAGE2A_ADDITIONAL.mac` |
+| Primary Output Visuals | `visual_log/stage2a_component_gallery/` (Figures 2a.1 to 2a.17), `visual_log/snapshot_v1.4.5/` |
 
 Following the completion of Stage 1 (Data Collection & Parameter Definition), the primary objective of Stage 2a is to translate the aircraft aerodynamic geometry, structural topology rules, and material properties into an end-to-end parametric script in pure ANSYS Parametric Design Language (APDL). 
 
