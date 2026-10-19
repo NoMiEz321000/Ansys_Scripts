@@ -1,0 +1,27 @@
+! ==============================================================================
+! BUILD_OPT_BASES.mac
+! Purpose: Build and pre-save pristine meshed and loaded databases for Config 1, 2, 3
+! Execution Cwd: Ansys_Scripts/optimization/
+! CRITICAL RULE: Never put a space before '*' in multiplication (A*B, never A * B)!
+! ==============================================================================
+
+/CLEAR, NOSTART
+CONFIG = 1
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+ALLSEL, ALL
+SAVE, '_scratch_base_cfg1', 'db'
+
+/CLEAR, NOSTART
+CONFIG = 2
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+ALLSEL, ALL
+SAVE, '_scratch_base_cfg2', 'db'
+
+/CLEAR, NOSTART
+CONFIG = 3
+PSTRES_OPT = 1
+/INPUT, HTP_PARAMETRIC, mac, ..
+ALLSEL, ALL
+SAVE, '_scratch_base_cfg3', 'db'

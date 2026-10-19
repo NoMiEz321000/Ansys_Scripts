@@ -1,0 +1,298 @@
+! ==============================================================================
+! RUN_STAGE3D_SIZING_OPT.mac
+! Purpose: Execute Stage 3d Sizing Optimization across 3 Configurations and
+!          all 3 Regimes (1A: Stiffness-Matched, 1B: Relaxed Stiffness, 2: Buckling)
+! Outputs:
+!   - result/STAGE3D_OPT_HISTORY_CFG1.csv
+!   - result/STAGE3D_OPT_HISTORY_CFG2.csv
+!   - result/STAGE3D_OPT_HISTORY_CFG3.csv
+!   - result/STAGE3D_FINAL_COMPARISON_TABLE.csv
+! Execution Cwd: Ansys_Scripts/optimization/
+! CRITICAL RULE: Never put a space before '*' in multiplication (A*B, never A * B)!
+! ==============================================================================
+
+! --- Master Comparison Table Header ---
+*CFOPEN, result/STAGE3D_FINAL_COMPARISON_TABLE, csv
+*VWRITE
+('CFG,REGIME,STATUS,T_SKIN,T_SPAR,T_RIB,STR_T,SPAR_FT,RIB_FT,MASS_KG,DELTA_MASS_PCT,TIP_UZ_MM,DMX_MM,PWR_SKIN,PWR_SPAR,PWR_RFL6,FS_MIN,BUCKLE_L1,MS_BUCKLE')
+*CFCLOS
+
+! --- Macro to Record History Row ---
+*CREATE, _REC_HIST, mac
+    RUN_BUCKLE_FLAG = 1
+    /INPUT, UPDATE_SECTIONS_AND_SOLVE, mac
+
+    ! Compute Margins of Safety
+    ! MS_STR is minimum margin across skin (allow 200) and metallic (allow 320)
+    MS_SK_V = (200.0/P_SKIN)-1.0
+    MS_SP_V = (320.0/P_SPAR)-1.0
+    MS_RF_V = (320.0/P_RFL6)-1.0
+    MS_STR  = MS_SK_V
+    *IF, MS_SP_V, LT, MS_STR, THEN
+        MS_STR = MS_SP_V
+    *ENDIF
+    *IF, MS_RF_V, LT, MS_STR, THEN
+        MS_STR = MS_RF_V
+    *ENDIF
+
+    ! Minimum FoS
+    FS_SK_V = 300.0/P_SKIN
+    FS_SP_V = 480.0/P_SPAR
+    FS_RF_V = 480.0/P_RFL6
+    FS_MIN  = FS_SK_V
+    *IF, FS_SP_V, LT, FS_MIN, THEN
+        FS_MIN = FS_SP_V
+    *ENDIF
+    *IF, FS_RF_V, LT, FS_MIN, THEN
+        FS_MIN = FS_RF_V
+    *ENDIF
+
+    ! Displacement Margin against Regime Target
+    MS_DSP = (TGT_DISP/ABS(TIP_UZ_V))-1.0
+
+    ! Buckling Margin
+    MS_BUCKLE = (ABS(B_L1)/1.50)-1.0
+
+    ! Feasibility Indicator (1 = feasible, 0 = infeasible)
+    FEAS_F = 1.0
+    *IF, MS_STR, LT, 0.0, THEN
+        FEAS_F = 0.0
+    *ENDIF
+    *IF, MS_DSP, LT, -0.005, THEN
+        FEAS_F = 0.0
+    *ENDIF
+    *IF, REQ_BUCKLE, EQ, 1, THEN
+        *IF, MS_BUCKLE, LT, 0.0, THEN
+            FEAS_F = 0.0
+        *ENDIF
+    *ENDIF
+
+    ! Write to History File
+    *CFOPEN, HIST_FILE, csv, , APPEND
+    *VWRITE, IT_NUM, REG_NAME, T_SKIN, T_SPAR_WEB, T_RIB_WEB, STR_T, SPAR_FT, RIB_FT, M_MTOT_KG
+(F3.0,',',A8,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F10.4,$)
+    *VWRITE, TIP_UZ_V, P_SKIN, P_SPAR, P_RFL6, B_L1, MS_STR, MS_DSP, MS_BUCKLE, FEAS_F
+(',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F10.4,',',F8.2,',',F8.2,',',F8.2,',',F2.0)
+    *CFCLOS
+*END
+
+! --- Macro to Record Master Summary Row ---
+*CREATE, _REC_FINAL, mac
+    DM_PCT = ((M_MTOT_KG-M_BASE_CFG)/M_BASE_CFG)*100.0
+    *CFOPEN, result/STAGE3D_FINAL_COMPARISON_TABLE, csv, , APPEND
+    *VWRITE, CUR_CFG, REG_NAME, STAT_NAME, T_SKIN, T_SPAR_WEB, T_RIB_WEB, STR_T, SPAR_FT, RIB_FT, M_MTOT_KG
+(F2.0,',',A8,',',A8,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F6.2,',',F10.4,$)
+    *VWRITE, DM_PCT, TIP_UZ_V, DMX_V, P_SKIN, P_SPAR, P_RFL6, FS_MIN, B_L1, MS_BUCKLE
+(',',F8.2,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.4,',',F8.2,',',F10.4,',',F8.2)
+    *CFCLOS
+*END
+
+
+! ==============================================================================
+!  OPTIMIZATION RUN FOR CONFIG 1
+! ==============================================================================
+RESUME, '_scratch_base_cfg1', 'db'
+CUR_CFG = 1
+HIST_FILE = 'result/STAGE3D_OPT_HISTORY_CFG1'
+
+*CFOPEN, HIST_FILE, csv
+*VWRITE
+('ITER,REGIME,T_SKIN,T_SPAR,T_RIB,STR_T,SPAR_FT,RIB_FT,MASS_KG,TIP_UZ_MM,PWR_SKIN,PWR_SPAR,PWR_RFL6,BUCKLE_L1,MS_STRESS,MS_DISP,MS_BUCKLE,FEASIBLE')
+*CFCLOS
+
+! 1. Baseline
+IT_NUM = 0
+REG_NAME = 'BASELINE'
+STAT_NAME = 'BASELINE'
+TGT_DISP = 6.7160
+REQ_BUCKLE = 1
+T_SKIN=2.00 $ T_SPAR_WEB=3.00 $ T_RIB_WEB=2.00 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=1.00
+/INPUT, _REC_HIST, mac
+M_BASE_CFG = M_MTOT_KG
+/INPUT, _REC_FINAL, mac
+
+! 2. Regime 1A (Stiffness-Matched: |UZ| <= 6.7160)
+REG_NAME = 'REGIME1A'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 6.7160
+REQ_BUCKLE = 0
+! Iter 1: Trim internal members to min gauge
+IT_NUM = 1
+T_SKIN=2.00 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Adjust skin thickness to match 6.7160 mm
+IT_NUM = 2
+T_SKIN=2.05 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 3. Regime 1B (Relaxed Stiffness: |UZ| <= 10.0)
+REG_NAME = 'REGIME1B'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 10.0000
+REQ_BUCKLE = 0
+! Iter 1: Trial near min gauge
+IT_NUM = 3
+T_SKIN=1.35 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized skin to achieve |UZ| <= 10.0 mm
+IT_NUM = 4
+T_SKIN=1.50 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 4. Regime 2 (Buckling-Constrained: |L1| >= 1.50)
+REG_NAME = 'REGIME_2'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 15.0000
+REQ_BUCKLE = 1
+! Iter 1: Trial
+IT_NUM = 5
+T_SKIN=1.65 $ T_SPAR_WEB=2.00 $ T_RIB_WEB=1.00 $ STR_T=1.20 $ SPAR_FT=2.00 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized to ensure |L1| >= 1.50 (MS >= 0.0)
+IT_NUM = 6
+T_SKIN=1.75 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.00 $ STR_T=1.40 $ SPAR_FT=2.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+
+! ==============================================================================
+!  OPTIMIZATION RUN FOR CONFIG 2
+! ==============================================================================
+RESUME, '_scratch_base_cfg2', 'db'
+CUR_CFG = 2
+HIST_FILE = 'result/STAGE3D_OPT_HISTORY_CFG2'
+
+*CFOPEN, HIST_FILE, csv
+*VWRITE
+('ITER,REGIME,T_SKIN,T_SPAR,T_RIB,STR_T,SPAR_FT,RIB_FT,MASS_KG,TIP_UZ_MM,PWR_SKIN,PWR_SPAR,PWR_RFL6,BUCKLE_L1,MS_STRESS,MS_DISP,MS_BUCKLE,FEASIBLE')
+*CFCLOS
+
+! 1. Baseline
+IT_NUM = 0
+REG_NAME = 'BASELINE'
+STAT_NAME = 'BASELINE'
+TGT_DISP = 6.7160
+REQ_BUCKLE = 1
+T_SKIN=2.00 $ T_SPAR_WEB=3.00 $ T_RIB_WEB=2.00 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=1.00
+/INPUT, _REC_HIST, mac
+M_BASE_CFG = M_MTOT_KG
+/INPUT, _REC_FINAL, mac
+
+! 2. Regime 1A (Stiffness-Matched: |UZ| <= 6.7160)
+REG_NAME = 'REGIME1A'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 6.7160
+REQ_BUCKLE = 0
+! Iter 1: Trim internal members
+IT_NUM = 1
+T_SKIN=2.05 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Adjusted skin to match 6.7160 mm
+IT_NUM = 2
+T_SKIN=2.12 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 3. Regime 1B (Relaxed Stiffness: |UZ| <= 10.0)
+REG_NAME = 'REGIME1B'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 10.0000
+REQ_BUCKLE = 0
+! Iter 1: Trial
+IT_NUM = 3
+T_SKIN=1.35 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized skin to achieve |UZ| <= 10.0 mm
+IT_NUM = 4
+T_SKIN=1.55 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 4. Regime 2 (Buckling-Constrained: |L1| >= 1.50)
+REG_NAME = 'REGIME_2'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 15.0000
+REQ_BUCKLE = 1
+! Iter 1: Trial
+IT_NUM = 5
+T_SKIN=1.80 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.40 $ SPAR_FT=2.00 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized to ensure |L1| >= 1.50 (MS >= 0.0)
+IT_NUM = 6
+T_SKIN=1.85 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.20 $ STR_T=1.40 $ SPAR_FT=2.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+
+! ==============================================================================
+!  OPTIMIZATION RUN FOR CONFIG 3
+! ==============================================================================
+RESUME, '_scratch_base_cfg3', 'db'
+CUR_CFG = 3
+HIST_FILE = 'result/STAGE3D_OPT_HISTORY_CFG3'
+
+*CFOPEN, HIST_FILE, csv
+*VWRITE
+('ITER,REGIME,T_SKIN,T_SPAR,T_RIB,STR_T,SPAR_FT,RIB_FT,MASS_KG,TIP_UZ_MM,PWR_SKIN,PWR_SPAR,PWR_RFL6,BUCKLE_L1,MS_STRESS,MS_DISP,MS_BUCKLE,FEASIBLE')
+*CFCLOS
+
+! 1. Baseline
+IT_NUM = 0
+REG_NAME = 'BASELINE'
+STAT_NAME = 'BASELINE'
+TGT_DISP = 6.7160
+REQ_BUCKLE = 1
+T_SKIN=2.00 $ T_SPAR_WEB=3.00 $ T_RIB_WEB=2.00 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=1.00
+/INPUT, _REC_HIST, mac
+M_BASE_CFG = M_MTOT_KG
+/INPUT, _REC_FINAL, mac
+
+! 2. Regime 1A (Stiffness-Matched: |UZ| <= 6.7160)
+REG_NAME = 'REGIME1A'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 6.7160
+REQ_BUCKLE = 0
+! Iter 1: Trim internal members
+IT_NUM = 1
+T_SKIN=2.10 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.50 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized skin to achieve |UZ| <= 6.7160 mm
+IT_NUM = 2
+T_SKIN=2.18 $ T_SPAR_WEB=2.50 $ T_RIB_WEB=1.50 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 3. Regime 1B (Relaxed Stiffness: |UZ| <= 10.0)
+REG_NAME = 'REGIME1B'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 10.0000
+REQ_BUCKLE = 0
+! Iter 1: Trial
+IT_NUM = 3
+T_SKIN=1.35 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized skin to achieve |UZ| <= 10.0 mm
+IT_NUM = 4
+T_SKIN=1.60 $ T_SPAR_WEB=1.20 $ T_RIB_WEB=0.80 $ STR_T=1.00 $ SPAR_FT=1.20 $ RIB_FT=0.80
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+! 4. Regime 2 (Buckling-Constrained: |L1| >= 1.50)
+REG_NAME = 'REGIME_2'
+STAT_NAME = 'OPTIMAL '
+TGT_DISP = 15.0000
+REQ_BUCKLE = 1
+! Iter 1: Trial
+IT_NUM = 5
+T_SKIN=2.08 $ T_SPAR_WEB=3.00 $ T_RIB_WEB=2.00 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=1.00
+/INPUT, _REC_HIST, mac
+! Iter 2: Sized to ensure |L1| >= 1.50 (MS >= 0.0)
+IT_NUM = 6
+T_SKIN=2.15 $ T_SPAR_WEB=3.00 $ T_RIB_WEB=2.00 $ STR_T=1.60 $ SPAR_FT=2.50 $ RIB_FT=1.00
+/INPUT, _REC_HIST, mac
+/INPUT, _REC_FINAL, mac
+
+/DELETE, _REC_HIST, mac
+/DELETE, _REC_FINAL, mac
