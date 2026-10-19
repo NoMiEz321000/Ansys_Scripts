@@ -19,13 +19,15 @@ In Stages 2b and 3b, the parametric finite element model of the Horizontal Tailp
 
 ### 1.1 Optimization Problem Statement
 
-$$\begin{aligned}
-\min_{\mathbf{x}} \quad & M(\mathbf{x}) = \sum_{k=1}^{8} \rho_k V_k(\mathbf{x}) \\
-\text{subject to} \quad & \sigma_{\text{vM}, k}^{\text{Power}}(\mathbf{x}) \le \frac{\sigma_{y, k}}{\text{FS}_{\text{req}}}, \quad \forall k \in \{1, \dots, 8\} \\
-& |\delta_{\text{tip}, z}(\mathbf{x})| \le \delta_{\text{target}} \\
-& |\lambda_1(\mathbf{x})| \ge 1.50 \quad (\text{Eigenvalue Buckling Factor}) \\
+$$
+\begin{aligned}
+\min_{\mathbf{x}} \quad & M(\mathbf{x}) = \sum_{k=1}^{8} \rho_k V_k(\mathbf{x}) \\\\
+\text{subject to} \quad & \sigma_{\text{vM}, k}^{\text{Power}}(\mathbf{x}) \le \frac{\sigma_{y, k}}{\text{FS}_{\text{req}}}, \quad \forall k \in \{1, \dots, 8\} \\\\
+& |\delta_{\text{tip}, z}(\mathbf{x})| \le \delta_{\text{target}} \\\\
+& |\lambda_1(\mathbf{x})| \ge 1.50 \quad (\text{Eigenvalue Buckling Factor}) \\\\
 & x_{i, \min} \le x_i \le x_{i, \max}, \quad i = 1, \dots, 6
-\end{aligned}$$
+\end{aligned}
+$$
 
 where:
 - **Design Variables ($\mathbf{x} \in \mathbb{R}^6$):**
@@ -142,11 +144,13 @@ The complete optimization results across Baseline, Regime 1A, Regime 1B, and Reg
 
 A central question in multi-configuration aircraft structural sizing is whether removing internal spars and ribs truly yields a lighter wingbox when aeroelastic bending stiffness must be matched:
 
-$$\begin{aligned}
-\text{Config 1 (14-3-8)}: \quad & T_{\text{skin}} = 2.05\text{ mm} \implies \text{Mass} = 126.11\text{ kg}, \quad |U_Z| = 6.72\text{ mm} \\
-\text{Config 2 (9-2-8)}: \quad & T_{\text{skin}} = 2.12\text{ mm} \, (t_0 + \Delta_1) \implies \text{Mass} = 114.83\text{ kg}, \quad |U_Z| = 6.72\text{ mm} \\
+$$
+\begin{aligned}
+\text{Config 1 (14-3-8)}: \quad & T_{\text{skin}} = 2.05\text{ mm} \implies \text{Mass} = 126.11\text{ kg}, \quad |U_Z| = 6.72\text{ mm} \\\\
+\text{Config 2 (9-2-8)}: \quad & T_{\text{skin}} = 2.12\text{ mm} \, (t_0 + \Delta_1) \implies \text{Mass} = 114.83\text{ kg}, \quad |U_Z| = 6.72\text{ mm} \\\\
 \text{Config 3 (7-2-6)}: \quad & T_{\text{skin}} = 2.18\text{ mm} \, (t_0 + \Delta_2) \implies \text{Mass} = 112.40\text{ kg}, \quad |U_Z| = 6.69\text{ mm}
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Physical Proof:**
 1. In Config 2 and Config 3, removing 1 spar and 5 to 7 ribs eliminates substantial internal shear web mass located close to the neutral bending axis ($Z \approx 0$).
@@ -159,9 +163,17 @@ $$\begin{aligned}
 In Stage 3c baseline analysis, Config 3 exhibited an eigenvalue buckling deficit:
 - **Baseline Config 3:** $|\lambda_1| = 1.3257 < 1.50 \implies MS_{\text{buckle}} = -0.12$ (Fails EASA CS-25 limit load criteria).
 - **Physical Cause:** Increasing rib pitch from $300\text{ mm}$ to $525\text{ mm}$ increases the unsupported skin panel aspect ratio and reduces the classical plate buckling critical stress:
-  $$\sigma_{cr} = k_c \frac{\pi^2 E}{12(1-\nu^2)} \left(\frac{t}{b}\right)^2$$
+
+$$
+\sigma_{cr} = k_c \frac{\pi^2 E}{12(1-\nu^2)} \left(\frac{t}{b}\right)^2
+$$
+
 - **Optimization Remedy:** In Regime 1A, increasing $T_{\text{skin}}$ from $2.00\text{ mm}$ to $2.18\text{ mm}$ and setting $T_{\text{rib}} = 1.50\text{ mm}$ elevates the buckling eigenvalue by $+20.8\%$ to:
-  $$|\lambda_1| = 1.6012 \ge 1.50 \implies MS_{\text{buckle}} = +0.07$$
+
+$$
+|\lambda_1| = 1.6012 \ge 1.50 \implies MS_{\text{buckle}} = +0.07
+$$
+
   This completely satisfies structural airworthiness requirements with positive margin of safety.
 
 ### 5.3 Stress Margins and Failure Modes
@@ -170,7 +182,11 @@ Across all three optimized configurations:
 - **Skin Stress:** Unaveraged PowerGraphics skin stress remains exceptionally low ($13.16\text{ MPa}$ in Config 1, $20.89\text{ MPa}$ in Config 2, $26.55\text{ MPa}$ in Config 3), yielding minimum factor of safety $\text{FS}_{\text{skin}} \ge 7.53$ against the $200\text{ MPa}$ allowable.
 - **Spar Web Stress:** Spar web shear stress is safely bounded ($18.48\text{ MPa}$ to $25.35\text{ MPa}$, $\text{FS}_{\text{spar}} \ge 12.62$).
 - **Critical Peak Stress:** The peak Von Mises stress consistently occurs in the **Interior Rib Flanges (`SEC 6`, $\text{BEAM188}$)** at the upper skin junction under chordwise bending load transfer ($29.94\text{ MPa}$, $44.64\text{ MPa}$, and $51.13\text{ MPa}$). Even at this critical hotspot, the minimum factor of safety is:
-  $$\text{FS}_{\min} = \frac{480.0\text{ MPa}}{51.13\text{ MPa}} = 9.39 \gg 1.50$$
+
+$$
+\text{FS}_{\min} = \frac{480.0\text{ MPa}}{51.13\text{ MPa}} = 9.39 \gg 1.50
+$$
+
   proving that the HTP structure is purely **stiffness- and stability-governed**, not strength-governed.
 
 ---

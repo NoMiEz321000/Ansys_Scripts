@@ -21,18 +21,31 @@ Verification is performed across all three candidate structural topologies defin
 ### Mathematical Formulation of Unconstrained (Free-Free) Modal Verification
 For an unconstrained 3D elastic body with global stiffness matrix $\mathbf{K}$ and consistent/lumped mass matrix $\mathbf{M}$, the generalized eigenvalue problem is solved via the Block Lanczos algorithm (`MODOPT, LANB, 12`):
 
-$$\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}, \qquad f_r = \frac{\omega_r}{2\pi} \quad (r = 1, 2, \dots, 12)$$
+$$
+\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}, \qquad f_r = \frac{\omega_r}{2\pi} \quad (r = 1, 2, \dots, 12)
+$$
 
 A structurally contiguous, mechanism-free 3D assembly in $\mathbb{R}^3$ possesses **strictly 6 zero-energy rigid-body modes** ($\boldsymbol{\phi}_1 \dots \boldsymbol{\phi}_6 \in \ker(\mathbf{K})$, corresponding to 3 translations $T_x, T_y, T_z$ and 3 rotations $R_x, R_y, R_z$) followed by a strictly positive definite elastic spectrum ($\omega_7^2 > 0$):
 
 1. **Acceptance Gate 1 (Rigid-Body Modes $r = 1 \dots 6$):**
-   $$\max_{r \in \{1..6\}} f_r < 1.0 \times 10^{-3}\text{ Hz}$$
+
+$$
+\max_{r \in \{1..6\}} f_r < 1.0 \times 10^{-3}\text{ Hz}
+$$
+
 2. **Acceptance Gate 2 (First Elastic Mode Jump $r = 7$):**
-   $$f_7 > 1.0\text{ Hz} \quad \text{and} \quad \frac{f_7}{f_6} > 10^4$$
+
+$$
+f_7 > 1.0\text{ Hz} \quad \text{and} \quad \frac{f_7}{f_6} > 10^4
+$$
+
    *(Any detached `BEAM188` segment, unmerged `SHELL181` skin/web edge, or unrestrained beam torsional degree of freedom $\theta_x$ would manifest as a 7th zero-frequency mode $f_7 \approx 0\text{ Hz}$.)*
 3. **Acceptance Gate 3 (Dual-Method Mass Conservation):**
    Exact agreement ($0.000\%$ discrepancy) between the ANSYS solver mass matrix total (`*GET, M_SOLVER, ELEM, 0, MTOT, X`) and analytical element volume integration (`ETABLE, EVOL, VOLU` summed across Sections 1–8):
-   $$M_{\text{total}} = \sum_{s=1}^{8} \rho_s \sum_{e \in \Omega_s} V_e = M_{\text{solver}}$$
+
+$$
+M_{\text{total}} = \sum_{s=1}^{8} \rho_s \sum_{e \in \Omega_s} V_e = M_{\text{solver}}
+$$
 
 ---
 
@@ -64,14 +77,26 @@ A critical visual observation in **Figure 6 (a)–(f) (Page 6)** of Palumbo et a
 
 1. **Rigid-Body Kinematics (Zero Elastic Strain $\boldsymbol{\varepsilon} = \mathbf{0}$):**  
    Figure 6 (a)–(f) in the reference paper depicts **Modes 1 to 6 of the unconstrained Free-Free analysis** ($f_1 \dots f_6 \approx 0\text{ Hz}$). In a rigid-body mode, the structure experiences zero internal bending or shear distortion; the entire tailplane translates and rotates in 3D space as an undeformed rigid body according to the linear displacement field:
-   $$\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})$$
+
+$$
+\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})
+$$
+
 2. **Signed Directional Components (`PLNSOL, U, Z` / `UX` / `UY`) vs. Unsigned Vector Magnitude (`PLNSOL, U, SUM`):**  
    Inspecting the colorbar legends at the bottom of **Figure 6 (a)–(f)** in the paper reveals **both negative and positive displacement values** (e.g., Fig. 6a: `-1.52995` to `+5.00208`; Fig. 6b: `-2.20872` to `+2.01205`; Fig. 6c: `-4.5809` to `+5.01961`).  
    - Because total vector magnitude $\|\mathbf{u}\| = \sqrt{u_x^2 + u_y^2 + u_z^2}$ (`PLNSOL, U, SUM`) is strictly non-negative ($\ge 0$) and measures radial distance from the instantaneous rotation axis, `USUM` produces circular/elliptical rings in rigid-body modes or wavy contours in elastic modes.
    - By contrast, when plotting a **signed directional component** such as vertical displacement $u_z$ (`PLNSOL, U, Z`) for a rigid-body mode, the displacement field across the wing planform $(x, y)$ reduces to an exact **linear plane equation**:
-     $$u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})$$
+
+$$
+u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})
+$$
+
    - The iso-contour boundary lines ($u_z(x, y) = C = \text{const}$) are therefore governed by:
-     $$\theta_x y - \theta_y x = \text{const}$$
+
+$$
+\theta_x y - \theta_y x = \text{const}
+$$
+
      which are **mathematically straight parallel lines** across the entire lifting surface, transitioning smoothly from negative (blue) on one side of the rotation axis to positive (red) on the other.
 
 When we plot **Free-Free Modes 1–6** of our own model using signed directional components (`PLNSOL, U, Z` / `UX` / `UY`), we obtain the exact same straight parallel contour bands and signed legend bars as **Figure 6 (a)–(f)** in Palumbo et al. (2026) (stored in [`visual_modal/01_literature_fig6_rigid_body/`](visual_modal/01_literature_fig6_rigid_body/); see [`note.md`](note.md) for in-depth Q&A and presentation notes on mode ordering and contour sign symmetry).

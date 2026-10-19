@@ -19,7 +19,9 @@ Before coupling external aerodynamic flight loads or initiating automated sizing
 
 The finite element model represents a three-dimensional unconstrained elastic assembly. Its dynamic behavior is governed by the generalized undamped eigenvalue equation:
 
-$$(\mathbf{K} - \omega_r^2 \mathbf{M}) \boldsymbol{\phi}_r = \mathbf{0}, \quad f_r = \frac{\omega_r}{2\pi} \quad (r = 1, 2, \dots, 12)$$
+$$
+(\mathbf{K} - \omega_r^2 \mathbf{M}) \boldsymbol{\phi}_r = \mathbf{0}, \quad f_r = \frac{\omega_r}{2\pi} \quad (r = 1, 2, \dots, 12)
+$$
 
 where $\mathbf{K}$ is the global stiffness matrix, $\mathbf{M}$ is the consistent mass matrix, $\omega_r$ is the natural circular frequency, and $\boldsymbol{\phi}_r$ is the $r$-th mode shape eigenvector. In MAPDL, eigenvalues are extracted using the Block Lanczos algorithm (`MODOPT, LANB, 12`).
 
@@ -27,14 +29,25 @@ To certify the model for subsequent aerodynamic loading, five rigorous acceptanc
 
 1. **Gate 1: Six Zero-Energy Rigid-Body Modes ($r = 1 \dots 6$):**  
    In three-dimensional Euclidean space $\mathbb{R}^3$, an unconstrained contiguous structural body possesses strictly six rigid-body degrees of freedom (three translations $T_x, T_y, T_z$ and three rotations $R_x, R_y, R_z$). All six rigid-body modes must exhibit near-zero frequencies:
-   $$\max_{r \in \{1..6\}} f_r < 1.0 \times 10^{-3}\text{ Hz}$$
+
+$$
+\max_{r \in \{1..6\}} f_r < 1.0 \times 10^{-3}\text{ Hz}
+$$
+
    The presence of a seventh zero-frequency mode ($f_7 \approx 0\text{ Hz}$) would indicate an internal kinematic mechanism, an unconstrained rotational degree of freedom, or a detached structural component.
 2. **Gate 2: Elastic Mode Separation ($r = 7$):**  
    The first flexible deformation mode must exhibit a clean, positive jump with high spectral separation:
-   $$f_7 > 1.0\text{ Hz} \quad \text{and} \quad \frac{f_7}{\max(f_1 \dots f_6)} > 10^4$$
+
+$$
+f_7 > 1.0\text{ Hz} \quad \text{and} \quad \frac{f_7}{\max(f_1 \dots f_6)} > 10^4
+$$
+
 3. **Gate 3: Dual-Method Mass Conservation:**  
    The total mass evaluated from the solver mass matrix (`*GET, M_SOLVER, ELEM, 0, MTOT, X`) must match the analytical element volume integral ($\sum \rho_k V_k$ summed across `SEC 1` to `SEC 8`) with zero numerical discrepancy:
-   $$\Delta_{\text{mass}} = \frac{|M_{\text{volume}} - M_{\text{solver}}|}{M_{\text{solver}}} = 0.0000\%$$
+
+$$
+\Delta_{\text{mass}} = \frac{|M_{\text{volume}} - M_{\text{solver}}|}{M_{\text{solver}}} = 0.0000\%
+$$
 4. **Gate 4: Three-Axis $1g$ Gravity Equilibrium:**  
    Applying $1g$ static acceleration ($9,810\text{ mm/s}^2$) sequentially along the $X$, $Y$, and $Z$ axes of a root-clamped model must produce constraint reaction forces matching total structural weight ($W = M \cdot g$) with error $< 0.001\%$.
 5. **Gate 5: Unitary Displacement Integrity:**  
@@ -82,13 +95,25 @@ A distinct feature of Figure 6 (a)–(f) in Palumbo et al. (2026) is that the mo
 
 1. **Rigid-Body Kinematics (Zero Internal Strain $\boldsymbol{\varepsilon} = \mathbf{0}$):**  
    Modes 1 through 6 involve pure rigid-body motion with zero internal deformation. The displacement of any spatial point $\mathbf{x} = (x, y, z)$ on the tailplane is given by:
-   $$\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})$$
+
+$$
+\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})
+$$
+
    where $\mathbf{u}_0 = (u_{x0}, u_{y0}, u_{z0})$ is the translation of the center of mass, and $\boldsymbol{\theta}_0 = (\theta_x, \theta_y, \theta_z)$ is the rigid rotation vector.
 2. **Signed Directional Displacements (`PLNSOL, U, Z` / `UX` / `UY`):**  
    Inspecting the colorbar legends in Palumbo et al. (Figure 6) reveals signed displacement scales with both positive and negative values (e.g., $-4.58$ to $+5.02$). When plotting a signed component such as vertical displacement $u_z$, the equation simplifies across the wing planform $(x, y)$ to an exact **linear plane equation**:
-   $$u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})$$
+
+$$
+u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})
+$$
+
    The contour lines of constant displacement ($u_z(x, y) = C$) are governed by:
-   $$\theta_x y - \theta_y x = \text{const}$$
+
+$$
+\theta_x y - \theta_y x = \text{const}
+$$
+
    which represents a family of **mathematically straight parallel lines** oriented at an angle $\alpha = \arctan(\theta_y / \theta_x)$. 
 
 Plotting Modes 1 to 6 of our parametric model using signed directional components reproduces the exact same straight parallel contour bands and signed legend distributions seen in the published literature.

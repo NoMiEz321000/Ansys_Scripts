@@ -97,31 +97,43 @@ The horizontal tailplane macro-geometry is formulated through continuous algebra
 ### 3.1 Chord and Station Distribution
 The chord length varies linearly from root to tip:
 
-$$C(y) = C_{\text{root}} + (C_{\text{tip}} - C_{\text{root}}) \frac{y}{\text{SPAN}} = 3090 - 1230 \left(\frac{y}{3978}\right) \quad [\text{mm}]$$
+$$
+C(y) = C_{\text{root}} + (C_{\text{tip}} - C_{\text{root}}) \frac{y}{\text{SPAN}} = 3090 - 1230 \left(\frac{y}{3978}\right) \quad [\text{mm}]
+$$
 
 The spanwise positions of the $N_{\text{rib}}$ transverse ribs are uniformly distributed:
 
-$$y_i = (i - 1) \cdot \frac{\text{SPAN}}{N_{\text{rib}} - 1}, \quad i = 1, 2, \dots, N_{\text{rib}}$$
+$$
+y_i = (i - 1) \cdot \frac{\text{SPAN}}{N_{\text{rib}} - 1}, \quad i = 1, 2, \dots, N_{\text{rib}}
+$$
 
 For the baseline configuration ($N_{\text{rib}} = 14$), the nominal rib pitch is:
 
-$$\Delta y = \frac{3978}{13} = 306.00\text{ mm}$$
+$$
+\Delta y = \frac{3978}{13} = 306.00\text{ mm}
+$$
 
 ### 3.2 Dihedral and Planform Sweep Centerline
 The dihedral elevation along the semi-span is defined by:
 
-$$Z_{\text{off}}(y) = y \cdot \tan(\Lambda_{\text{dihed}}), \quad \Lambda_{\text{dihed}} = 7.0^\circ \implies \tan(7.0^\circ) \approx 0.12278$$
+$$
+Z_{\text{off}}(y) = y \cdot \tan(\Lambda_{\text{dihed}}), \quad \Lambda_{\text{dihed}} = 7.0^\circ \implies \tan(7.0^\circ) \approx 0.12278
+$$
 
 To establish a straight trailing edge (perpendicular to the aircraft longitudinal symmetry axis at the rear spar station), the leading edge is swept rearward by offsetting the chordwise reference origin:
 
-$$X_{\text{offset}}(y) = C_{\text{root}} - C(y) = 1230 \left(\frac{y}{3978}\right) \quad [\text{mm}]$$
+$$
+X_{\text{offset}}(y) = C_{\text{root}} - C(y) = 1230 \left(\frac{y}{3978}\right) \quad [\text{mm}]
+$$
 
 At the root ($y = 0$), $X_{\text{offset}} = 0.0\text{ mm}$; at the wingtip ($y = 3,978\text{ mm}$), $X_{\text{offset}} = 1,230.0\text{ mm}$.
 
 ### 3.3 NACA 0012 Airfoil Thickness Distribution
 The profile geometry is governed by the standard symmetrical NACA 4-digit formulation for a profile with thickness-to-chord ratio $t_c = 0.12$:
 
-$$y_t(x) = 5 \cdot t_c \cdot C_i \left[ 0.29690 \sqrt{\frac{x}{C_i}} - 0.12600 \left(\frac{x}{C_i}\right) - 0.35160 \left(\frac{x}{C_i}\right)^2 + 0.28430 \left(\frac{x}{C_i}\right)^3 - 0.10150 \left(\frac{x}{C_i}\right)^4 \right]$$
+$$
+y_t(x) = 5 \cdot t_c \cdot C_i \left[ 0.29690 \sqrt{\frac{x}{C_i}} - 0.12600 \left(\frac{x}{C_i}\right) - 0.35160 \left(\frac{x}{C_i}\right)^2 + 0.28430 \left(\frac{x}{C_i}\right)^3 - 0.10150 \left(\frac{x}{C_i}\right)^4 \right]
+$$
 
 In the script, this is implemented via normalized non-dimensional thickness array `YT_FRAC` scaled by `TSCALE = TC / 0.20 = 0.60`. Twenty-five chordwise stations (`N_UP = 25`) discretize the upper surface from $X/C = 0.00$ to $X/C = 0.98$, with identical symmetrical reflection applied to the lower surface (`N_PROF = 49` total profile keypoints per rib). The resulting 3D aerodynamic wireframe forms the bounding loft for area meshing and structural stiffener placement detailed in subsequent sections.
 
@@ -218,13 +230,19 @@ In Block 5, mouseholes are parameterized with smooth circular tangent fillets of
 ### 5.2 Dynamic Safe Pillar Capping for Lightening Holes
 Circular lightening holes reduce dead weight in the rib webs. Their diameter is scaled harmonically:
 
-$$R_{\text{hole}}(y) = 0.50 \cdot h_{\text{local}}(y)$$
+$$
+R_{\text{hole}}(y) = 0.50 \cdot h_{\text{local}}(y)
+$$
 
 Because the airfoil tapers toward the tip and spars converge, uncapped circular subtractions can breach adjacent mousehole fillets or vertical spar boundary lines. Block 5 enforces **Dynamic Safe Pillar Capping**:
 
-$$\text{Clearance: } D_{\text{adj}} = (X_{\text{mouse}} - X_{\text{hole}}) \cdot C_i - HW$$
+$$
+\text{Clearance: } D_{\text{adj}} = (X_{\text{mouse}} - X_{\text{hole}}) \cdot C_i - HW
+$$
 
-$$\text{If } R_{\text{hole}} > D_{\text{adj}} - 14.0\text{ mm} \implies R_{\text{hole}} = D_{\text{adj}} - 14.0\text{ mm}$$
+$$
+\text{If } R_{\text{hole}} > D_{\text{adj}} - 14.0\text{ mm} \implies R_{\text{hole}} = D_{\text{adj}} - 14.0\text{ mm}
+$$
 
 This guarantees a minimum web bridge pillar of $14.0\text{ mm}$ across all bays and rib stations, preventing boolean subtraction errors (`ASBA`) and sliver meshing failures from the heavily loaded root rib out to the highly tapered tip rib (Figures 2a.2 and 2a.7).
 
@@ -236,27 +254,51 @@ Figure 2a.16 provides an unobstructed face view of an interior rib (Rib 2 at $Y 
 In three-dimensional solid visualization (`/ESHAPE, 1`), standard beam elements render symmetrically about their node line. If unshifted, half of the beam cross-section penetrates through the shell surface.
 
 To guarantee true physical flushness:
-* **Hat Stringers (`SEC 4`):** The vertical offset is shifted by the distance between the reference node plane and the section centroid:
-  $$\text{Offset}_Y = \text{CG}_Y$$
+- **Hat Stringers (`SEC 4`):** The vertical offset is shifted by the distance between the reference node plane and the section centroid:
+
+$$
+\text{Offset}_Y = \text{CG}_Y
+$$
+
   queried directly via `*GET, STR_YC, SECP, 4, PROP, CGY`. The stringer brims sit flush against the inner mold line of the skin.
-* **Rib Flanges (`SEC 6`):** The offset shifts the $1.0\text{ mm}$ flange inward by:
-  $$\text{Offset}_Z = -\left(\frac{t_{\text{flange}}}{2} + \frac{t_{\text{skin}}}{2}\right) = -(0.5 + 1.0) = -1.5\text{ mm}$$
+- **Rib Flanges (`SEC 6`):** The offset shifts the $1.0\text{ mm}$ flange inward by:
+
+$$
+\text{Offset}_Z = -\left(\frac{t_{\text{flange}}}{2} + \frac{t_{\text{skin}}}{2}\right) = -(0.5 + 1.0) = -1.5\text{ mm}
+$$
+
   ensuring zero penetration through the outer mold line (OML) and zero physical gap.
 
 ### 5.4 Dual-Zone Flange Normal Blending
 When generating orientation keypoints ($K_{\text{or}}$) for `BEAM188` rib flanges:
 1. At the leading edge nose ($X/C < 0.025$), steep profile slope ($TZ \to 1.0$) coupled with dihedral sweep generates an artificial out-of-plane normal component ($NY \neq 0$), causing the forward edge of the flange to curl into a protruding "beak."
 2. Across the main wingbox ($X/C \ge 0.065$), the flange must tilt by exactly the $7.0^\circ$ wing dihedral angle to match the inclined aerodynamic skin. For a $40\text{ mm}$ wide flange, an in-plane orientation ($NY = 0$) causes the outer corner to elevate by:
-   $$\Delta z = 20\text{ mm} \times \sin(7.0^\circ) \approx 2.44\text{ mm} > 1.0\text{ mm} \text{ (skin half-thickness)}$$
-   puncturing through the composite skin.
+
+$$
+\Delta z = 20\text{ mm} \times \sin(7.0^\circ) \approx 2.44\text{ mm} > 1.0\text{ mm} \text{ (skin half-thickness)}
+$$
+
+puncturing through the composite skin.
 
 Block 8 resolves both conflicting requirements via **Dual-Zone Normal Blending**:
 
-$$\text{Slope}_Y = \tan(\Lambda_{\text{dihed}}) + Z_{\text{frac}} \frac{dC}{dy} \approx 0.1089 \quad (6.2^\circ - 7.8^\circ)$$
+$$
+\text{Slope}_Y = \tan(\Lambda_{\text{dihed}}) + Z_{\text{frac}} \frac{dC}{dy} \approx 0.1089 \quad (6.2^\circ - 7.8^\circ)
+$$
 
-$$\text{BLEND}_{\text{FAC}} = \begin{cases} 0.0 & \text{for } X/C < 0.025 \quad (\text{Pure In-Plane: zero nose beak overhang}) \\ \frac{X/C - 0.025}{0.040} & \text{for } 0.025 \le X/C < 0.065 \quad (\text{Smooth } C^0/C^1 \text{ linear transition}) \\ 1.0 & \text{for } X/C \ge 0.065 \quad (\text{Full 3D Dihedral: flush against skin}) \end{cases}$$
+$$
+\begin{aligned}
+\text{BLEND}_{\text{FAC}} = \begin{cases} 
+0.0 & \text{for } X/C < 0.025 \quad (\text{Pure In-Plane: zero nose beak overhang}) \\\\ 
+\frac{X/C - 0.025}{0.040} & \text{for } 0.025 \le X/C < 0.065 \quad (\text{Smooth } C^0/C^1 \text{ linear transition}) \\\\ 
+1.0 & \text{for } X/C \ge 0.065 \quad (\text{Full 3D Dihedral: flush against skin}) 
+\end{cases}
+\end{aligned}
+$$
 
-$$NY = (-NZ_{\text{ip}}) \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}$$
+$$
+NY = (-NZ_{\text{ip}}) \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}
+$$
 
 This formulation guarantees that the flange is flush across the entire aerodynamic profile with zero outer surface puncture and zero forward beak overhang, fully consistent with the outer aerodynamic mold lines shown in Figures 2a.5, 2a.10, and 2a.15.
 
@@ -277,7 +319,11 @@ Structural connectivity between 2D shell elements and 1D beam elements is achiev
 
 1. **Elimination of Artificial MPC / Contact Equations:** By pre-partitioning skin panels along spar and stringer lines, the boundary lines of spar webs, rib perimeters, and skin segments share identical spatial coordinates. Merging nodes within a tolerance of $\epsilon_{\text{merge}} = 0.01\text{ mm}$ achieves direct displacement compatibility. This eliminates the numerical stiffness penalties, singular matrices, and artificial stress spikes associated with Multi-Point Constraint equations (`CERIG`) or surface-to-surface contact pairs (`CONTA174`).
 2. **Node Collapse Safety Ratio:** The smallest element edge in the model occurs around the rib lightening holes and nose curvature ($L_{\text{elem, min}} \approx 15.0\text{ mm}$). The safety ratio against accidental element collapse during merging is:
-   $$\frac{L_{\text{elem, min}}}{\epsilon_{\text{merge}}} = \frac{15.0}{0.01} = 1500 \gg 1$$
+
+$$
+\frac{L_{\text{elem, min}}}{\epsilon_{\text{merge}}} = \frac{15.0}{0.01} = 1500 \gg 1
+$$
+
    guaranteeing that adjacent nodes are never collapsed inadvertently.
 3. **Finite Element Mesh Census (Config A Baseline):**
    * Total Active Nodes: **40,607 nodes**

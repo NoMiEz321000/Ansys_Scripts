@@ -48,26 +48,36 @@ If a purely planar orientation vector ($NY = 0$ across the entire chord) is pres
 
 **Block 8** of `HTP_PARAMETRIC.mac` resolves this geometric duality by partitioning the non-dimensional chordwise coordinate $\xi = \frac{X}{C} \in [0, 1]$ into two distinct orientation zones connected by a linear blending transition zone:
 
-$$\mathbf{n}_{ip}(\xi) = \begin{bmatrix} NX_{ip}(\xi) \\ 0 \\ NZ_{ip}(\xi) \end{bmatrix}, \quad NX_{ip}^2(\xi) + NZ_{ip}^2(\xi) = 1$$
+$$
+\mathbf{n}_{ip}(\xi) = \begin{bmatrix} NX_{ip}(\xi) \\\\ 0 \\\\ NZ_{ip}(\xi) \end{bmatrix}, \quad NX_{ip}^2(\xi) + NZ_{ip}^2(\xi) = 1
+$$
 
 The spanwise normal component $NY(\xi)$ is formulated as a piecewise continuous function:
 
-$$NY(\xi) = \begin{cases} 0, & 0 \le \xi < 0.025 \quad \text{(Zone 1: Pure In-Plane LE Apex Zone)} \\ -\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi), & 0.025 \le \xi < 0.065 \quad \text{(Linear Transition Blending Zone)} \\ -NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi), & 0.065 \le \xi \le 1.000 \quad \text{(Zone 2: 3D Dihedral Wingbox Zone)} \end{cases}$$
+$$
+NY(\xi) = \begin{cases} 0, & 0 \le \xi < 0.025 \quad \text{(Zone 1: Pure In-Plane LE Apex Zone)} \\\\ -\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi), & 0.025 \le \xi < 0.065 \quad \text{(Linear Transition Blending Zone)} \\\\ -NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi), & 0.065 \le \xi \le 1.000 \quad \text{(Zone 2: 3D Dihedral Wingbox Zone)} \end{cases}
+$$
 
 where $\alpha(\xi)$ is the dimensionless transition blending weight:
 
-$$\alpha(\xi) = \frac{\xi - 0.025}{0.065 - 0.025} = 25(\xi - 0.025) \in [0, 1]$$
+$$
+\alpha(\xi) = \frac{\xi - 0.025}{0.065 - 0.025} = 25(\xi - 0.025) \in [0, 1]
+$$
 
 The resulting unit orientation vector $\hat{\mathbf{n}}(\xi)$ assigned to the `BEAM188` orientation nodes is:
 
-$$\hat{\mathbf{n}}(\xi) = \frac{1}{\sqrt{NX_{ip}^2(\xi) + NY^2(\xi) + NZ_{ip}^2(\xi)}} \begin{bmatrix} NX_{ip}(\xi) \\ NY(\xi) \\ NZ_{ip}(\xi) \end{bmatrix} = \frac{1}{\sqrt{1 + \left(\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi)\right)^2}} \begin{bmatrix} NX_{ip}(\xi) \\ -\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi) \\ NZ_{ip}(\xi) \end{bmatrix}$$
+$$
+\hat{\mathbf{n}}(\xi) = \frac{1}{\sqrt{NX_{ip}^2(\xi) + NY^2(\xi) + NZ_{ip}^2(\xi)}} \begin{bmatrix} NX_{ip}(\xi) \\\\ NY(\xi) \\\\ NZ_{ip}(\xi) \end{bmatrix} = \frac{1}{\sqrt{1 + \left(\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi)\right)^2}} \begin{bmatrix} NX_{ip}(\xi) \\\\ -\alpha(\xi) \cdot NZ_{ip}(\xi) \cdot \text{Slope}_Y(\xi) \\\\ NZ_{ip}(\xi) \end{bmatrix}
+$$
 
 **$C^0 / C^1$ Continuity & Defect Elimination Analysis:**
 
 * **$C^0$ Directional Continuity:** At the zone boundaries $\xi_1 = 0.025$ and $\xi_2 = 0.065$, the blending weight evaluates to $\alpha(0.025) = 0$ and $\alpha(0.065) = 1$. Consequently, $\lim_{\xi \to 0.025^-} NY(\xi) = \lim_{\xi \to 0.025^+} NY(\xi) = 0$ and $\lim_{\xi \to 0.065^-} NY(\xi) = \lim_{\xi \to 0.065^+} NY(\xi) = -NZ_{ip}(0.065)\cdot\text{Slope}_Y(0.065)$. The orientation vector field $\hat{\mathbf{n}}(\xi)$ is strictly $C^0$ continuous across the entire chord, preventing any step-twist discontinuity between adjacent `BEAM188` segments.
 * **$C^1$ Slope Continuity:** Taking the first derivative with respect to $\xi$ within the transition zone $(0.025, 0.065)$ yields:
 
-$$\frac{d(NY)}{d\xi} = -\frac{d\alpha}{d\xi} \left(NZ_{ip} \cdot \text{Slope}_Y\right) - \alpha(\xi) \frac{d}{d\xi}\left(NZ_{ip} \cdot \text{Slope}_Y\right)$$
+$$
+\frac{d(NY)}{d\xi} = -\frac{d\alpha}{d\xi} \left(NZ_{ip} \cdot \text{Slope}_Y\right) - \alpha(\xi) \frac{d}{d\xi}\left(NZ_{ip} \cdot \text{Slope}_Y\right)
+$$
 
 Because $\alpha(\xi)$ is linear ($\frac{d\alpha}{d\xi} = 25$), there is a bounded $C^1$ derivative jump of magnitude $\Delta \left(\frac{d(NY)}{d\xi}\right) = \pm 25 \cdot NZ_{ip} \cdot \text{Slope}_Y$ at $\xi = 0.025$ and $\xi = 0.065$. However, because `BEAM188` orientation vectors are assigned per discrete line segment ($\Delta \xi \approx 0.020 - 0.040$), this bounded rate change is smoothly interpolated across the element length without inducing Jacobian distortion. Furthermore, near $\xi_1 = 0.025$, $NZ_{ip}$ is naturally small due to the steep airfoil nose slope, which intrinsically damps the transition derivative jump.
 * **Visual Log Confirmation:** Inspection of `snapshot_17_micro_le_tip_flange.png` confirms that enforcing $NY = 0$ for $\xi < 0.025$ completely eliminates the forward beak overhang at the tip rib leading-edge apex. Simultaneously, `snapshot_18_user_view_flange_flush.png` verifies that for $\xi \ge 0.065$, the 3D dihedral normal alignment completely eliminates the $7.0^\circ$ skin penetration defect across the entire wingbox.
@@ -78,7 +88,9 @@ Because $\alpha(\xi)$ is linear ($\frac{d\alpha}{d\xi} = 25$), there is a bounde
 
 In thin-walled aircraft box beams subjected to bending and eccentric axial loading, the internal bending moment is resisted by normal stresses $\sigma$ distributed across the skins, spar caps, and stringers according to the second moment of area of the full cross-section:
 
-$$I = \int_A y^2 \, dA$$
+$$
+I = \int_A y^2 \, dA
+$$
 
 When shell elements (`SHELL181`) are generated on the reference skin surface, their nodes lie on the shell mid-plane ($z_{local} = 0$, spanning $\left[-\frac{t_{skin}}{2}, +\frac{t_{skin}}{2}\right]$). If stiffener beam elements (`BEAM188`) sharing those skin nodes are left at their default centroidal alignment (`SECOFFSET, CENT`), two modeling errors occur:
 
@@ -89,14 +101,18 @@ The `SECOFFSET, USER` formulations implemented in `v1.4.5-stable` rigorously pre
 
 * **Hat Stringers (`SEC 4`):**
 
-$$\Delta Y_{offset,\text{SEC4}} = -\left(\frac{t_{skin}}{2} + \text{CG}_Y\right)$$
+$$
+\Delta Y_{offset,\text{SEC4}} = -\left(\frac{t_{skin}}{2} + \text{CG}_Y\right)
+$$
 
 where $\text{CG}_Y$ is the local vertical distance from the hat base flange contact face to the cross-sectional centroid of `SEC 4`. Shifting the beam reference axis inward by $-\left(\frac{t_{skin}}{2} + \text{CG}_Y\right)$ places the outer face of the hat stringer base flange exactly flush against the inner surface of the skin ($z_{local} = -\frac{t_{skin}}{2}$).
 
 * **Rib Flanges (`SEC 6–8`):**  
 For a rectangular rib flange of thickness $t_{flange}$, the centroid lies at its half-thickness ($\text{CG}_Y = \frac{t_{flange}}{2}$). With $t_{skin} + t_{flange} = 3.0\text{ mm}$, the required offset is:
 
-$$\Delta Y_{offset,\text{SEC6-8}} = -\left(\frac{t_{skin}}{2} + \frac{t_{flange}}{2}\right) = -1.5\text{ mm}$$
+$$
+\Delta Y_{offset,\text{SEC6-8}} = -\left(\frac{t_{skin}}{2} + \frac{t_{flange}}{2}\right) = -1.5\text{ mm}
+$$
 
 Micro-scale cross-sectional inspection in `snapshot_08_micro_mid_rib_upper.png` and `snapshot_09_micro_mid_rib_lower.png`, alongside the 1:1 true-scale physical deformation plot in `snapshot_14_stress_truescale_1to1.png`, confirms parallel, gap-free flush contact between the rib flanges and upper/lower skins under `/ESHAPE, 1` solid rendering.
 
@@ -109,14 +125,18 @@ Structural openings in aircraft webs—such as stringer mouseholes and circular 
 * **8-Keypoint Smooth Tangent Arc Fillets ($R = 10\text{ mm}$) for Stringer Mouseholes:**  
 By Kirsch's analytical solution for an infinite plate with a circular hole under uniaxial tension, the elastic stress concentration factor at the hole edge is $K_t = 3.0$. For non-circular cutouts with sharp corners or small fillet radii $\rho$ relative to the cutout half-width $a$, peak localized edge stresses scale asymptotically as:
 
-$$K_t \approx 1 + 2\sqrt{\frac{a}{\rho}}$$
+$$
+K_t \approx 1 + 2\sqrt{\frac{a}{\rho}}
+$$
 
 In earlier iterations utilizing unfilleted 4-keypoint rectangular mouseholes, sharp re-entrant corners produced a localized stress concentration factor of $K_t = 2.4$. In **Block 6** of `v1.4.5-stable`, each mousehole is constructed using an **8-keypoint topology** that introduces smooth tangent circular arc fillets of radius $\rho = R = 10\text{ mm}$ ($G^1$ tangency continuity) at the transitions between the vertical side walls and the top crown of the cutout. This smooth load-path redirection reduces $K_t$ from $2.4 \to 1.4$ (a $41.7\%$ reduction in local peak stress), substantially improving fatigue and damage-tolerance margins under EASA CS-25 (CS 25.571).
 
 * **Harmonic Monotonic Lightening Hole Scaling:**  
 Because the HTP tapers in both chord and thickness from root to tip, the local rib bay height $H_{rib}(i)$ and inter-spar bay width $W_{bay}(i)$ decrease monotonically across rib stations $i = 1 \dots N_{rib}$. Scaling the lightening hole radius $R_{LH}(i)$ via a harmonic proportion of the local bay dimensions:
 
-$$R_{LH}(i) = \eta_{scale} \cdot \frac{H_{rib}(i) \cdot W_{bay}(i)}{H_{rib}(i) + W_{bay}(i)}$$
+$$
+R_{LH}(i) = \eta_{scale} \cdot \frac{H_{rib}(i) \cdot W_{bay}(i)}{H_{rib}(i) + W_{bay}(i)}
+$$
 
 maintains a consistent minimum web ligament ratio around each circular cutout from root to tip, preventing premature shear web buckling in the outboard rib stations, as visually verified across the standalone rib renderings generated by `RENDER_RIBS.mac`.
 
@@ -130,7 +150,9 @@ The HTP assembly couples 4-node finite-strain Mindlin-Reissner shell elements (`
 
 * **Kinematic & Rotational DOF Compatibility:** Both `SHELL181` and `BEAM188` possess 6 active degrees of freedom per node:
 
-$$\mathbf{d}_i = \left\{ U_x, U_y, U_z, \theta_x, \theta_y, \theta_z \right\}^T$$
+$$
+\mathbf{d}_i = \left\{ U_x, U_y, U_z, \theta_x, \theta_y, \theta_z \right\}^T
+$$
 
 When meshed over shared geometric boundary lines and merged via `NUMMRG, NODE, 0.01`, the translational displacements and 3D rotations are directly coupled at the global stiffness matrix assembly level without requiring auxiliary constraint equations.
 
@@ -150,7 +172,9 @@ To evaluate numerical robustness, the conformal Boolean partitioning + `NUMMRG, 
 **Element Collapse & Singularity Risk Assessment:**  
 The node merge tolerance $\epsilon_{merge} = 0.01\text{ mm}$ in `NUMMRG, NODE, 0.01` is three orders of magnitude smaller than the global wingbox shell element size ($15\text{ mm} - 40\text{ mm}$). The smallest geometric feature in the entire model is the $R = 10\text{ mm}$ quarter-circle fillet arc on the rib mouseholes (**Block 6**), which has a total arc length of:
 
-$$L_{fillet} = \frac{\pi}{2} R = 15.708\text{ mm}$$
+$$
+L_{fillet} = \frac{\pi}{2} R = 15.708\text{ mm}
+$$
 
 Even with a fine local discretization of $N_{div} = 8$ to $12$ elements along the fillet arc, the minimum element edge length is $L_{elem,\min} \approx 1.31\text{ mm} - 1.96\text{ mm}$, yielding a safety ratio of $\frac{L_{elem,\min}}{\epsilon_{merge}} > 130$. Consequently, there is **zero risk of unintended element collapse or Jacobian degeneration** during the `NUMMRG, NODE, 0.01` operation.
 
@@ -175,7 +199,9 @@ Even with a fine local discretization of $N_{div} = 8$ to $12$ elements along th
 
 Aerodynamic tail loads and critical flight/gust envelope conditions derived from the aircraft V-n diagram (EASA CS-25) produce spanwise distributions of vertical shear force $V_z(y)$, bending moment $M_x(y)$, and pitching torsion moment $T_y(y)$. In Task T-06, the MATLAB Least-Norm solver maps the discrete station increments $[\Delta V_z, \Delta M_x, \Delta T_y]^T_k$ at each rib station $k$ into nodal forces $\mathbf{f}_k = [F_{z,1}, F_{z,2}, \dots, F_{z,m}]^T$ by solving the minimum-norm underdetermined system:
 
-$$\min_{\mathbf{f}_k} \frac{1}{2} \|\mathbf{f}_k\|_2^2 \quad \text{subject to} \quad \mathbf{A}_k \mathbf{f}_k = \mathbf{b}_k \implies \mathbf{f}_k = \mathbf{A}_k^T \left(\mathbf{A}_k \mathbf{A}_k^T\right)^{-1} \mathbf{b}_k$$
+$$
+\min_{\mathbf{f}_k} \frac{1}{2} \|\mathbf{f}_k\|_2^2 \quad \text{subject to} \quad \mathbf{A}_k \mathbf{f}_k = \mathbf{b}_k \implies \mathbf{f}_k = \mathbf{A}_k^T \left(\mathbf{A}_k \mathbf{A}_k^T\right)^{-1} \mathbf{b}_k
+$$
 
 * **Saint-Venant's Principle & Load Application Guardrail:**  
 By **Saint-Venant's Principle**, concentrated loads result in large localized stresses in the immediate vicinity of the load application points, whereas stress distributions become uniform at a relatively short distance away when transmitted through rigid or stiffened members. Therefore, the APDL load cards (`F, NODE, FZ, VALUE`) generated by MATLAB **must never be applied to unsupported mid-bay skin shell nodes**, which would induce artificial local transverse plate bending ($w$). Instead, nodal forces at each rib station must be applied strictly to the **Spar-Rib intersection nodes** or distributed along the **Rib Flange (`BEAM188`) nodes**, where the in-plane membrane stiffness of the rib web immediately transfers the vertical shear and torsional couple into the spar webs.
@@ -190,7 +216,9 @@ The parametric switcher governs three distinct structural topologies:
 * **2-Spar Lightening Hole Clearance Guardrail:**  
 When switching from Config A (3 Spars, 2 Wingbox Bays per Rib) to Config B or C (2 Spars, 1 Wide Wingbox Bay per Rib), the inter-spar bay width $W_{bay}(i)$ roughly doubles while the rib height $H_{rib}(i)$ remains unchanged. In the harmonic scaling formula $R_{LH}(i) = \eta_{scale} \frac{H_{rib} W_{bay}}{H_{rib} + W_{bay}}$, a large increase in $W_{bay}$ increases $R_{LH}(i)$ toward $\eta_{scale} H_{rib}(i)$. Because the hat stringer mouseholes penetrate the top and bottom edges of that same single bay, **Block 6** must enforce an explicit vertical ligament cap:
 
-$$R_{LH,\max}(i) = \min \left( \eta_{scale} \frac{H_{rib}(i) W_{bay}(i)}{H_{rib}(i) + W_{bay}(i)}, \; \frac{H_{rib}(i)}{2} - H_{mousehole} - W_{flange} - c_{ligament} \right)$$
+$$
+R_{LH,\max}(i) = \min \left( \eta_{scale} \frac{H_{rib}(i) W_{bay}(i)}{H_{rib}(i) + W_{bay}(i)}, \; \frac{H_{rib}(i)}{2} - H_{mousehole} - W_{flange} - c_{ligament} \right)
+$$
 
 with a minimum web ligament clearance of $c_{ligament} \ge 15.0\text{ mm}$ so that the circular lightening hole never intersects the $R = 10\text{ mm}$ mousehole fillets in 2-spar configurations.
 
@@ -198,7 +226,9 @@ with a minimum web ligament clearance of $c_{ligament} \ge 15.0\text{ mm}$ so th
 
 To mathematically certify that no detached beam segments, unmerged shell edges, or internal kinematic mechanisms exist across `CONFIG = 1, 2, 3`, an unconstrained (Free-Free) modal analysis is solved via the generalized eigenvalue equation:
 
-$$\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}, \quad f_r = \frac{\omega_r}{2\pi}$$
+$$
+\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}, \quad f_r = \frac{\omega_r}{2\pi}
+$$
 
 * **Acceptance Criteria:**
 1. Modes $r = 1 \dots 6$ must represent the 6 exact rigid-body modes (3 translations $U_x, U_y, U_z$ and 3 rotations $R_x, R_y, R_z$) with natural frequencies $f_1 \dots f_6 < 10^{-3}\text{ Hz}$.
@@ -211,16 +241,22 @@ Under EASA CS-25 airworthiness standards (CS 25.301 / CS 25.303), the primary st
 
 * **Material Strength Criterion (Al 7075-T6):**
 
-$$MS_{ult} = \frac{\sigma_{allow}}{FS \cdot \sigma_{vM,\text{limit}}} - 1 > 0 \quad (\text{with } FS = 1.5)$$
+$$
+MS_{ult} = \frac{\sigma_{allow}}{FS \cdot \sigma_{vM,\text{limit}}} - 1 > 0 \quad (\text{with } FS = 1.5)
+$$
 
 * **Thin-Plate Local Buckling Criterion:**  
 In lightweight aircraft torque boxes (especially Config B `[9-2-8]` and Config C `[7-2-6]` where rib spacing and stringer pitch are wider), upper/lower compression skin panels are governed by thin-plate elastic buckling prior to material yield. According to thin-plate buckling theory, each skin panel bounded by adjacent ribs and stringers has flexural rigidity:
 
-$$D = \frac{E h^3}{12(1 - \nu^2)}$$
+$$
+D = \frac{E h^3}{12(1 - \nu^2)}
+$$
 
 and buckles when the potential energy of bending $V$ balances the work done by in-plane membrane loads $U$ ($N_x, N_y, N_{xy}$) via the eigenvalue problem:
 
-$$V - \lambda U = 0 \implies \begin{bmatrix} N_{x,cr} \\ N_{y,cr} \\ N_{xy,cr} \end{bmatrix} = \lambda_{cr} \begin{bmatrix} N_x \\ N_y \\ N_{xy} \end{bmatrix}$$
+$$
+V - \lambda U = 0 \implies \begin{bmatrix} N_{x,cr} \\\\ N_{y,cr} \\\\ N_{xy,cr} \end{bmatrix} = \lambda_{cr} \begin{bmatrix} N_x \\\\ N_y \\\\ N_{xy} \end{bmatrix}
+$$
 
 During Sizing Optimization (Task T-09), the critical buckling load factor under Limit Load must satisfy $\lambda_{cr,\text{limit}} \ge 1.5$ (corresponding to $\lambda_{cr,\text{ult}} \ge 1.0$).
 

@@ -34,10 +34,18 @@ flowchart TD
 ### Step 1: Flight Envelope & V-n Diagram (`vn_diagram.m`)
 Constructs the flight manoeuvre and gust envelope for the ATR 42-600 at sea level in equivalent airspeed (EAS), compliant with **EASA CS-25 / JAR-25**.
 * **Lift-Curve Slope ($a$):** Evaluated using Helmbold / DATCOM formulation for an unswept wing:
-  $$a = \frac{2\pi \cdot AR}{2 + \sqrt{4 + \left(\frac{AR}{\eta}\right)^2}} \quad [\text{rad}^{-1}]$$
+
+$$
+a = \frac{2\pi \cdot AR}{2 + \sqrt{4 + \left(\frac{AR}{\eta}\right)^2}} \quad [\text{rad}^{-1}]
+$$
+
   *(where $AR = 11.08$, $\eta = 0.95$, yielding $a \approx 5.688\text{ rad}^{-1}$ or $0.0993\text{ deg}^{-1}$)*
 * **Positive Limit Load Factor ($n_{\max}$):** Evaluated from CS-25.337:
-  $$n_{\max} = 2.1 + \frac{24000}{W_{\text{lb}} + 10000} = 2.571 \quad (2.5 \le n_{\max} \le 3.8)$$
+
+$$
+n_{\max} = 2.1 + \frac{24000}{W_{\text{lb}} + 10000} = 2.571 \quad (2.5 \le n_{\max} \le 3.8)
+$$
+
 * **Corner & Characteristic Airspeeds:**
   * Stall Speed: $V_{S1} = \sqrt{\frac{2W}{\rho_0 S C_{L\max}}} = 117\text{ kt}$
   * Manoeuvre Speed: $V_A = V_{S1} \sqrt{n_{\max}} = 188\text{ kt}$
@@ -51,12 +59,19 @@ Constructs the flight manoeuvre and gust envelope for the ATR 42-600 at sea leve
 ### Step 2: Pitch Trim Equilibrium & Balancing Tail Load (`tail_load.m`)
 Evaluates the steady-state balancing horizontal tail load $L_H$ required for longitudinal static equilibrium about the aircraft centre of gravity.
 
-$$\sum F_z = 0 \implies L_w + L_H = n W$$
+$$
+\sum F_z = 0 \implies L_w + L_H = n W
+$$
 
-$$\sum M_{cg} = 0 \implies L_w (x_{cg} - x_{ac})\bar{c} + M_{ac} - L_H l_H = 0$$
+$$
+\sum M_{cg} = 0 \implies L_w (x_{cg} - x_{ac})\bar{c} + M_{ac} - L_H l_H = 0
+$$
 
 Eliminating wing lift $L_w$ yields the dimensionally consistent balancing tail load:
-$$L_H = \frac{n W (x_{cg} - x_{ac})\bar{c} + C_{m0} q S \bar{c}}{l_H + (x_{cg} - x_{ac})\bar{c}}$$
+
+$$
+L_H = \frac{n W (x_{cg} - x_{ac})\bar{c} + C_{m0} q S \bar{c}}{l_H + (x_{cg} - x_{ac})\bar{c}}
+$$
 
 *where $q = \frac{1}{2}\rho_0 V^2$, $S = 54.5\text{ m}^2$, $\bar{c} = 2.285\text{ m}$, $l_H = 11.46\text{ m}$, $x_{ac} = 0.25\bar{c}$, and $C_{m0} = -0.06$.*
 
@@ -76,18 +91,27 @@ Evaluated at forward CG limit ($x_{cg,\text{fwd}} = 0.168\bar{c}$) and aft CG li
 ### Step 3: Spanwise SFBM Integration via Schrenk (`htp_sfbm.m`)
 The aerodynamic load acting on one tailplane half ($P = L_H / 2$) is distributed spanwise using **Schrenk’s approximation**—the arithmetic mean of a trapezoidal chord-proportional distribution and an ideal quarter-ellipse:
 
-$$\text{shape}_{\text{chord}}(y) = \frac{c(y)}{\int_0^s c(y)\,dy}, \quad \text{shape}_{\text{ellipse}}(y) = \frac{4}{\pi s}\sqrt{1 - \left(\frac{y}{s}\right)^2}$$
+$$
+\text{shape}_{\text{chord}}(y) = \frac{c(y)}{\int_0^s c(y)\,dy}, \quad \text{shape}_{\text{ellipse}}(y) = \frac{4}{\pi s}\sqrt{1 - \left(\frac{y}{s}\right)^2}
+$$
 
-$$\text{shape}(y) = \frac{1}{2}\left[\text{shape}_{\text{chord}}(y) + \text{shape}_{\text{ellipse}}(y)\right]$$
+$$
+\text{shape}(y) = \frac{1}{2}\left[\text{shape}_{\text{chord}}(y) + \text{shape}_{\text{ellipse}}(y)\right]
+$$
 
-$$\text{Running Load: } w(y) = P \cdot \text{shape}(y)$$
+$$
+\text{Running Load: } w(y) = P \cdot \text{shape}(y)
+$$
 
 Integrating inboard from the wingtip ($y = s = 3,978\text{ mm}$) to the root ($y = 0$):
 * **Internal Shear Force:** $V(y) = P - \int_0^y w(\eta)\,d\eta$ (Boundary values: $V(0) = P$, $V(s) = 0$)
 * **Internal Bending Moment:** $M(y) = \int_y^s V(\eta)\,d\eta$ (Boundary values: $M(0) = M_{\text{root}}$, $M(s) = 0$)
 
 The Schrenk centroid for the ATR 42 HTP planform is located at **$y = 1.756\text{ m}$ ($44.1\%$ span)**, yielding for the critical case `D_fwd`:
-$$P = -9,143\text{ N}, \quad V_{\text{root}} = -9,143\text{ N}, \quad M_{\text{root}} = -16,058\text{ N}\cdot\text{m}$$
+
+$$
+P = -9,143\text{ N}, \quad V_{\text{root}} = -9,143\text{ N}, \quad M_{\text{root}} = -16,058\text{ N}\cdot\text{m}
+$$
 
 *Target distributions $w(y), V(y), M(y)$ at all rib stations are exported to `htp_sfbm.csv`.*
 
@@ -138,12 +162,23 @@ ALLSEL, ALL
 
 ### Step 5: Constrained Least-Norm Nodal Force Optimization (`htp_nodal_forces.m`)
 Transforms the continuous SFBM targets into nodal forces using a degree-3 running load polynomial:
-$$w(y) = \sum_{p=0}^3 a_p \left(\frac{y}{s}\right)^p$$
+
+$$
+w(y) = \sum_{p=0}^3 a_p \left(\frac{y}{s}\right)^p
+$$
 
 1. **Tributary Bay Interval Integration:** Each rib station $g$ is assigned a tributary interval $\left[y_{g-\frac{1}{2}}, y_{g+\frac{1}{2}}\right]$ spanning mid-bay to mid-bay (covering the entire half-span without gaps).
-   $$F_{\text{station}}(g) = \int_{y_{g-\frac{1}{2}}}^{y_{g+\frac{1}{2}}} w(y)\,dy$$
+
+$$
+F_{\text{station}}(g) = \int_{y_{g-\frac{1}{2}}}^{y_{g+\frac{1}{2}}} w(y)\,dy
+$$
+
 2. **Nodal Allocation:** The station force is distributed uniformly among the extracted skin nodes at that rib station:
-   $$F_{\text{node}} = \frac{F_{\text{station}}(g)}{N_{\text{nodes}}(g)}$$
+
+$$
+F_{\text{node}} = \frac{F_{\text{station}}(g)}{N_{\text{nodes}}(g)}
+$$
+
 3. **Least-Norm Solution:** The coefficients $a_p$ are solved to match target $V(\text{cut})$ and $M(\text{cut})$ at cuts placed between stations, with the root cut weighted by a factor of 100 using MATLAB `lsqminnorm`.
 4. **Outputs:**
    * `htp_loads_<case>.inp`: APDL batch load script containing formatted `F, NodeID, FZ, Value` commands.
@@ -265,10 +300,18 @@ Finite element static evaluation under critical aerodynamic flight load case **`
 
 1. **Definitions & Mathematical Distinction:**
    * **`DMX` (Displacement Vector Sum Maximum):**
-     $$\text{DMX} = \sqrt{U_X^2 + U_Y^2 + U_Z^2} \ge 0$$
+
+$$
+\text{DMX} = \sqrt{U_X^2 + U_Y^2 + U_Z^2} \ge 0
+$$
+
      DMX is the Euclidean norm (magnitude) of the complete 3D displacement vector. It is always positive and represents the absolute displacement magnitude across all degrees of freedom.
    * **`TIP_UZ` (Tip Vertical Deflection):**
-     $$u_{z,\text{tip}} = U_Z \big|_{y = b/2} < 0$$
+
+$$
+u_{z,\text{tip}} = U_Z \big|_{y = b/2} < 0
+$$
+
      TIP_UZ is the directional deflection along the global $Z$-axis at the wingtip rib ($y = 3,978\text{ mm}$). Under downward flight lift ($P = -9,143\text{ N}$), TIP_UZ is negative.
 
 2. **Physical Proportion:**
@@ -286,7 +329,11 @@ Finite element static evaluation under critical aerodynamic flight load case **`
 
 1. **Why Displacements are Mathematically Identical ($\Delta = 0.000\%$):**
    Displacements ($U_X, U_Y, U_Z, \text{DMX}$) are **primary nodal degrees of freedom** directly obtained by solving the global stiffness matrix system:
-   $$[K]\{u\} = \{F\}$$
+
+$$
+[K]\{u\} = \{F\}
+$$
+
    Because nodal displacements exist uniquely at each node in the FEA mesh, graphics display modes do not recalculate, smooth, or interpolate them. Hence, both modes yield **100.000% identical displacement values**.
 
 2. **Why Stresses Differ between PowerGraphics and Full Graphics:**
@@ -315,7 +362,11 @@ To enable direct $1:1$ visual comparison across Configurations 1, 2, and 3 witho
 
 ### Unified Standards:
 1. **Tip Deflection (DMX):** Standardized to **$0 - 7.2\text{ mm}$** with step $\Delta = 0.8\text{ mm}$ across 9 intervals:
-   $$\text{Scale Ticks: } [0.0,\; 0.8,\; 1.6,\; 2.4,\; 3.2,\; 4.0,\; 4.8,\; 5.6,\; 6.4,\; 7.2\text{ mm}]$$
+
+$$
+\text{Scale Ticks: } [0.0,\; 0.8,\; 1.6,\; 2.4,\; 3.2,\; 4.0,\; 4.8,\; 5.6,\; 6.4,\; 7.2\text{ mm}]
+$$
+
    *(Fits all configurations without numerical clipping and yields clean 1-decimal-place tick marks).*
 2. **Von Mises Stress (SEQV):** Standardized to **$0 - 15.0\text{ MPa}$** (High-contrast skin range).
    *(Expands stress concentration gradients around root ribs and lightening holes across red-yellow-green-blue).*

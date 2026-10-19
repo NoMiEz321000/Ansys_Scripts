@@ -113,8 +113,15 @@ As the number of ribs and spars is altered, internal rib lightening holes must a
 2. **Safe Pillar Capping Enforcement:**  
    In early development iterations, uncapped circular holes on the tapered outboard ribs of Configurations B and C breached adjacent stringer mouseholes (yielding negative web bridge ligaments of $-2.52\text{ mm}$ in Config B and $-3.82\text{ mm}$ in Config C).  
    In the synchronized codebase (`HTP_PARAMETRIC.mac` lines 366–480 and `HTP_BUILD_CORE.mac`), dynamic safe pillar capping is strictly enforced across all three branches (`N_CUT = 7, 6, 5`):
-   $$\text{Clearance: } D_{\text{adj}} = (X_{\text{mouse}} - X_{\text{hole}}) \cdot C_i - HW$$
-   $$\text{Constraint: } R_{\text{hole}} \le D_{\text{adj}} - 14.0\text{ mm}$$
+
+$$
+\text{Clearance: } D_{\text{adj}} = (X_{\text{mouse}} - X_{\text{hole}}) \cdot C_i - HW
+$$
+
+$$
+\text{Constraint: } R_{\text{hole}} \le D_{\text{adj}} - 14.0\text{ mm}
+$$
+
    This ensures that every lightening hole maintains a minimum structural web ligament of at least $14.0\text{ mm}$ from adjacent cutouts, guaranteeing error-free boolean operations and watertight meshing across all stations.
 
 ---

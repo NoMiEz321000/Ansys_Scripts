@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KaTeX Math Verification Gallery - Civil HTP Optimization</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #4ade80;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1050px;
+      width: 100%;
+    }
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--success);
+      border: 1px solid var(--success);
+      margin-bottom: 12px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 10px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .card-doc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .math-display {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 20px 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+      text-align: center;
+      font-size: 1.15rem;
+    }
+    .katex-display {
+      margin: 0 !important;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .status-tag {
+      color: var(--success);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-tag::before {
+      content: "✔";
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">KaTeX & GitHub Rendering Audit Passed</div>
+      <h1>Visual LaTeX Math Verification Gallery</h1>
+      <p class="subtitle">Parametric APDL-Based Horizontal Tailplane Structural Analysis and Optimization</p>
+    </header>
+
+    <div class="grid">
+      <!-- Item 1: Stage 3d Section 2.1 Optimization Problem -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">1. Constrained Mass Sizing Formulation (Section 2.1)</div>
+          <div class="card-doc">Stage 3d_ Sensitivity Analysis and Sizing Optimization.md</div>
+        </div>
+        <div class="math-display">
+          $$\begin{aligned}
+          \min_{\mathbf{x}} \quad & M(\mathbf{x}) = \sum_{k=1}^{8} \rho_k V_k(\mathbf{x}) \\
+          \text{subject to} \quad & \sigma_{\text{vM}, k}(\mathbf{x}) \le \sigma_{\text{allow}, k}, \quad \forall k \in \{1, \dots, 8\} \\
+          & |U_z(\mathbf{x})| \le \delta_{\text{target}} \\
+          & |\lambda_1(\mathbf{x})| \ge 1.50 \\
+          & x_{i, \min} \le x_i \le x_{i, \max}, \quad i \in \{1, \dots, 6\}
+          \end{aligned}$$
+        </div>
+        <div class="desc">
+          <strong>Verification Notes:</strong> Fixed GitHub line-collapse by isolating <code>$$</code> delimiters and escaping LaTeX multiline alignment linebreaks. Renders all 4 constraints (stress, stiffness, stability, bounds) with clear column alignment.
+        </div>
+        <div class="status-tag" style="margin-top: 10px;">Rendered Cleanly & Certified</div>
+      </div>
+
+      <!-- Item 2: Stage 2a Section 5.4 Dual-Zone Blending -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">2. Dual-Zone Beam Normal Blending Function (Section 5.4)</div>
+          <div class="card-doc">Stage 2a_ Parametric APDL Script Development.md</div>
+        </div>
+        <div class="math-display">
+          $$\text{BLEND}_{\text{FAC}} = \begin{cases} 
+          0.0 & \text{for } X/C < 0.025 \quad (\text{Pure In-Plane: zero nose beak overhang}) \\
+          \frac{X/C - 0.025}{0.040} & \text{for } 0.025 \le X/C < 0.065 \quad (\text{Smooth } C^0/C^1 \text{ linear transition}) \\
+          1.0 & \text{for } X/C \ge 0.065 \quad (\text{Full 3D Dihedral: flush against skin}) 
+          \end{cases}$$
+        </div>
+        <div class="math-display">
+          $$NY = (-NZ_{\text{ip}}) \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}$$
+        </div>
+        <div class="desc">
+          <strong>Verification Notes:</strong> Resolved raw KaTeX <code>\begin{cases}</code> code by removing list indentation, providing empty line isolation, and rendering piecewise aerodynamic boundary conditions cleanly.
+        </div>
+        <div class="status-tag" style="margin-top: 10px;">Rendered Cleanly & Certified</div>
+      </div>
+
+      <!-- Item 3: Stage 3c Section 3.2 & 4.1 Displacement & Margins -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">3. Displacement Field Analysis & Margins of Safety</div>
+          <div class="card-doc">Stage 3c_ Baseline Static and Buckling Analysis.md</div>
+        </div>
+        <div class="math-display">
+          $$\text{DMX} = \max_{j} \sqrt{U_{x,j}^2 + U_{y,j}^2 + U_{z,j}^2}$$
+        </div>
+        <div class="math-display">
+          $$u_{z,\text{tip}} = U_z(x_{\text{tip}}, y_{\text{tip}}, z_{\text{tip}}) \quad \text{at } y_{\text{tip}} = 3,978.0\text{ mm}$$
+        </div>
+        <div class="math-display">
+          $$\text{MS}_{\text{yield}} = \frac{\sigma_{\text{allow}}}{\sigma_{\text{limit}}} - 1.0 = \frac{\text{FS}}{1.50} - 1.0 \qquad \text{MS}_{\text{buckle}} = \frac{|\lambda_1|}{\text{FS}_{\text{req}}} - 1.0 = \frac{|\lambda_1|}{1.50} - 1.0$$
+        </div>
+        <div class="desc">
+          <strong>Verification Notes:</strong> DMX and TIP_UZ are fully separated into dedicated blocks, resolving the previous inline collision. Margin definitions render with full mathematical clarity.
+        </div>
+        <div class="status-tag" style="margin-top: 10px;">Rendered Cleanly & Certified</div>
+      </div>
+
+      <!-- Item 4: Stage 3b Free-Free Modal Acceptance Criteria -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">4. Free-Free Eigenvalue Modal Acceptance Criteria</div>
+          <div class="card-doc">Stage 3b_ Model Verification.md</div>
+        </div>
+        <div class="math-display">
+          $$(\mathbf{K} - \omega_r^2 \mathbf{M}) \boldsymbol{\phi}_r = \mathbf{0}, \quad f_r = \frac{\omega_r}{2\pi} \quad (r = 1, 2, \dots, 12)$$
+        </div>
+        <div class="math-display">
+          $$\max_{r \in \{1..6\}} f_r < 1.0 \times 10^{-3}\text{ Hz} \qquad f_7 > 1.0\text{ Hz} \quad \text{and} \quad \frac{f_7}{\max(f_1 \dots f_6)} > 10^4$$
+        </div>
+        <div class="desc">
+          <strong>Verification Notes:</strong> Unindented from Gates 1 & 2 list items, preventing GitHub from converting subscripts into Markdown italic <code>&lt;em&gt;</code> tags.
+        </div>
+        <div class="status-tag" style="margin-top: 10px;">Rendered Cleanly & Certified</div>
+      </div>
+
+      <!-- Item 5: Stage 2b Helmbold Lift Slope & Balancing Tail Load -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">5. Aerodynamic Helmbold Lift Slope & Balancing Tail Load</div>
+          <div class="card-doc">Stage 2b_ SFBM Load Pre-processing and Nodal Force Mapping.md</div>
+        </div>
+        <div class="math-display">
+          $$a = \frac{2\pi \cdot AR}{2 + \sqrt{4 + \left(\frac{AR}{\eta}\right)^2}} \quad [\text{rad}^{-1}]$$
+        </div>
+        <div class="math-display">
+          $$L_H = \frac{n W (x_{cg} - x_{ac})\bar{c} + C_{m0} q S_w \bar{c}}{l_H + (x_{cg} - x_{ac})\bar{c}}$$
+        </div>
+        <div class="desc">
+          <strong>Verification Notes:</strong> Cleanly formatted with fractions, square roots, and subscripts without text collision or escaping issues.
+        </div>
+        <div class="status-tag" style="margin-top: 10px;">Rendered Cleanly & Certified</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

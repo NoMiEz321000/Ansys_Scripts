@@ -40,20 +40,38 @@ flowchart TD
 ### Mathematical Formulations:
 
 1. **Airfoil Thickness Distribution (NACA 0012, 12% t/c):**
-   $$y_t(x) = 5 \cdot t_{c} \cdot C_i \left[ 0.2969\sqrt{\frac{x}{C_i}} - 0.1260\left(\frac{x}{C_i}\right) - 0.3516\left(\frac{x}{C_i}\right)^2 + 0.2843\left(\frac{x}{C_i}\right)^3 - 0.1015\left(\frac{x}{C_i}\right)^4 \right]$$
+
+$$
+y_t(x) = 5 \cdot t_{c} \cdot C_i \left[ 0.2969\sqrt{\frac{x}{C_i}} - 0.1260\left(\frac{x}{C_i}\right) - 0.3516\left(\frac{x}{C_i}\right)^2 + 0.2843\left(\frac{x}{C_i}\right)^3 - 0.1015\left(\frac{x}{C_i}\right)^4 \right]
+$$
+
    where $C_i(y) = C_{root} + (C_{tip}-C_{root})\frac{y}{b/2}$.
 
 2. **Dihedral & Aerodynamic Sweep Centerline:**
-   $$Z_{ref}(y) = y \cdot \tan(\Lambda_{dihedral}), \quad \Lambda_{dihedral} = 7.0^\circ$$
-   $$X_{offset}(y) = C_{root} - C_i(y) \quad \text{(Straight Trailing Edge reference)}$$
+
+$$
+Z_{ref}(y) = y \cdot \tan(\Lambda_{dihedral}), \quad \Lambda_{dihedral} = 7.0^\circ
+$$
+
+$$
+X_{offset}(y) = C_{root} - C_i(y) \quad \text{(Straight Trailing Edge reference)}
+$$
 
 3. **Beam Section Offset Geometry (`SECOFFSET`):**
    To achieve perfect physical flushness between beam flanges and shell surfaces in 3D solid rendering (`/ESHAPE, 1`):
    - **Hat Stringers (`SEC 4`):**
-     $$\text{Offset}_Z = -\left(\frac{t_{skin}}{2} + \text{CG}_Y\right)$$
+
+$$
+\text{Offset}_Z = -\left(\frac{t_{skin}}{2} + \text{CG}_Y\right)
+$$
+
      where $\text{CG}_Y$ is the exact centroidal distance from the hat brim base, positioning the stringer crown inward into the wingbox while the brim contacts the skin inner face.
    - **Rib Flanges (`SEC 6, 7, 8`):**
-     $$\text{Offset}_Z = -\left(\frac{t_{skin}}{2} + \frac{t_{flange}}{2}\right) = -(1.0 + 0.5) = -1.5\text{ mm}$$
+
+$$
+\text{Offset}_Z = -\left(\frac{t_{skin}}{2} + \frac{t_{flange}}{2}\right) = -(1.0 + 0.5) = -1.5\text{ mm}
+$$
+
      guaranteeing $0\text{ mm}$ outer mold line puncture and $0\text{ mm}$ gap.
 
 ---
@@ -80,8 +98,11 @@ The script arrived at its current visual and physical perfection through a syste
 ### Breakthrough 4: Harmonic Monotonic Lightening Holes (v1.4.3)
 - **Defect:** Arbitrary circular hole sizing led to web bridge ligament pinch ($25\text{ mm}$) at the tip rib and inconsistent hole proportions.
 - **Solution:** Parameterized lightening hole radii with harmonic tapering:
-  $$R_{hole}(y) = 0.50 \cdot h_{local}(y)$$
-  with dynamic bay clearance offsets, recovering $+140\%$ web ligament at the tip rib ($25\text{ mm} \to 60\text{ mm}$) and enforcing strictly monotonic hole radii across all 14 stations.
+$$
+R_{hole}(y) = 0.50 \cdot h_{local}(y)
+$$
+
+with dynamic bay clearance offsets, recovering $+140\%$ web ligament at the tip rib ($25\text{ mm} \to 60\text{ mm}$) and enforcing strictly monotonic hole radii across all 14 stations.
 
 ### Breakthrough 5: Dual-Zone Beam Normal Blending & APDL Parser Fix (v1.4.4)
 - **Defect:** 

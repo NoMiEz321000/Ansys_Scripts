@@ -11,7 +11,10 @@
 ### 1.1 ปัจจัยที่ 1: รูป Figure 6 (a)–(f) คือโหมดวัตถุแข็งเกร็ง (Rigid-Body Modes 1–6 ที่ $f \approx 0\text{ Hz}$) ไม่ใช่โหมดการดัดตัว!
 * ในเงื่อนไข **Free-Free Modal Analysis** (ไม่ใส่จุดยึดที่รากปีก) โครงสร้าง 3 มิติที่ลอยอิสระในอวกาศจะมีโหมดการเคลื่อนที่แบบไม่เสียรูปทรงเลย (**Rigid-Body Motion**) จำนวน **6 โหมดแรก (Modes 1–6)** ได้แก่ การเลื่อนขนาน 3 แกน ($T_x, T_y, T_z$) และการหมุนรอบ 3 แกน ($R_x, R_y, R_z$)
 * ในโหมดทั้ง 6 นี้ ความถี่ธรรมชาติมีค่าเป็นศูนย์ ($f_1 \dots f_6 \approx 0\text{ Hz}$) แปลว่า **พลังงานความเครียดยืดหยุ่นภายในเป็นศูนย์ ($\boldsymbol{\varepsilon} = \mathbf{0}$, $\boldsymbol{\sigma} = \mathbf{0}$)** ปีกทั้งชิ้นไม่ได้งอหรือบิดตัวเลย แต่เคลื่อนที่และหมุนไปทั้งก้อนเหมือนแผ่นเหล็กแข็งเกร็งตามสมการจลนศาสตร์วัตถุแข็งเกร็ง (Rigid-Body Kinematics):
-  $$\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})$$
+
+$$
+\mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})
+$$
 
 ### 1.2 ปัจจัยที่ 2: การพล็อตค่า "องค์ประกอบตามแกนที่มีเครื่องหมาย $+/-$" (`PLNSOL, U, Z` / `UX` / `UY`) เทียบกับ "ขนาดเวกเตอร์รวม" (`PLNSOL, U, SUM`)
 * **จุดสังเกตสำคัญในเปเปอร์:** หากดูแถบตัวเลข (Colorbar Legend) ใต้รูป Figure 6 (a)–(f) ในเปเปอร์ จะเห็นว่ามี **ค่าติดลบถึงค่าบวก** เช่น:
@@ -20,9 +23,17 @@
   * Fig. 6(c): `-4.5809` ถึง `+5.01961`
 * หากใช้คำสั่ง `PLNSOL, U, SUM` ($\|\mathbf{u}\| = \sqrt{u_x^2 + u_y^2 + u_z^2}$) ค่าที่ได้จะ **เป็นบวกหรือศูนย์เสมอ ($\ge 0$)** และในโหมดหมุนอิสระ ค่า $\|\mathbf{u}\| = \|\boldsymbol{\theta}_0 \times \mathbf{r}\|$ คือระยะรัศมีรอบแกนหมุน ทำให้แถบสีของ `USUM` ออกมาเป็น **วงแหวนโค้งล้อมรอบจุดหมุน**
 * แต่เมื่อสั่งพล็อต **องค์ประกอบตามแกน เช่น การกระจัดแนวตั้ง $u_z$ (`PLNSOL, U, Z`)** สมการการกระจัดของโหมด Rigid-Body บนระนาบปีก $(x, y)$ จะลดรูปเป็น **สมการระนาบเชิงเส้น (Linear Plane Equation)** ทันที:
-  $$u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})$$
+
+$$
+u_z(x, y) = u_{z0} + \theta_x (y - y_{CG}) - \theta_y (x - x_{CG})
+$$
+
 * ดังนั้น เส้นแบ่งเขตสีเดียวกัน (Iso-contour lines ที่ $u_z(x, y) = C = \text{ค่าคงที่}$) จึงมีสมการเป็น:
-  $$\theta_x y - \theta_y x = \text{const}$$
+
+$$
+\theta_x y - \theta_y x = \text{const}
+$$
+
   ซึ่งในทางเรขาคณิตคือ **สมการเส้นตรงขนานกัน 100%** โดยมีฝั่งหนึ่งของแกนหมุนเป็นค่าลบ (สีน้ำเงิน) ผ่านเส้นแกนหมุนที่เป็นศูนย์ (สีเขียว) ไปยังอีกฝั่งที่เป็นค่าบวก (สีแดง)!
 
 ---
@@ -33,9 +44,17 @@
 
 ### 2.1 ทำไมสีแดง (Max $+$) กับสีน้ำเงิน (Min $-$) ถึงสลับฝั่งกัน 180°? (Eigenvector Sign Indeterminacy $\pm \boldsymbol{\phi}_r$)
 * ในการแก้ปัญหาค่าเจาะจงทั่วไป (Generalized Eigenvalue Problem):
-  $$\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}$$
+
+$$
+\left(\mathbf{K} - \omega_r^2 \mathbf{M}\right)\boldsymbol{\phi}_r = \mathbf{0}
+$$
+
   ถ้าเวกเตอร์รูปร่างโหมด $\boldsymbol{\phi}_r$ เป็นคำตอบที่ถูกต้องและผ่านการปรับขนาดด้วยเมทริกซ์มวล ($\boldsymbol{\phi}_r^T \mathbf{M} \boldsymbol{\phi}_r = 1$) แล้ว **เวกเตอร์ที่กลับเครื่องหมายคือ $-\boldsymbol{\phi}_r$ ก็เป็นคำตอบที่ถูกต้อง 100% เช่นกัน** เพราะ:
-  $$(-\boldsymbol{\phi}_r)^T \mathbf{M} (-\boldsymbol{\phi}_r) = (-1)^2 \boldsymbol{\phi}_r^T \mathbf{M} \boldsymbol{\phi}_r = 1$$
+
+$$
+(-\boldsymbol{\phi}_r)^T \mathbf{M} (-\boldsymbol{\phi}_r) = (-1)^2 \boldsymbol{\phi}_r^T \mathbf{M} \boldsymbol{\phi}_r = 1
+$$
+
 * **ความหมายทางฟิสิกส์:** รูปร่างโหมด (Mode Shape) แทนการสั่นแบบฮาร์มอนิกตามเวลา $\mathbf{u}(\mathbf{x}, t) = \boldsymbol{\phi}_r(\mathbf{x})\cos(\omega_r t)$:
   * ที่เวลา $t = 0$ ($\cos(0) = +1$): ปลายปีกอาจกระดกขึ้นเป็น **สีแดง ($+$)** และรากปีกกระดกลงเป็น **สีน้ำเงิน ($-$)**
   * ที่เวลาครึ่งคาบถัดมา $t = T/2$ ($\cos(\pi) = -1$): ปลายปีกจะสลับมากระดกลงเป็น **สีน้ำเงิน ($-$)** และรากปีกกระดกขึ้นเป็น **สีแดง ($+$)**
@@ -65,10 +84,14 @@
 ## 3. กรณีศึกษาสำคัญ: ความเชื่อมโยงระหว่าง `UX` และ `UY` ในโหมดการหมุนในระนาบปีก (Mode 6: In-Plane Yaw Rotation $\theta_z$)
 
 ใน **Mode 6** ซึ่งเป็นการหมุนบิดตัวในระนาบ $X\text{–}Y$ รอบแกนตั้ง $Z$ ด้วยมุม $\theta_z$:
-$$\begin{aligned}
-u_x(x, y) &= u_{x0} - \theta_z (y - y_{CG}) \quad &\Longrightarrow \quad \text{ขึ้นกับค่า } y \text{ (Spanwise)} \\
+
+$$
+\begin{aligned}
+u_x(x, y) &= u_{x0} - \theta_z (y - y_{CG}) \quad &\Longrightarrow \quad \text{ขึ้นกับค่า } y \text{ (Spanwise)} \\\\
 u_y(x, y) &= u_{y0} + \theta_z (x - x_{CG}) \quad &\Longrightarrow \quad \text{ขึ้นกับค่า } x \text{ (Chordwise)}
-\end{aligned}$$
+\end{aligned}
+$$
+
 * ถ้าสั่งพล็อต **`PLNSOL, U, Y` ($u_y$)**: แถบสีจะเปลี่ยนตามค่า $x$ ทำให้เส้นสีเขียว **ขนานกับขอบหลังปีก (TE)** (วิ่งจาก `LE -> TE`)
 * ถ้าสั่งพล็อต **`PLNSOL, U, X` ($u_x$)**: เนื่องจากเงื่อนไขไร้ความเครียดเฉือน ($\varepsilon_{xy} = \frac{1}{2}\left(\frac{\partial u_x}{\partial y} + \frac{\partial u_y}{\partial x}\right) = 0 \implies \frac{\partial u_x}{\partial y} = -\frac{\partial u_y}{\partial x} = -\theta_z$) แถบสีของโหมดเดียวกันนี้จะเปลี่ยนตามค่า $y$ ทำให้เส้นสีเขียว **ขนานกับแนว Rib** (วิ่งจาก `Tip -> Root` ดังรูป [`lit_fig6_mode6_ux.png`](visual_modal/01_literature_fig6_rigid_body/lit_fig6_mode6_ux.png) ซึ่งตรงกับ **Figure 6(d)** ในเปเปอร์ทุกประการ!)
 

@@ -41,34 +41,57 @@ The flight envelope is generated for the ATR 42-600 reference aircraft at sea le
 ### 2.1 Wing Aerodynamic Parameters & Lift-Curve Slope
 The wing lift-curve slope $a$ is determined using the DATCOM / Helmbold formulation for an unswept lifting surface:
 
-$$a = \frac{2\pi \cdot AR}{2 + \sqrt{4 + \left(\frac{AR}{\eta}\right)^2}} \quad [\text{rad}^{-1}]$$
+$$
+a = \frac{2\pi \cdot AR}{2 + \sqrt{4 + \left(\frac{AR}{\eta}\right)^2}} \quad [\text{rad}^{-1}]
+$$
 
 where the wing aspect ratio is $AR = b^2/S_w = 24.57^2 / 54.5 = 11.08$, and the airfoil section efficiency factor is taken as $\eta = 0.95$. Evaluating the expression yields:
 
-$$a \approx 5.688\text{ rad}^{-1} \quad (0.0993\text{ deg}^{-1})$$
+$$
+a \approx 5.688\text{ rad}^{-1} \quad (0.0993\text{ deg}^{-1})
+$$
 
 ### 2.2 Limit Maneuvering Load Factors
 In accordance with EASA CS-25.337, the positive limit maneuvering load factor $n_{\max}$ for transport aircraft is governed by:
 
-$$n_{\max} = 2.1 + \frac{24000}{W_{\text{lb}} + 10000} \quad \text{with } 2.5 \le n_{\max} \le 3.8$$
+$$
+n_{\max} = 2.1 + \frac{24000}{W_{\text{lb}} + 10000} \quad \text{with } 2.5 \le n_{\max} \le 3.8
+$$
 
 For the ATR 42-600 Maximum Take-Off Weight ($W = 18,600\text{ kg} = 41,006\text{ lb}$):
 
-$$n_{\max} = 2.1 + \frac{24000}{41006 + 10000} = 2.1 + 0.4705 = 2.5705$$
+$$
+n_{\max} = 2.1 + \frac{24000}{41006 + 10000} = 2.1 + 0.4705 = 2.5705
+$$
 
 The negative limit load factor is specified by CS-25.337(c) as $n_{\min} = -1.0$.
 
 ### 2.3 Design Airspeeds
 Design airspeeds are established under CS-25.335 specifications:
 * **Clean Stall Speed ($V_{S1}$):** Evaluated at maximum lift coefficient $C_{L\max} = 1.50$:
-  $$V_{S1} = \sqrt{\frac{2 W g}{\rho_0 S_w C_{L\max}}} = \sqrt{\frac{2 \times 18600 \times 9.80665}{1.225 \times 54.5 \times 1.50}} = 60.20\text{ m/s} = 117.0\text{ kt EAS}$$
+
+$$
+V_{S1} = \sqrt{\frac{2 W g}{\rho_0 S_w C_{L\max}}} = \sqrt{\frac{2 \times 18600 \times 9.80665}{1.225 \times 54.5 \times 1.50}} = 60.20\text{ m/s} = 117.0\text{ kt EAS}
+$$
+
 * **Maneuver Speed ($V_A$):** Intersection of the positive stall curve with $n_{\max}$:
-  $$V_A = V_{S1} \sqrt{n_{\max}} = 117.0 \sqrt{2.5705} = 188.10\text{ kt EAS} \quad (96.77\text{ m/s})$$
+
+$$
+V_A = V_{S1} \sqrt{n_{\max}} = 117.0 \sqrt{2.5705} = 188.10\text{ kt EAS} \quad (96.77\text{ m/s})
+$$
+
 * **Design Gust Speed ($V_B$):** Evaluated from CS-25.341 rough air criteria:
-  $$V_B = 182.96\text{ kt EAS} \quad (94.12\text{ m/s})$$
+
+$$
+V_B = 182.96\text{ kt EAS} \quad (94.12\text{ m/s})
+$$
+
 * **Design Cruise Speed ($V_C$):** Maximum operating speed $V_C = V_{MO} = 250.0\text{ kt EAS}$ ($128.61\text{ m/s}$).
 * **Design Dive Speed ($V_D$):** Evaluated per CS-25.335(b) as $V_D = 1.25 V_C$:
-  $$V_D = 1.25 \times 250.0 = 312.50\text{ kt EAS} \quad (160.76\text{ m/s})$$
+
+$$
+V_D = 1.25 \times 250.0 = 312.50\text{ kt EAS} \quad (160.76\text{ m/s})
+$$
 
 **Table 2b.2: Critical boundary flight load points from `vn_load_cases.csv`**
 
@@ -95,15 +118,21 @@ Design airspeeds are established under CS-25.335 specifications:
 
 The steady-state aerodynamic tail load $L_H$ required to hold the aircraft in longitudinal pitch equilibrium about its center of gravity is derived from static force and moment balance:
 
-$$\sum F_z = 0 \implies L_w + L_H = n W$$
+$$
+\sum F_z = 0 \implies L_w + L_H = n W
+$$
 
-$$\sum M_{CG} = 0 \implies L_w (x_{cg} - x_{ac})\bar{c} + M_{ac} - L_H l_H = 0$$
+$$
+\sum M_{CG} = 0 \implies L_w (x_{cg} - x_{ac})\bar{c} + M_{ac} - L_H l_H = 0
+$$
 
 where $L_w$ is wing lift, $M_{ac} = C_{m0} q S_w \bar{c}$ is the aerodynamic pitching moment of the wing-body combination about the wing aerodynamic center, $q = \frac{1}{2}\rho_0 V^2$ is dynamic pressure, and $l_H$ is the horizontal distance from aircraft CG to the tailplane aerodynamic center ($l_H = 11.46\text{ m}$).
 
 Substituting $L_w = n W - L_H$ into the moment equation yields the closed-form expression for Balancing Tail Load (BTL):
 
-$$L_H = \frac{n W (x_{cg} - x_{ac})\bar{c} + C_{m0} q S_w \bar{c}}{l_H + (x_{cg} - x_{ac})\bar{c}}$$
+$$
+L_H = \frac{n W (x_{cg} - x_{ac})\bar{c} + C_{m0} q S_w \bar{c}}{l_H + (x_{cg} - x_{ac})\bar{c}}
+$$
 
 * **Sign Convention:** $L_H > 0$ represents upward tail lift; $L_H < 0$ represents downward balancing tail download.
 * **Wing-Body Pitching Moment Coefficient ($C_{m0}$):** Evaluated at $C_{m0} = -0.06$ (reference value for clean wing-body configuration).
@@ -128,13 +157,19 @@ The extreme forward CG limit ($16.8\% \bar{c}$) creates the maximum nose-down gr
 
 The total aerodynamic limit load acting on the half-span cantilever model ($P = -9,142.84\text{ N}$) is distributed spanwise along $y \in [0, s]$ ($s = 3,978\text{ mm}$) using **Schrenk’s approximation**—the arithmetic average of a chord-proportional trapezoidal distribution and an ideal elliptic lift distribution:
 
-$$\text{shape}_{\text{chord}}(y) = \frac{C(y)}{\int_0^s C(\eta) d\eta}, \quad \text{shape}_{\text{ellipse}}(y) = \frac{4}{\pi s} \sqrt{1 - \left(\frac{y}{s}\right)^2}$$
+$$
+\text{shape}_{\text{chord}}(y) = \frac{C(y)}{\int_0^s C(\eta) d\eta}, \quad \text{shape}_{\text{ellipse}}(y) = \frac{4}{\pi s} \sqrt{1 - \left(\frac{y}{s}\right)^2}
+$$
 
-$$\text{shape}(y) = \frac{1}{2} \left[ \text{shape}_{\text{chord}}(y) + \text{shape}_{\text{ellipse}}(y) \right]$$
+$$
+\text{shape}(y) = \frac{1}{2} \left[ \text{shape}_{\text{chord}}(y) + \text{shape}_{\text{ellipse}}(y) \right]
+$$
 
 The spanwise running load intensity $w(y)$ [N/m] is:
 
-$$w(y) = P \cdot \text{shape}(y)$$
+$$
+w(y) = P \cdot \text{shape}(y)
+$$
 
 Integrating from the outboard wingtip ($y = s$) inboard to station $y$ establishes internal shear force and bending moment:
 * **Internal Shear Force:** $V(y) = P - \int_0^y w(\eta) d\eta$ (with boundary conditions $V(0) = P$, $V(s) = 0$)
@@ -142,7 +177,9 @@ Integrating from the outboard wingtip ($y = s$) inboard to station $y$ establish
 
 For the ATR 42 horizontal tailplane planform, the Schrenk aerodynamic centroid is located at **$y_{\text{cen}} = 1.756\text{ m}$ ($44.1\%$ span)**, yielding exact root target values for case `D_fwd`:
 
-$$V_{\text{root}} = -9,142.84\text{ N}, \quad M_{\text{root}} = -16,058.0\text{ N}\cdot\text{m}$$
+$$
+V_{\text{root}} = -9,142.84\text{ N}, \quad M_{\text{root}} = -16,058.0\text{ N}\cdot\text{m}
+$$
 
 **Table 2b.4: Target spanwise aerodynamic running load, shear force, and bending moment (`D_fwd`) from `htp_sfbm.csv`**
 
@@ -220,19 +257,25 @@ The mapping script converts target SFBM distributions into discrete nodal forces
 ### 6.1 Running Load Polynomial Representation
 The running load is represented by a degree-3 non-dimensional polynomial:
 
-$$w(y) = \sum_{p=0}^3 a_p \left(\frac{y}{s}\right)^p = a_0 + a_1\left(\frac{y}{s}\right) + a_2\left(\frac{y}{s}\right)^2 + a_3\left(\frac{y}{s}\right)^3$$
+$$
+w(y) = \sum_{p=0}^3 a_p \left(\frac{y}{s}\right)^p = a_0 + a_1\left(\frac{y}{s}\right) + a_2\left(\frac{y}{s}\right)^2 + a_3\left(\frac{y}{s}\right)^3
+$$
 
 ### 6.2 Tributary Interval Integration
 To prevent load resultant shifts, each rib station $g \in [2, N_{\text{rib}}]$ is assigned a continuous tributary spanwise interval $[y_{g - 1/2}, y_{g + 1/2}]$ spanning mid-bay to mid-bay:
 
-$$F_{\text{station}}(g) = \int_{y_{g - 1/2}}^{y_{g + 1/2}} w(y)\,dy$$
+$$
+F_{\text{station}}(g) = \int_{y_{g - 1/2}}^{y_{g + 1/2}} w(y)\,dy
+$$
 
 For the inboard station (Rib 2), the interval extends from the root ($y = 0$) to mid-bay: $[0, (y_2+y_3)/2]$. For the tip station, the interval extends from mid-bay to the tip: $[(y_{N-1}+y_N)/2, s]$. This ensures that the entire semi-span is integrated with zero gaps.
 
 ### 6.3 Discrete Nodal Force Allocation
 The total vertical force assigned to station $g$ is distributed uniformly among the $N_{\text{nodes}}(g)$ conformal skin nodes extracted at that station:
 
-$$F_{\text{node}, j} = \frac{F_{\text{station}}(g)}{N_{\text{nodes}}(g)}$$
+$$
+F_{\text{node}, j} = \frac{F_{\text{station}}(g)}{N_{\text{nodes}}(g)}
+$$
 
 ### 6.4 Least-Norm Solution (`lsqminnorm`)
 The polynomial coefficients $\mathbf{a} = [a_0, a_1, a_2, a_3]^T$ are computed to match target internal shear $V_{\text{target}}$ and bending moment $M_{\text{target}}$ evaluated at intermediate cut sections placed between stations. 

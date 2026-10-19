@@ -33,13 +33,16 @@ The objective of Stage 3d is to execute a systematic sizing optimization to dete
 ### 2.1 Mathematical Formulation
 
 The structural sizing problem is formulated as a constrained mass minimization problem:
-$$\begin{aligned}
-\min_{\mathbf{x}} \quad & M(\mathbf{x}) = \sum_{k=1}^{8} \rho_k V_k(\mathbf{x}) \\
-\text{subject to} \quad & \sigma_{\text{vM}, k}(\mathbf{x}) \le \sigma_{\text{allow}, k}, \quad \forall k \in \{1, \dots, 8\} \\
-& |U_z(\mathbf{x})| \le \delta_{\text{target}} \\
-& |\lambda_1(\mathbf{x})| \ge 1.50 \\
+
+$$
+\begin{aligned}
+\min_{\mathbf{x}} \quad & M(\mathbf{x}) = \sum_{k=1}^{8} \rho_k V_k(\mathbf{x}) \\\\
+\text{subject to} \quad & \sigma_{\text{vM}, k}(\mathbf{x}) \le \sigma_{\text{allow}, k}, \quad \forall k \in \{1, \dots, 8\} \\\\
+& |U_z(\mathbf{x})| \le \delta_{\text{target}} \\\\
+& |\lambda_1(\mathbf{x})| \ge 1.50 \\\\
 & x_{i, \min} \le x_i \le x_{i, \max}, \quad i \in \{1, \dots, 6\}
-\end{aligned}$$
+\end{aligned}
+$$
 
 where:
 - $M(\mathbf{x})$ is the total half-span structural mass evaluated by element volume integration.
@@ -94,13 +97,21 @@ To resolve these challenges, a **Zero-Remeshing Fast-Path Architecture** was imp
    Prior to optimization, each baseline configuration is generated once, meshed, and saved as a persistent database file (`_scratch_base_cfg1.db`, `_scratch_base_cfg2.db`, `_scratch_base_cfg3.db`). The mesh topology, element definitions, and node numbering are completely frozen.
 2. **Node ID Invariance and Load Balance Preservation:**
    Because node IDs remain identical across all iterations, aerodynamic nodal forces mapped in Stage 2b are applied once and remain exact. Across every evaluation, the root vertical reaction balances the target flight load:
-   $$\sum R_z = -9,142.84\text{ N} \quad (\pm 0.02\text{ N})$$
+
+$$
+\sum R_z = -9,142.84\text{ N} \quad (\pm 0.02\text{ N})
+$$
+
 3. **Dynamic Section and Offset Updating (`UPDATE_SECTIONS_AND_SOLVE.mac`):**
    On each iteration, the macro resumes the frozen database and updates component cross-sections directly via `SECDATA` commands without touching the geometric mesh:
    - Shell thicknesses for rib webs (`SEC 1`), spar webs (`SEC 2`), and skin (`SEC 3`) are modified via `SECDATA, t`.
    - Beam cross-sections for stringers (`SEC 4`), spar caps (`SEC 5`), and rib flanges (`SEC 6..8`) are redefined with updated dimensions.
    - **Dynamic Centroidal Offsets (`SECOFFSET`):** Modifying flange and skin thicknesses alters the physical distance between element reference planes and section centroids. The macro dynamically queries `*GET, STR_YC, SECP, 4, PROP, CGY` and recalculates:
-     $$\Delta z_{\text{offset}} = -\frac{1}{2} (t_{\text{flange}} + t_{\text{skin}})$$
+
+$$
+\Delta z_{\text{offset}} = -\frac{1}{2} (t_{\text{flange}} + t_{\text{skin}})
+$$
+
      This preserves exact physical load transfer and prevents artificial distortion of wingbox bending stiffness ($EI$).
 4. **Fast Solution & Eigenvalue Extraction:**
    The solver executes a single-step linear static solve with prestress active (`PSTRES, ON`), followed by Block Lanczos eigenvalue extraction (`ANTYPE, BUCKLE`, `BUCOPT, LANB, 5`).
@@ -114,7 +125,10 @@ To resolve these challenges, a **Zero-Remeshing Fast-Path Architecture** was imp
 ### 4.1 Sensitivity Gradient Matrix
 
 A forward finite difference perturbation sweep was conducted across all three baseline configurations using `RUN_STAGE3D_SENSITIVITY_SWEEP.mac`. Each design variable was perturbed individually by $\Delta x_i = 0.20\text{ mm}$:
-$$\frac{\partial f}{\partial x_i} \approx \frac{f(\mathbf{x}_0 + \Delta x_i \mathbf{e}_i) - f(\mathbf{x}_0)}{\Delta x_i}$$
+
+$$
+\frac{\partial f}{\partial x_i} \approx \frac{f(\mathbf{x}_0 + \Delta x_i \mathbf{e}_i) - f(\mathbf{x}_0)}{\Delta x_i}
+$$
 
 The complete 18-row sensitivity gradient matrix from `STAGE3D_SENSITIVITY_MATRIX.csv` is presented below:
 
@@ -154,7 +168,11 @@ Analysis of the gradient data reveals three fundamental structural principles:
    Because the external skin forms the outermost fibers of the cross-section ($Z \approx \pm c \cdot t/2$), material added to the skin maximizes specific second moment of area ($I_{xx}/M$), providing superior bending and torsional rigidity.
 2. **Severe Mass Inefficiency of Rib Webs (`T_RIB_W`):**
    Internal rib webs contribute substantially to overall mass ($\frac{\partial M}{\partial T_{\text{rib}}} = 7.67\text{ to } 14.42\text{ kg/mm}$), but have almost no influence on spanwise flexural stiffness:
-   $$\frac{\partial U_z}{\partial T_{\text{rib}}} \approx -0.012\text{ mm/mm}$$
+
+$$
+\frac{\partial U_z}{\partial T_{\text{rib}}} \approx -0.012\text{ mm/mm}
+$$
+
    Their influence on global buckling is similarly negligible ($\frac{\partial \lambda_1}{\partial T_{\text{rib}}} \le 0.174\text{ mm}^{-1}$). Consequently, thinning rib webs and flanges toward minimum manufacturing gauges ($0.80\text{ mm}$) yields direct mass savings with zero structural stiffness penalty.
 3. **Buckling Gradient Drop in Configuration C:**
    In Configuration C, widening the rib bay pitch to $663.00\text{ mm}$ causes the buckling gradient of `T_SKIN` to drop by $41\%$ (from $+2.86\text{ mm}^{-1}$ in Config A to $+1.69\text{ mm}^{-1}$ in Config C). Local skin panel bay buckling decouples from internal substructure stiffeners, requiring larger skin thickness increments to restore stability.
@@ -305,18 +323,33 @@ In Stage 3c, baseline Configuration C failed buckling compliance ($|\lambda_1| =
 - Skin thickness was increased by $+9\%$ ($2.00\text{ mm} \to 2.18\text{ mm}$).
 - Rib web thickness was held at $1.50\text{ mm}$ to maintain chordwise torsional rigidity.
 - Because classical plate buckling strength scales quadratically with thickness ($t^2$):
-  $$\sigma_{\text{cr}} \propto \left(\frac{t}{b}\right)^2$$
+
+$$
+\sigma_{\text{cr}} \propto \left(\frac{t}{b}\right)^2
+$$
+
 - The first eigenvalue rose by $+20.8\%$ from $1.3257$ to **$1.6012$**, converting the negative margin of safety into a verified positive reserve:
-  $$\text{MS}_{\text{buckle}} = \frac{1.6012}{1.50} - 1.0 = +0.07$$
+
+$$
+\text{MS}_{\text{buckle}} = \frac{1.6012}{1.50} - 1.0 = +0.07
+$$
 
 ---
 
 ### 9.3 Lower-Bound Mass Penalty of the Stability Constraint
 
 Evaluating Regime 1B ($|U_z| \le 10.0\text{ mm}$, strength only) establishes the absolute theoretical minimum material mass needed to satisfy static strength allowables:
-$$M_{\text{Config C, R1B}} = 75.23\text{ kg}$$
+
+$$
+M_{\text{Config C, R1B}} = 75.23\text{ kg}
+$$
+
 Comparing this against the fully-compliant Regime 1A design ($112.40\text{ kg}$) reveals that:
-$$\Delta M_{\text{stability}} = 112.40\text{ kg} - 75.23\text{ kg} = 37.17\text{ kg} \quad (+49.4\%)$$
+
+$$
+\Delta M_{\text{stability}} = 112.40\text{ kg} - 75.23\text{ kg} = 37.17\text{ kg} \quad (+49.4\%)
+$$
+
 This demonstrates that **$37.17\text{ kg}$ of structural material is dedicated entirely to preventing elastic skin buckling and matching aeroelastic stiffness**, rather than carrying tensile or compressive stresses.
 
 ---
@@ -364,8 +397,12 @@ Stage 3d successfully completes the structural sizing optimization of the parame
 
 1. **Canonical Mass Metrics:** Sized structural masses reported in Table 3d.5b represent exact element table volume traces: Config A Baseline ($140.46\text{ kg}$), Config A Regime 1A ($126.11\text{ kg}$), Config B Regime 2 ($103.84\text{ kg}$), Config C Baseline ($113.64\text{ kg}$), and Config C Regime 1A ($112.40\text{ kg}$).
 2. **Relative Mass Savings:** The headline mass reduction of **-19.98%** achieved by Configuration C Regime 1A is calculated relative to the initial reference standard (Configuration A Baseline, $140.4634\text{ kg}$):
-   $$\Delta M = \frac{112.4023 - 140.4634}{140.4634} \times 100\% = -19.9775\% \approx -19.98\%$$
-   Relative to its own baseline ($113.6375\text{ kg}$), Configuration C Regime 1A achieves $-1.09\%$ while resolving the critical buckling shortfall.
+
+$$
+\Delta M = \frac{112.4023 - 140.4634}{140.4634} \times 100\% = -19.9775\% \approx -19.98\%
+$$
+
+Relative to its own baseline ($113.6375\text{ kg}$), Configuration C Regime 1A achieves $-1.09\%$ while resolving the critical buckling shortfall.
 3. **Stiffness Matching Constraint:** The target deflection envelope $|U_z| \le 6.716\text{ mm}$ was defined by the baseline Configuration A tip deflection. Configuration C Regime 1A achieves $|U_z| = 6.692\text{ mm}$, satisfying the constraint with zero margin deficit ($\text{MS}_{\text{disp}} = 0.00$).
 4. **Regime 1A Buckling Visual Identifiers:** Buckling mode plots `fig3d_03_cfgA_r1a_buckle.png` ($|\lambda_1| = 2.4891$), `fig3d_06_cfgB_r1a_buckle.png` ($|\lambda_1| = 2.2074$), and `fig3d_09_cfgC_r1a_buckle.png` ($|\lambda_1| = 1.6012$) correspond strictly to the sized Regime 1A models.
 
