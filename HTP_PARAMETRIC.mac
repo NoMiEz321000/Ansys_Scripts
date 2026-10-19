@@ -1,6 +1,8 @@
 ! ================================================================
 !  BLOCK 1: PARAMETRIC INPUT VARIABLES 
 ! ================================================================
+! Input your work directory here first
+/CWD, "InsertYourWorkDirectoryHERE"
 ! Set default CONFIG if not already specified by parent macro
 *IF, CONFIG, LT, 1, OR, CONFIG, GT, 3, THEN
     CONFIG = 1  ! 1 = Config A (14-3-8), 2 = Config B (9-2-8), 3 = Config C (7-2-6)
