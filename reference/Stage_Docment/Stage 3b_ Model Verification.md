@@ -101,7 +101,7 @@ $$
 \mathbf{u}(\mathbf{x}) = \mathbf{u}_0 + \boldsymbol{\theta}_0 \times (\mathbf{x} - \mathbf{x}_{CG})
 $$
 
-   where $\mathbf{u}_0 = (u_{x0}, u_{y0}, u_{z0})$ is the translation of the center of mass, and $\boldsymbol{\theta}_0 = (\theta_x, \theta_y, \theta_z)$ is the rigid rotation vector.
+   where $\mathbf{u}\_0 = (u\_{x0}, u\_{y0}, u\_{z0})$ is the translation of the center of mass, and $\boldsymbol{\theta}\_0 = (\theta\_x, \theta\_y, \theta\_z)$ is the rigid rotation vector.
 2. **Signed Directional Displacements (`PLNSOL, U, Z` / `UX` / `UY`):**  
    Inspecting the colorbar legends in Palumbo et al. (Figure 6) reveals signed displacement scales with both positive and negative values (e.g., $-4.58$ to $+5.02$). When plotting a signed component such as vertical displacement $u_z$, the equation simplifies across the wing planform $(x, y)$ to an exact **linear plane equation**:
 

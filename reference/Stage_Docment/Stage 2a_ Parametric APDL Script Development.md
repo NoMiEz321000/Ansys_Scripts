@@ -151,10 +151,10 @@ The structural assembly employs thin-walled plate shells (`SHELL181`) for two-di
 | `SEC 2` | Spar Webs | `SHELL181` | Shell | $t = 3.0$ | MAT 1 (Al 7075-T6) | Mid-plane (default) |
 | `SEC 3` | Aerodynamic Skins | `SHELL181` | Shell | $t = 2.0$ | MAT 2 (CFRP Quasi-Isotropic)| Mid-plane (default) |
 | `SEC 4` | Hat Stringers | `BEAM188` | Hat (`HATS`)| $30 \times 20 \times 15, t=1.6$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}_Y = \text{CG}_Y$, $\text{Offset}_Z = 0$ |
-| `SEC 5` | Spar Cap Flanges | `BEAM188` | Rectangular | $45.0 \times 2.5$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}_Z = -(t_{\text{cap}}/2) = -1.25\text{ mm}$ |
-| `SEC 6` | Interior Rib Flanges | `BEAM188` | Rectangular | $40.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}_Z = -(t_{\text{flange}}/2 + t_{\text{skin}}/2) = -1.5\text{ mm}$ |
-| `SEC 7` | Root Edge Flange | `BEAM188` | Rectangular | $20.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}_Y = -10.0\text{ mm}, \text{Offset}_Z = -1.5\text{ mm}$ |
-| `SEC 8` | Tip Edge Flange | `BEAM188` | Rectangular | $20.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}_Y = +10.0\text{ mm}, \text{Offset}_Z = -1.5\text{ mm}$ |
+| `SEC 5` | Spar Cap Flanges | `BEAM188` | Rectangular | $45.0 \times 2.5$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}\_Z = -(t\_{\text{cap}}/2) = -1.25\text{ mm}$ |
+| `SEC 6` | Interior Rib Flanges | `BEAM188` | Rectangular | $40.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}\_Z = -(t\_{\text{flange}}/2 + t\_{\text{skin}}/2) = -1.5\text{ mm}$ |
+| `SEC 7` | Root Edge Flange | `BEAM188` | Rectangular | $20.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}\_Y = -10.0\text{ mm}, \text{Offset}\_Z = -1.5\text{ mm}$ |
+| `SEC 8` | Tip Edge Flange | `BEAM188` | Rectangular | $20.0 \times 1.0$ | MAT 1 (Al 7075-T6) | User offset: $\text{Offset}\_Y = +10.0\text{ mm}, \text{Offset}\_Z = -1.5\text{ mm}$ |
 
 **Table 2a.5: Material properties and design allowables**
 
@@ -378,7 +378,7 @@ During the maturation of the script from early prototypes to release `v1.4.5-sta
 | **Singular Matrix in Solver** | Boolean operations left orphaned, unattached geometry keypoints and nodes, creating unconstrained zero-stiffness blocks in the global stiffness matrix. | Placed automated node cleanup (`NSLE, S` $\to$ `NSEL, INVE` $\to$ `NDELE, ALL`) in `/PREP7` before solution initiation. |
 | **Missing Nose Rib Flanges (Ribs 1–9)** | Midpoint sagitta of the sharp NACA 0012 nose segment reached $16.19\text{ mm}$ at root, exceeding the fixed $12.0\text{ mm}$ line selection filter. | Implemented dynamic dual-zone sagitta tolerance: `DM_TOL = 22.0 mm` at nose ($X/C < 0.05$) and `12.0 mm` across the main wingbox. |
 | **Rib Flange Beak Overhang** | Calculating flange orientation keypoints using 3D cross-products coupled steep vertical profile tangent with sweep, thrusting the flange forward past the nose. | Enforced pure in-plane orientation ($NY \equiv 0.0$) at the nose apex ($X/C < 0.025$). |
-| **Rib Flange Dihedral Skin Penetration** | Setting $NY \equiv 0.0$ globally prevented the beak but stripped dihedral tilt alignment across the main wingbox, causing $40\text{ mm}$ flanges to pierce the $2\text{ mm}$ skin by $2.44\text{ mm}$. | Architected Dual-Zone Normal Blending ($NY = -NZ_{\text{ip}} \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}$) with linear transition between $X/C = 0.025$ and $0.065$. |
+| **Rib Flange Dihedral Skin Penetration** | Setting $NY \equiv 0.0$ globally prevented the beak but stripped dihedral tilt alignment across the main wingbox, causing $40\text{ mm}$ flanges to pierce the $2\text{ mm}$ skin by $2.44\text{ mm}$. | Architected Dual-Zone Normal Blending ( $NY = -NZ\_{\text{ip}} \cdot \text{Slope}\_Y \cdot \text{BLEND}\_\text{FAC}$ ) with linear transition between $X/C = 0.025$ and $0.065$. |
 | **APDL Legacy Parser Math Bug** | Spaces around math multiplication operators (`NY = (-NZ_IP) * SLOPE_Y * BLEND_FAC`) caused APDL's legacy parser to treat ` * ` as a comment delimiter, truncating evaluations. | Stripped all whitespace around arithmetic operators in APDL assignment expressions (`NY = (-NZ_IP)*SLOPE_Y*BLEND_FAC`). |
 
 ---

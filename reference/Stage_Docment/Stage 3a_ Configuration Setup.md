@@ -183,7 +183,7 @@ Stage 3a has successfully established, parameterized, and discretized three cand
 
 ## 10. Data Notes
 
-1. **Exact Rib Pitch Values:** The exact spanwise rib pitch values evaluated from the code ($\Delta y = 3978 / (N_{\text{rib}} - 1)$) are **$306.00\text{ mm}$** for Configuration A (13 bays), **$497.25\text{ mm}$** for Configuration B (8 bays), and **$663.00\text{ mm}$** for Configuration C (6 bays). Informal rounded values appearing in earlier optimization README overviews ($300\text{ mm}$ or $525\text{ mm}$) were approximate descriptions and are superseded by these exact analytical dimensions.
+1. **Exact Rib Pitch Values:** The exact spanwise rib pitch values evaluated from the code ( $\Delta y = 3978 / (N\_{\text{rib}} - 1)$ ) are **$306.00\text{ mm}$** for Configuration A (13 bays), **$497.25\text{ mm}$** for Configuration B (8 bays), and **$663.00\text{ mm}$** for Configuration C (6 bays). Informal rounded values appearing in earlier optimization README overviews ($300\text{ mm}$ or $525\text{ mm}$) were approximate descriptions and are superseded by these exact analytical dimensions.
 2. **Lightening Hole Counts:** In the frozen codebase, the cutout parameter is defined as `N_CUT = 7` for Config A, `N_CUT = 6` for Config B, and `N_CUT = 5` for Config C. Each rib incorporates exactly one forward circular hole at $X/C = 0.1535$, followed by $N_{\text{cut}} - 1$ circular holes distributed along the main wingbox.
 3. **Loaded Skin Node Census:** The exact number of discrete nodal force commands contained in the input files is **1,053** for Configuration A, **648** for Configuration B, and **486** for Configuration C.
 

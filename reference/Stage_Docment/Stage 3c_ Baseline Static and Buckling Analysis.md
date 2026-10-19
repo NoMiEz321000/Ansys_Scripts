@@ -55,7 +55,7 @@ $$
 [\mathbf{S}] = \int_{\Omega} [\mathbf{G}]^T [\mathbf{M}_{\sigma}] [\mathbf{G}] \, d\Omega
 $$
 
-     where $[\mathbf{M}_{\sigma}]$ contains the initial membrane Cauchy stress components.
+     where $[ \mathbf{M}\_\sigma ]$ contains the initial membrane Cauchy stress components.
 
 2. **Linear Eigenvalue Buckling Analysis (`ANTYPE, BUCKLE`):**
    - The solver transitions into the eigenvalue buckling processor using the Block Lanczos extraction algorithm (`BUCOPT, LANB, 5`, `MXPAND, 5`).
@@ -65,7 +65,7 @@ $$
 ([\mathbf{K}] + \lambda_i [\mathbf{S}]) \{\boldsymbol{\phi}_i\} = \{\mathbf{0}\}
 $$
 
-     where $\lambda_i$ represents the $i$-th buckling load factor (eigenvalue multiplier of the applied limit load vector $\{\mathbf{F}_{\text{limit}}\}$), and $\{\boldsymbol{\phi}_i\}$ is the corresponding orthogonal buckling mode shape vector.
+     where $\lambda\_i$ represents the $i$-th buckling load factor (eigenvalue multiplier of the applied limit load vector $\{ \mathbf{F}\_\text{limit} \}$), and $\{ \boldsymbol{\phi}\_i \}$ is the corresponding orthogonal buckling mode shape vector.
 
 ---
 
@@ -149,7 +149,7 @@ $$
 \text{MS}_{\text{buckle}} = \frac{|\lambda_1|}{\text{FS}_{\text{req}}} - 1.0 = \frac{|\lambda_1|}{1.50} - 1.0
 $$
 
-A design is structurally acceptable if and only if all margins are non-negative: $\text{MS}_{\text{yield}} \ge 0.0$ and $\text{MS}_{\text{buckle}} \ge 0.0$.
+A design is structurally acceptable if and only if all margins are non-negative: $\text{MS}\_\text{yield} \ge 0.0$ and $\text{MS}\_\text{buckle} \ge 0.0$.
 
 ---
 
@@ -189,13 +189,13 @@ As documented in Table 3c.2, vertical out-of-plane bending accounts for exactly 
 Both values are reported: `TIP_UZ` ($u_{z,\text{tip}}$) serves as the primary metric for aircraft aeroelastic control and elevator surface clearance, while `DMX` provides direct correspondence with ANSYS graphical contour palettes.
 
 ![Configuration A Baseline Displacement Contour](figures/stage3c/fig3c_01_dmx_cfgA.png)
-*Figure 3c.1: Configuration A baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $6.768\text{ mm}$, `TIP_UZ` = $-6.716\text{ mm}$).*
+**Figure 3c.1:** Configuration A baseline displacement contour plot under limit load case $D\_\text{fwd}$ ( `DMX` = $6.768\text{ mm}$, `TIP_UZ` = $-6.716\text{ mm}$ ).
 
 ![Configuration B Baseline Displacement Contour](figures/stage3c/fig3c_02_dmx_cfgB.png)
-*Figure 3c.2: Configuration B baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $6.951\text{ mm}$, `TIP_UZ` = $-6.898\text{ mm}$).*
+**Figure 3c.2:** Configuration B baseline displacement contour plot under limit load case $D\_\text{fwd}$ ( `DMX` = $6.951\text{ mm}$, `TIP_UZ` = $-6.898\text{ mm}$ ).
 
 ![Configuration C Baseline Displacement Contour](figures/stage3c/fig3c_03_dmx_cfgC.png)
-*Figure 3c.3: Configuration C baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $7.096\text{ mm}$, `TIP_UZ` = $-7.042\text{ mm}$).*
+**Figure 3c.3:** Configuration C baseline displacement contour plot under limit load case $D\_\text{fwd}$ ( `DMX` = $7.096\text{ mm}$, `TIP_UZ` = $-7.042\text{ mm}$ ).
 
 ---
 
@@ -238,13 +238,13 @@ Incorporating 3D beam cross-sectional facets (`/ESHAPE, 1`) reveals that the glo
 | **Global Peak Stress ($\sigma_{\max}$)** | **29.54 MPa** | **46.78 MPa** | **59.15 MPa** | Located on Interior Rib Flange (`SEC 6`) |
 
 ![Configuration A Baseline Stress Contour](figures/stage3c/fig3c_04_seqv_cfgA.png)
-*Figure 3c.4: Configuration A baseline Von Mises stress contour plot ($\sigma_{\max} = 29.54\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3c.4:** Configuration A baseline Von Mises stress contour plot ( $\sigma\_{\max} = 29.54\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ![Configuration B Baseline Stress Contour](figures/stage3c/fig3c_05_seqv_cfgB.png)
-*Figure 3c.5: Configuration B baseline Von Mises stress contour plot ($\sigma_{\max} = 46.78\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3c.5:** Configuration B baseline Von Mises stress contour plot ( $\sigma\_{\max} = 46.78\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ![Configuration C Baseline Stress Contour](figures/stage3c/fig3c_06_seqv_cfgC.png)
-*Figure 3c.6: Configuration C baseline Von Mises stress contour plot ($\sigma_{\max} = 59.15\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3c.6:** Configuration C baseline Von Mises stress contour plot ( $\sigma\_{\max} = 59.15\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ---
 
@@ -305,7 +305,7 @@ $$
 $$
 
 ![Configuration C Baseline Buckling Mode 1](figures/stage3c/fig3c_07_buckle_cfgC_baseline.png)
-*Figure 3c.7: Configuration C baseline linear eigenvalue buckling mode 1 ($|\lambda_1| = 1.3257$, $\text{MS}_{\text{buckle}} = -0.12$). Buckling manifests as out-of-plane compressive skin wrinkling within the wide $663.00\text{ mm}$ rib bays.*
+**Figure 3c.7:** Configuration C baseline linear eigenvalue buckling mode 1 ( $\vert \lambda\_1 \vert = 1.3257$, $\text{MS}\_\text{buckle} = -0.12$ ). Buckling manifests as out-of-plane compressive skin wrinkling within the wide $663.00\text{ mm}$ rib bays.
 
 The physical cause of this instability is directly explained by classical thin-plate buckling theory. The critical buckling stress $\sigma_{\text{cr}}$ of a thin panel supported along four edges is given by:
 

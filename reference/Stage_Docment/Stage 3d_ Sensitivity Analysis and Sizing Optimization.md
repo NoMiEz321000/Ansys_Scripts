@@ -112,7 +112,7 @@ $$
 \Delta z_{\text{offset}} = -\frac{1}{2} (t_{\text{flange}} + t_{\text{skin}})
 $$
 
-     This preserves exact physical load transfer and prevents artificial distortion of wingbox bending stiffness ($EI$).
+   This preserves exact physical load transfer and prevents artificial distortion of wingbox bending stiffness ( $EI$ ).
 4. **Fast Solution & Eigenvalue Extraction:**
    The solver executes a single-step linear static solve with prestress active (`PSTRES, ON`), followed by Block Lanczos eigenvalue extraction (`ANTYPE, BUCKLE`, `BUCOPT, LANB, 5`).
 5. **Computational Speedup:**
@@ -199,7 +199,7 @@ The exact iteration trajectory for Configuration C is documented from `STAGE3D_O
 | **5** | REGIME 2 (It. 1) | $2.08$ | $3.00$ | $2.00$ | $1.60$ | $2.50$ | $1.00$ | **116.18** | -6.82 | $56.32$ | $1.455$ | +4.68 | +1.20 | -0.03 | **Infeasible (0)** |
 | **6** | REGIME 2 (It. 2) | $2.15$ | $3.00$ | $2.00$ | $1.60$ | $2.50$ | $1.00$ | **118.41** | -6.64 | $54.01$ | $1.574$ | +4.93 | +1.26 | +0.05 | **FEASIBLE (1)** |
 
-*\*Note: Regime 1B Iteration 4 is feasible with respect to the relaxed displacement limit ($|U_z| \le 10.0\text{ mm}$) and stress allowables, but violates linear buckling stability ($\text{MS}_{\text{buckle}} = -0.57$).*
+> **Note on Regime 1B:** Iteration 4 is feasible with respect to the relaxed displacement limit ( $\vert U\_z \vert \le 10.0\text{ mm}$ ) and stress allowables, but violates linear buckling stability ( $\text{MS}\_\text{buckle} = -0.57$ ).*
 
 ---
 
@@ -252,7 +252,7 @@ To resolve the optimal design objectively, structural configurations must be eva
 | Evaluation Tier | Applied Constraint Hierarchy | Selected Configuration | Sized Mass [kg] | Mass Saving vs. Config A Base | Technical Assessment & Engineering Trade-Off |
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | **Tier 1: Strength Only** (Proposal Baseline) | $\sigma \le \sigma_{\text{allow}}$ ($\text{FS} \ge 1.50$); no deflection or buckling limits | **Configuration C Regime 1B** | **75.23 kg** | **-46.44%** (-65.23 kg) | Structurally unacceptable in flight: Severe skin panel buckling occurs at $64.5\%$ limit load ($\vert \lambda_1 \vert = 0.645$). Establishes theoretical lower-bound material limit. |
-| **Tier 2: Buckling + Strength** (Airworthiness Minimum) | $\vert \lambda_1 \vert \ge 1.50$ ($\text{MS}_{\text{buckle}} \ge 0.0$); $\sigma \le \sigma_{\text{allow}}$; deflection unconstrained | **Configuration B Regime 2** | **103.84 kg** | **-26.07%** (-36.62 kg) | Valid for flexible lifting surfaces. Achieves massive weight savings, but tip deflection increases to $-7.64\text{ mm}$ ($+13.7\%$ flexural softening vs. Config A). |
+| **Tier 2: Buckling + Strength** (Airworthiness Minimum) | $\vert \lambda\_1 \vert \ge 1.50$ ( $\text{MS}\_\text{buckle} \ge 0.0$ ); $\sigma \le \sigma\_\text{allow}$; deflection unconstrained | **Configuration B Regime 2** | **103.84 kg** | **-26.07%** (-36.62 kg) | Valid for flexible lifting surfaces. Achieves massive weight savings, but tip deflection increases to $-7.64\text{ mm}$ ($+13.7\%$ flexural softening vs. Config A). |
 | **Tier 3: Stiffness-Matched + Buckling + Strength** (Full Project Specification) | $\vert U_z \vert \le 6.716\text{ mm}$; $\vert \lambda_1 \vert \ge 1.50$; $\sigma \le \sigma_{\text{allow}}$ | **Configuration C Regime 1A** | **112.40 kg** | **-19.98%** (-28.06 kg) | **RECOMMENDED OPTIMUM:** Preserves baseline aeroelastic stiffness ($U_z = -6.69\text{ mm}$), resolves buckling ($\vert \lambda_1 \vert = 1.601$), and achieves substantial mass reduction. |
 
 ### Engineering Recommendation:
@@ -268,39 +268,39 @@ To resolve the optimal design objectively, structural configurations must be eva
 ### 8.1 Configuration A (Regime 1A: 14 Ribs, 3 Spars, 8 Stringers)
 
 ![Configuration A Regime 1A Displacement](figures/stage3d/fig3d_01_cfgA_r1a_dmx.png)
-*Figure 3d.1: Configuration A Regime 1A displacement contour (`DMX` = $6.770\text{ mm}$, `TIP_UZ` = $-6.718\text{ mm}$).*
+**Figure 3d.1:** Configuration A Regime 1A displacement contour ( `DMX` = $6.770\text{ mm}$, `TIP_UZ` = $-6.718\text{ mm}$ ).
 
 ![Configuration A Regime 1A Stress](figures/stage3d/fig3d_02_cfgA_r1a_seqv.png)
-*Figure 3d.2: Configuration A Regime 1A Von Mises equivalent stress contour ($\sigma_{\max} = 29.94\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3d.2:** Configuration A Regime 1A Von Mises equivalent stress contour ( $\sigma\_{\max} = 29.94\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ![Configuration A Regime 1A Buckling Mode 1](figures/stage3d/fig3d_03_cfgA_r1a_buckle.png)
-*Figure 3d.3: Configuration A Regime 1A linear eigenvalue buckling mode 1 ($|\lambda_1| = 2.4891$, $\text{MS}_{\text{buckle}} = +0.66$).*
+**Figure 3d.3:** Configuration A Regime 1A linear eigenvalue buckling mode 1 ( $\vert \lambda\_1 \vert = 2.4891$, $\text{MS}\_\text{buckle} = +0.66$ ).
 
 ---
 
 ### 8.2 Configuration B (Regime 1A: 9 Ribs, 2 Spars, 8 Stringers)
 
 ![Configuration B Regime 1A Displacement](figures/stage3d/fig3d_04_cfgB_r1a_dmx.png)
-*Figure 3d.4: Configuration B Regime 1A displacement contour (`DMX` = $6.770\text{ mm}$, `TIP_UZ` = $-6.719\text{ mm}$).*
+**Figure 3d.4:** Configuration B Regime 1A displacement contour ( `DMX` = $6.770\text{ mm}$, `TIP_UZ` = $-6.719\text{ mm}$ ).
 
 ![Configuration B Regime 1A Stress](figures/stage3d/fig3d_05_cfgB_r1a_seqv.png)
-*Figure 3d.5: Configuration B Regime 1A Von Mises equivalent stress contour ($\sigma_{\max} = 44.64\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3d.5:** Configuration B Regime 1A Von Mises equivalent stress contour ( $\sigma\_{\max} = 44.64\text{ MPa}$ on interior rib flanges; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ![Configuration B Regime 1A Buckling Mode 1](figures/stage3d/fig3d_06_cfgB_r1a_buckle.png)
-*Figure 3d.6: Configuration B Regime 1A linear eigenvalue buckling mode 1 ($|\lambda_1| = 2.2074$, $\text{MS}_{\text{buckle}} = +0.47$).*
+**Figure 3d.6:** Configuration B Regime 1A linear eigenvalue buckling mode 1 ( $\vert \lambda\_1 \vert = 2.2074$, $\text{MS}\_\text{buckle} = +0.47$ ).
 
 ---
 
 ### 8.3 Configuration C (Regime 1A: 7 Ribs, 2 Spars, 6 Stringers) — Recommended Optimum
 
 ![Configuration C Regime 1A Displacement](figures/stage3d/fig3d_07_cfgC_r1a_dmx.png)
-*Figure 3d.7: Configuration C Regime 1A displacement contour (`DMX` = $6.743\text{ mm}$, `TIP_UZ` = $-6.692\text{ mm}$).*
+**Figure 3d.7:** Configuration C Regime 1A displacement contour ( `DMX` = $6.743\text{ mm}$, `TIP_UZ` = $-6.692\text{ mm}$ ).
 
 ![Configuration C Regime 1A Stress](figures/stage3d/fig3d_08_cfgC_r1a_seqv.png)
-*Figure 3d.8: Configuration C Regime 1A Von Mises equivalent stress contour ($\sigma_{\max} = 51.13\text{ MPa}$ on interior rib flanges, $\text{FS} = 9.39$; contour scale clamped to $15.0\text{ MPa}$).*
+**Figure 3d.8:** Configuration C Regime 1A Von Mises equivalent stress contour ( $\sigma\_{\max} = 51.13\text{ MPa}$ on interior rib flanges, $\text{FS} = 9.39$; contour scale clamped to $15.0\text{ MPa}$ ).
 
 ![Configuration C Regime 1A Buckling Mode 1](figures/stage3d/fig3d_09_cfgC_r1a_buckle.png)
-*Figure 3d.9: Configuration C Regime 1A linear eigenvalue buckling mode 1 ($|\lambda_1| = 1.6012$, $\text{MS}_{\text{buckle}} = +0.07$). Buckling stability is completely restored by skin reinforcement.*
+**Figure 3d.9:** Configuration C Regime 1A linear eigenvalue buckling mode 1 ( $\vert \lambda\_1 \vert = 1.6012$, $\text{MS}\_\text{buckle} = +0.07$ ). Buckling stability is completely restored by skin reinforcement.
 
 ---
 
