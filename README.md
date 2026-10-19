@@ -29,6 +29,11 @@ In conventional airframe design, every change of internal structural layout requ
 
 The project scope is focused on three certified core objectives:
 
+### 🗺️ System Architecture & Workflow Diagram
+
+[![Architecture diagram of nomiez321000/ansys_scripts](assets/architecture_diagram.png)](https://gitdiagram.com/nomiez321000/ansys_scripts?utm_source=readme&utm_medium=picture)
+*Interactive live architecture diagram powered by [GitDiagram](https://gitdiagram.com/nomiez321000/ansys_scripts?utm_source=readme&utm_medium=picture).*
+
 ```
   ┌─────────────────────────────────┐
   │   Step 1: Data Collection       │
@@ -120,7 +125,7 @@ Ansys_Scripts/
 │
 └── reference/                      # Official documentation, syllabus, and academic references
     ├── Stage_Docment/              # Milestone project reports and presentations
-    │   ├── HTP_Final_Report_v5.pdf # ★ FINAL CERTIFIED REPORT (October 20, 2026) ★
+    │   ├── HTP_Final_Report_v5.pdf # ★ FINAL CERTIFIED REPORT (October 21, 2026) ★
     │   └── 00_Stage_Documents_Index.md # Index of stage documents
     │
     └── Resources/                  # Full-text textbooks and regulatory certification standards
