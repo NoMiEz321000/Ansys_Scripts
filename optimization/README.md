@@ -184,10 +184,14 @@ To match the clean presentation standard established in `modal_analysis/` and `l
 - **Bottom Horizontal Contour Bar (`/UDOC, 1, CNTR, BOTTOM`):** Clean, centered horizontal color scale at the bottom of the image for optimal embedding in reports and presentation slides.
 - **Suppressed Right-Hand Legend Block (`/PLOPTS, LEG1, 0`, `LEG2, 0`, `INFO, 3`, `TITLE, 0`, `LOGO, 0`):** Removes the default ANSYS PowerGraphics banner, date, and sidebar text to maintain a modern, distraction-free visual presentation.
 - **Canonical Aerospace Perspective (`/VIEW, 1, 0.55, -0.70, 0.45` with `/VUP, 1, Z`):** Elevates the root carry-through box, stringer mouseholes, and compression upper skin into foreground perspective.
+- **Unified 1:1 Comparison Scales Across All Configurations:**
+  - **Deflection (DMX):** Standardized to **$0.0 - 7.2\text{ mm}$** (Step $0.8\text{ mm}$) for all configs.
+  - **Von Mises Stress (SEQV):** Standardized to **$0.0 - 15.0\text{ MPa}$** (High-Contrast Skin Scale) for all configs, enabling direct visual comparison of stress flows while isolating extreme rib flange concentrations ($> 15\text{ MPa}$) in the top red color band.
+  - **Buckling Mode 1:** Normalized to **$0.0 - 1.0$** for all configs.
 
 > **Directory Layout:**
-> - 📁 **Report-Ready Visuals (Bottom Bar, No Right Legend):** [`optimization/visual_opt/for_report/`](visual_opt/for_report/) and root [`optimization/visual_opt/`](visual_opt/)
-> - 📁 **Full PowerGraphics Legend Archive (With Sidebar):** [`optimization/visual_opt/with_powergraph/`](visual_opt/with_powergraph/)
+> - 📁 **Report-Ready Visuals (Bottom Bar, Unified 15 MPa / 7.2 mm, No Right Legend):** [`optimization/visual_opt/for_report/`](visual_opt/for_report/) and root [`optimization/visual_opt/`](visual_opt/)
+> - 📁 **Full-Scale PowerGraphics Legend Archive (With Sidebar):** [`optimization/visual_opt/with_powergraph/`](visual_opt/with_powergraph/)
 
 ---
 
@@ -196,13 +200,13 @@ To match the clean presentation standard established in `modal_analysis/` and `l
 ````carousel
 ![Config 1 Optimized Deflection (Report)](visual_opt/for_report/cfg1_opt_regime1a_dmx.png)
 <!-- slide -->
-![Config 1 Optimized Stress (Report)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png)
+![Config 1 Optimized Stress (Report, 0 to 15 MPa)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png)
 <!-- slide -->
 ![Config 1 Buckling Mode 1 (Report)](visual_opt/for_report/cfg1_buckle_mode1.png)
 ````
 
 - [Config 1 Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg1_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_opt_regime1a_dmx.png): Cantilever bending with maximum tip deflection of $6.77\text{ mm}$.
-- [Config 1 Stress (Report, SEQV 0 to 30 MPa)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_opt_regime1a_seqv.png): Peak stress contained in root interior rib flanges ($\sigma_{\max} = 29.94\text{ MPa}$).
+- [Config 1 Stress (Report, Unified SEQV 0 to 15.0 MPa)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png) | [With PowerGraphics (Full 0 to 30 MPa)](visual_opt/with_powergraph/cfg1_opt_regime1a_seqv.png): High-contrast skin stress distribution ($\sigma_{\text{skin}} \approx 13.16\text{ MPa}$, rib flange peak $29.94\text{ MPa}$ highlighted in red).
 - [Config 1 Linear Buckling Mode 1 (Report)](visual_opt/for_report/cfg1_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.4891$ ($MS = +0.66$).
 
 ---
@@ -212,13 +216,13 @@ To match the clean presentation standard established in `modal_analysis/` and `l
 ````carousel
 ![Config 2 Optimized Deflection (Report)](visual_opt/for_report/cfg2_opt_regime1a_dmx.png)
 <!-- slide -->
-![Config 2 Optimized Stress (Report)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png)
+![Config 2 Optimized Stress (Report, 0 to 15 MPa)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png)
 <!-- slide -->
 ![Config 2 Buckling Mode 1 (Report)](visual_opt/for_report/cfg2_buckle_mode1.png)
 ````
 
 - [Config 2 Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg2_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_opt_regime1a_dmx.png): Controlled tip deflection of $6.77\text{ mm}$ matching Config 1.
-- [Config 2 Stress (Report, SEQV 0 to 45 MPa)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_opt_regime1a_seqv.png): Peak stress of $44.64\text{ MPa}$ at root interior rib flange.
+- [Config 2 Stress (Report, Unified SEQV 0 to 15.0 MPa)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png) | [With PowerGraphics (Full 0 to 45 MPa)](visual_opt/with_powergraph/cfg2_opt_regime1a_seqv.png): High-contrast skin stress gradient ($\sigma_{\text{skin}} \approx 20.89\text{ MPa}$, rib flange peak $44.64\text{ MPa}$ highlighted in red).
 - [Config 2 Linear Buckling Mode 1 (Report)](visual_opt/for_report/cfg2_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.2074$ ($MS = +0.47$).
 
 ---
@@ -230,14 +234,14 @@ To match the clean presentation standard established in `modal_analysis/` and `l
 <!-- slide -->
 ![Config 3 Optimized Deflection (Report)](visual_opt/for_report/cfg3_opt_regime1a_dmx.png)
 <!-- slide -->
-![Config 3 Optimized Stress (Report)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png)
+![Config 3 Optimized Stress (Report, 0 to 15 MPa)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png)
 <!-- slide -->
 ![Config 3 Optimized Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_opt_regime1a_buckle_mode1.png)
 ````
 
 - [Config 3 Baseline Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_baseline_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_baseline_buckle_mode1.png): **Baseline Deficit:** $|\lambda_1| = 1.3257 < 1.50$ ($MS = -0.12$), showing localized compressive skin bay buckling.
 - [Config 3 Optimized Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg3_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_dmx.png): Optimized tip deflection of $6.74\text{ mm}$ ($U_Z = -6.69\text{ mm}$).
-- [Config 3 Optimized Stress (Report, SEQV 0 to 55 MPa)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_seqv.png): Peak stress of $51.13\text{ MPa}$ at root interior rib flange ($\text{FS} = 9.39$).
+- [Config 3 Optimized Stress (Report, Unified SEQV 0 to 15.0 MPa)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png) | [With PowerGraphics (Full 0 to 55 MPa)](visual_opt/with_powergraph/cfg3_opt_regime1a_seqv.png): High-contrast skin stress gradient ($\sigma_{\text{skin}} \approx 26.55\text{ MPa}$, rib flange peak $51.13\text{ MPa}$ highlighted in red, $\text{FS} = 9.39$).
 - [Config 3 Optimized Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_opt_regime1a_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_buckle_mode1.png): **Certified Pass:** $|\lambda_1| = 1.6012 \ge 1.50$ ($MS = +0.07$), buckling resistance restored by skin reinforcement.
 
 ---

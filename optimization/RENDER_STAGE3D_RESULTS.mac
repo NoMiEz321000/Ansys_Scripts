@@ -67,8 +67,8 @@ ALLSEL, ALL
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
 
-! Plot 2: Von Mises Stress (0 to 30 MPa)
-/CONTOUR, 1, 9, 0, , 30.0
+! Plot 2: Von Mises Stress (Unified High-Contrast Scale 0 to 15.0 MPa)
+/CONTOUR, 1, 9, 0, , 15.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
 FINISH
@@ -111,8 +111,8 @@ ALLSEL, ALL
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
 
-! Plot 5: Von Mises Stress (0 to 45 MPa)
-/CONTOUR, 1, 9, 0, , 45.0
+! Plot 5: Von Mises Stress (Unified High-Contrast Scale 0 to 15.0 MPa)
+/CONTOUR, 1, 9, 0, , 15.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
 FINISH
@@ -184,8 +184,8 @@ ALLSEL, ALL
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
 
-! Plot 9: Von Mises Stress (0 to 55 MPa)
-/CONTOUR, 1, 9, 0, , 55.0
+! Plot 9: Von Mises Stress (Unified High-Contrast Scale 0 to 15.0 MPa)
+/CONTOUR, 1, 9, 0, , 15.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
 FINISH
