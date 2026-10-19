@@ -123,7 +123,7 @@ Building upon the certified baseline, Stage 3d implements an ultra-fast structur
 - **Structural Regime Nature:** Von Mises stress margins remain large across all topologies ($\text{FS}_{\min} = 9.39 \gg 1.50$), proving that the transport tailplane is governed by **stiffness and stability constraints**, not static strength yield.
 - **Visual & Tabular Artifacts:**
   - Machine-Readable Tables: [`optimization/result/STAGE3D_FINAL_COMPARISON_TABLE.csv`](optimization/result/STAGE3D_FINAL_COMPARISON_TABLE.csv) and [`optimization/result/STAGE3D_SENSITIVITY_MATRIX.csv`](optimization/result/STAGE3D_SENSITIVITY_MATRIX.csv).
-  - Publication Visuals ($0\text{–}7.2\text{ mm}$ DMX, $0\text{–}55\text{ MPa}$ SEQV, Buckling Modes): [`optimization/visual_opt/`](optimization/visual_opt/).
+  - Publication Visuals: Report-Ready Bottom Bar [`optimization/visual_opt/for_report/`](optimization/visual_opt/for_report/) & Root [`optimization/visual_opt/`](optimization/visual_opt/) | Sidebar Legend Archive [`optimization/visual_opt/with_powergraph/`](optimization/visual_opt/with_powergraph/).
 
 ---
 

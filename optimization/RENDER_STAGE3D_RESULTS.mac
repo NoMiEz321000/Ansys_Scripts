@@ -1,40 +1,46 @@
 ! ==============================================================================
-! RENDER_STAGE3D_RESULTS.mac
-! Purpose: Render publication-quality Before/After Static & Buckling visualizations
-! Output images:
-!   - cfg1_opt_regime1a_dmx.png
-!   - cfg1_opt_regime1a_seqv.png
-!   - cfg1_buckle_mode1.png
-!   - cfg2_opt_regime1a_dmx.png
-!   - cfg2_opt_regime1a_seqv.png
-!   - cfg2_buckle_mode1.png
-!   - cfg3_baseline_buckle_mode1.png
-!   - cfg3_opt_regime1a_dmx.png
-!   - cfg3_opt_regime1a_seqv.png
-!   - cfg3_opt_regime1a_buckle_mode1.png
-! Execution Cwd: Ansys_Scripts/optimization/
+! RENDER_STAGE3D_RESULTS.mac — Publication-Quality Report Visualizer
+! Generates 10 Report-Ready Visuals with Horizontal Bottom Contour Bar
+! and Suppressed Right-Hand Legend Block (PowerGraphics box removed):
+!   1. cfg1_opt_regime1a_dmx.png       (0 to 7.2 mm DMX)
+!   2. cfg1_opt_regime1a_seqv.png      (0 to 30.0 MPa SEQV)
+!   3. cfg1_buckle_mode1.png           (Buckling Mode 1, L1 = -2.4891)
+!   4. cfg2_opt_regime1a_dmx.png       (0 to 7.2 mm DMX)
+!   5. cfg2_opt_regime1a_seqv.png      (0 to 45.0 MPa SEQV)
+!   6. cfg2_buckle_mode1.png           (Buckling Mode 1, L1 = -2.2074)
+!   7. cfg3_baseline_buckle_mode1.png  (Baseline Mode 1, L1 = -1.3257 - Deficit)
+!   8. cfg3_opt_regime1a_dmx.png       (0 to 7.2 mm DMX)
+!   9. cfg3_opt_regime1a_seqv.png      (0 to 55.0 MPa SEQV)
+!  10. cfg3_opt_regime1a_buckle_mode1.png (Optimized Mode 1, L1 = -1.6012 - Pass)
+!
+! Execution Working Directory: Ansys_Scripts/optimization/
 ! ==============================================================================
 
-! Common Display Settings
-/PLOPTS, INFO, 3
-/PLOPTS, LEG1, 0
-/PLOPTS, LEG2, 0
-/PLOPTS, LEG3, 1
-/PLOPTS, FRAME, 0
-/PLOPTS, TITLE, 0
-/PLOPTS, MINM, 1
-/PLOPTS, DATE, 0
-/PLOPTS, LOGO, 0
-/PLOPTS, WINS, 1
-/UDOC, 1, CNTR, BOTTOM
-/VIEW, 1, 1, 1, 1
-/ANG, 1, 0
-/AUTO, 1
-/RGB, INDEX, 100, 100, 100, 0
-/RGB, INDEX, 0, 0, 0, 15
+! Master Report Display Macro (Re-applied inside /POST1 before every plot)
+*CREATE, _SET_REPORT_PLOT, mac
+    /RGB, INDEX, 100, 100, 100, 0
+    /RGB, INDEX, 0, 0, 0, 15
+    /VIEW, 1, 0.55, -0.70, 0.45
+    /VUP, 1, Z
+    /ANG, 1, 0
+    /AUTO, 1
+    /ESHAPE, 1
+    /EDGE, 1, 0
+    /DEVICE, VECTOR, 0
+    /GRAPHICS, POWER
 
-! Macro to configure high-res PNG export
-*CREATE, _SET_PNG, mac
+    /PLOPTS, INFO, 3
+    /PLOPTS, LEG1, 0
+    /PLOPTS, LEG2, 0
+    /PLOPTS, LEG3, 1
+    /PLOPTS, FRAME, 0
+    /PLOPTS, TITLE, 0
+    /PLOPTS, MINM, 1
+    /PLOPTS, DATE, 0
+    /PLOPTS, LOGO, 0
+    /PLOPTS, WINS, 1
+    /UDOC, 1, CNTR, BOTTOM
+
     /SHOW, PNG, , 0
     PNGR, COMP, 1, -1
     PNGR, ORIENT, HORIZ
@@ -43,8 +49,9 @@
     /GFILE, 1920
 *END
 
+
 ! ==============================================================================
-! 1. CONFIG 1 REGIME 1A (Optimized)
+! 1. CONFIGURATION 1 REGIME 1A (Optimized)
 ! ==============================================================================
 RESUME, '_scratch_base_cfg1', 'db'
 T_SKIN = 2.05 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.20 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
@@ -54,11 +61,13 @@ RUN_BUCKLE_FLAG = 0
 /POST1
 SET, LAST
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 1: DMX (0 to 7.2 mm, step 0.8 mm)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
+
+! Plot 2: Von Mises Stress (0 to 30 MPa)
 /CONTOUR, 1, 9, 0, , 30.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
@@ -76,9 +85,9 @@ FINISH
 /POST1
 SET, 1, 1
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 3: Buckling Mode 1 (L1 = -2.4891)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, , 1.0
 PLNSOL, U, SUM, 1
 /SHOW, CLOSE
@@ -86,7 +95,7 @@ FINISH
 
 
 ! ==============================================================================
-! 2. CONFIG 2 REGIME 1A (Optimized)
+! 2. CONFIGURATION 2 REGIME 1A (Optimized)
 ! ==============================================================================
 RESUME, '_scratch_base_cfg2', 'db'
 T_SKIN = 2.12 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.20 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
@@ -96,11 +105,13 @@ RUN_BUCKLE_FLAG = 0
 /POST1
 SET, LAST
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 4: DMX (0 to 7.2 mm, step 0.8 mm)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
+
+! Plot 5: Von Mises Stress (0 to 45 MPa)
 /CONTOUR, 1, 9, 0, , 45.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
@@ -118,9 +129,9 @@ FINISH
 /POST1
 SET, 1, 1
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 6: Buckling Mode 1 (L1 = -2.2074)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, , 1.0
 PLNSOL, U, SUM, 1
 /SHOW, CLOSE
@@ -128,7 +139,7 @@ FINISH
 
 
 ! ==============================================================================
-! 3. CONFIG 3 BASELINE (Failing Buckling State)
+! 3. CONFIGURATION 3 BASELINE (Buckling Deficit State, L1 = -1.3257)
 ! ==============================================================================
 RESUME, '_scratch_base_cfg3', 'db'
 T_SKIN = 2.00 $ T_SPAR_WEB = 3.00 $ T_RIB_WEB = 2.00 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 1.00
@@ -147,9 +158,9 @@ FINISH
 /POST1
 SET, 1, 1
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 7: Baseline Buckling Mode 1 (L1 = -1.3257)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, , 1.0
 PLNSOL, U, SUM, 1
 /SHOW, CLOSE
@@ -157,7 +168,7 @@ FINISH
 
 
 ! ==============================================================================
-! 4. CONFIG 3 REGIME 1A (Optimized Passing State)
+! 4. CONFIGURATION 3 REGIME 1A (Optimized Passing State, L1 = -1.6012)
 ! ==============================================================================
 RESUME, '_scratch_base_cfg3', 'db'
 T_SKIN = 2.18 $ T_SPAR_WEB = 2.50 $ T_RIB_WEB = 1.50 $ STR_T = 1.60 $ SPAR_FT = 2.50 $ RIB_FT = 0.80
@@ -167,11 +178,13 @@ RUN_BUCKLE_FLAG = 0
 /POST1
 SET, LAST
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 8: DMX (0 to 7.2 mm, step 0.8 mm)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, 0.8, 7.2
 PLNSOL, U, SUM, 1
+
+! Plot 9: Von Mises Stress (0 to 55 MPa)
 /CONTOUR, 1, 9, 0, , 55.0
 PLNSOL, S, EQV, 0
 /SHOW, CLOSE
@@ -189,12 +202,12 @@ FINISH
 /POST1
 SET, 1, 1
 ALLSEL, ALL
-/ESHAPE, 1
-/GRAPHICS, POWER
-/INPUT, _SET_PNG, mac
+
+! Plot 10: Optimized Buckling Mode 1 (L1 = -1.6012)
+/INPUT, _SET_REPORT_PLOT, mac
 /CONTOUR, 1, 9, 0, , 1.0
 PLNSOL, U, SUM, 1
 /SHOW, CLOSE
 FINISH
 
-/DELETE, _SET_PNG, mac
+/DELETE, _SET_REPORT_PLOT, mac

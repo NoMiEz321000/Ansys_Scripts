@@ -175,58 +175,70 @@ Across all three optimized configurations:
 
 ---
 
-## 6. Publication Visual Gallery
+### 6. Publication Visual Gallery & Report-Ready Visuals
 
-All 10 target publication-quality images were rendered in ANSYS MAPDL Batch Mode using `/GRAPHICS, POWER`, `/ESHAPE, 1`, and unified contour ranges ($0 - 7.2\text{ mm}$ for DMX):
+All 10 target publication-quality images were rendered in ANSYS MAPDL Batch Mode using `/GRAPHICS, POWER`, `/ESHAPE, 1`, and unified contour ranges ($0 - 7.2\text{ mm}$ for DMX).
 
-### 6.1 Configuration 1 (14 Ribs, 3 Spars, 8 Stringers)
+### 6.1 Report-Ready Presentation Standards
+To match the clean presentation standard established in `modal_analysis/` and `load_sfbm/`, the visuals feature:
+- **Bottom Horizontal Contour Bar (`/UDOC, 1, CNTR, BOTTOM`):** Clean, centered horizontal color scale at the bottom of the image for optimal embedding in reports and presentation slides.
+- **Suppressed Right-Hand Legend Block (`/PLOPTS, LEG1, 0`, `LEG2, 0`, `INFO, 3`, `TITLE, 0`, `LOGO, 0`):** Removes the default ANSYS PowerGraphics banner, date, and sidebar text to maintain a modern, distraction-free visual presentation.
+- **Canonical Aerospace Perspective (`/VIEW, 1, 0.55, -0.70, 0.45` with `/VUP, 1, Z`):** Elevates the root carry-through box, stringer mouseholes, and compression upper skin into foreground perspective.
 
-````carousel
-![Config 1 Optimized Deflection](visual_opt/cfg1_opt_regime1a_dmx.png)
-<!-- slide -->
-![Config 1 Optimized Stress](visual_opt/cfg1_opt_regime1a_seqv.png)
-<!-- slide -->
-![Config 1 Buckling Mode 1](visual_opt/cfg1_buckle_mode1.png)
-````
-
-- [Config 1 Deflection (DMX, 0 to 7.2 mm)](visual_opt/cfg1_opt_regime1a_dmx.png): Shows smooth cantilever bending with maximum tip deflection of $6.77\text{ mm}$.
-- [Config 1 Stress (SEQV, 0 to 30 MPa)](visual_opt/cfg1_opt_regime1a_seqv.png): Stress concentration safely contained in root interior rib flanges ($\sigma_{\max} = 29.94\text{ MPa}$).
-- [Config 1 Linear Buckling Mode 1](visual_opt/cfg1_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.4891$ ($MS = +0.66$).
+> **Directory Layout:**
+> - 📁 **Report-Ready Visuals (Bottom Bar, No Right Legend):** [`optimization/visual_opt/for_report/`](visual_opt/for_report/) and root [`optimization/visual_opt/`](visual_opt/)
+> - 📁 **Full PowerGraphics Legend Archive (With Sidebar):** [`optimization/visual_opt/with_powergraph/`](visual_opt/with_powergraph/)
 
 ---
 
-### 6.2 Configuration 2 (9 Ribs, 2 Spars, 8 Stringers)
+### 6.2 Configuration 1 (14 Ribs, 3 Spars, 8 Stringers)
 
 ````carousel
-![Config 2 Optimized Deflection](visual_opt/cfg2_opt_regime1a_dmx.png)
+![Config 1 Optimized Deflection (Report)](visual_opt/for_report/cfg1_opt_regime1a_dmx.png)
 <!-- slide -->
-![Config 2 Optimized Stress](visual_opt/cfg2_opt_regime1a_seqv.png)
+![Config 1 Optimized Stress (Report)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png)
 <!-- slide -->
-![Config 2 Buckling Mode 1](visual_opt/cfg2_buckle_mode1.png)
+![Config 1 Buckling Mode 1 (Report)](visual_opt/for_report/cfg1_buckle_mode1.png)
 ````
 
-- [Config 2 Deflection (DMX, 0 to 7.2 mm)](visual_opt/cfg2_opt_regime1a_dmx.png): Controlled tip deflection of $6.77\text{ mm}$ matching Config 1.
-- [Config 2 Stress (SEQV, 0 to 45 MPa)](visual_opt/cfg2_opt_regime1a_seqv.png): Peak stress of $44.64\text{ MPa}$ at root interior rib flange.
-- [Config 2 Linear Buckling Mode 1](visual_opt/cfg2_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.2074$ ($MS = +0.47$).
+- [Config 1 Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg1_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_opt_regime1a_dmx.png): Cantilever bending with maximum tip deflection of $6.77\text{ mm}$.
+- [Config 1 Stress (Report, SEQV 0 to 30 MPa)](visual_opt/for_report/cfg1_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_opt_regime1a_seqv.png): Peak stress contained in root interior rib flanges ($\sigma_{\max} = 29.94\text{ MPa}$).
+- [Config 1 Linear Buckling Mode 1 (Report)](visual_opt/for_report/cfg1_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg1_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.4891$ ($MS = +0.66$).
 
 ---
 
-### 6.3 Configuration 3 (7 Ribs, 2 Spars, 6 Stringers) — Global Optimum
+### 6.3 Configuration 2 (9 Ribs, 2 Spars, 8 Stringers)
 
 ````carousel
-![Config 3 Baseline Buckling Deficiency](visual_opt/cfg3_baseline_buckle_mode1.png)
+![Config 2 Optimized Deflection (Report)](visual_opt/for_report/cfg2_opt_regime1a_dmx.png)
 <!-- slide -->
-![Config 3 Optimized Deflection](visual_opt/cfg3_opt_regime1a_dmx.png)
+![Config 2 Optimized Stress (Report)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png)
 <!-- slide -->
-![Config 3 Optimized Stress](visual_opt/cfg3_opt_regime1a_seqv.png)
-<!-- slide -->
-![Config 3 Optimized Buckling Mode 1](visual_opt/cfg3_opt_regime1a_buckle_mode1.png)
+![Config 2 Buckling Mode 1 (Report)](visual_opt/for_report/cfg2_buckle_mode1.png)
 ````
 
-- [Config 3 Baseline Buckling Mode 1](visual_opt/cfg3_baseline_buckle_mode1.png): **Baseline Deficit:** $|\lambda_1| = 1.3257 < 1.50$ ($MS = -0.12$), showing localized compressive skin bay buckling.
-- [Config 3 Optimized Deflection (DMX, 0 to 7.2 mm)](visual_opt/cfg3_opt_regime1a_dmx.png): Optimized tip deflection of $6.74\text{ mm}$ ($U_Z = -6.69\text{ mm}$).
-- [Config 3 Optimized Stress (SEQV, 0 to 55 MPa)](visual_opt/cfg3_opt_regime1a_seqv.png): Peak stress of $51.13\text{ MPa}$ at root interior rib flange ($\text{FS} = 9.39$).
-- [Config 3 Optimized Buckling Mode 1](visual_opt/cfg3_opt_regime1a_buckle_mode1.png): **Certified Pass:** $|\lambda_1| = 1.6012 \ge 1.50$ ($MS = +0.07$), buckling resistance restored by skin reinforcement.
+- [Config 2 Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg2_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_opt_regime1a_dmx.png): Controlled tip deflection of $6.77\text{ mm}$ matching Config 1.
+- [Config 2 Stress (Report, SEQV 0 to 45 MPa)](visual_opt/for_report/cfg2_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_opt_regime1a_seqv.png): Peak stress of $44.64\text{ MPa}$ at root interior rib flange.
+- [Config 2 Linear Buckling Mode 1 (Report)](visual_opt/for_report/cfg2_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg2_buckle_mode1.png): First buckling eigenvalue $|\lambda_1| = 2.2074$ ($MS = +0.47$).
+
+---
+
+### 6.4 Configuration 3 (7 Ribs, 2 Spars, 6 Stringers) — Global Optimum
+
+````carousel
+![Config 3 Baseline Buckling Deficiency (Report)](visual_opt/for_report/cfg3_baseline_buckle_mode1.png)
+<!-- slide -->
+![Config 3 Optimized Deflection (Report)](visual_opt/for_report/cfg3_opt_regime1a_dmx.png)
+<!-- slide -->
+![Config 3 Optimized Stress (Report)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png)
+<!-- slide -->
+![Config 3 Optimized Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_opt_regime1a_buckle_mode1.png)
+````
+
+- [Config 3 Baseline Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_baseline_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_baseline_buckle_mode1.png): **Baseline Deficit:** $|\lambda_1| = 1.3257 < 1.50$ ($MS = -0.12$), showing localized compressive skin bay buckling.
+- [Config 3 Optimized Deflection (Report, DMX 0 to 7.2 mm)](visual_opt/for_report/cfg3_opt_regime1a_dmx.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_dmx.png): Optimized tip deflection of $6.74\text{ mm}$ ($U_Z = -6.69\text{ mm}$).
+- [Config 3 Optimized Stress (Report, SEQV 0 to 55 MPa)](visual_opt/for_report/cfg3_opt_regime1a_seqv.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_seqv.png): Peak stress of $51.13\text{ MPa}$ at root interior rib flange ($\text{FS} = 9.39$).
+- [Config 3 Optimized Buckling Mode 1 (Report)](visual_opt/for_report/cfg3_opt_regime1a_buckle_mode1.png) | [With PowerGraphics](visual_opt/with_powergraph/cfg3_opt_regime1a_buckle_mode1.png): **Certified Pass:** $|\lambda_1| = 1.6012 \ge 1.50$ ($MS = +0.07$), buckling resistance restored by skin reinforcement.
 
 ---
 
