@@ -48,6 +48,7 @@ $$
 $$
 \Delta_{\text{mass}} = \frac{|M_{\text{volume}} - M_{\text{solver}}|}{M_{\text{solver}}} = 0.0000\%
 $$
+
 4. **Gate 4: Three-Axis $1g$ Gravity Equilibrium:**  
    Applying $1g$ static acceleration ($9,810\text{ mm/s}^2$) sequentially along the $X$, $Y$, and $Z$ axes of a root-clamped model must produce constraint reaction forces matching total structural weight ($W = M \cdot g$) with error $< 0.001\%$.
 5. **Gate 5: Unitary Displacement Integrity:**  

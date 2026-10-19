@@ -98,6 +98,7 @@ The script arrived at its current visual and physical perfection through a syste
 ### Breakthrough 4: Harmonic Monotonic Lightening Holes (v1.4.3)
 - **Defect:** Arbitrary circular hole sizing led to web bridge ligament pinch ($25\text{ mm}$) at the tip rib and inconsistent hole proportions.
 - **Solution:** Parameterized lightening hole radii with harmonic tapering:
+
 $$
 R_{hole}(y) = 0.50 \cdot h_{local}(y)
 $$

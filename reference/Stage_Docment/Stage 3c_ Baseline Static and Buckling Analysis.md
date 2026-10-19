@@ -312,6 +312,7 @@ The physical cause of this instability is directly explained by classical thin-p
 $$
 \sigma_{\text{cr}} = k_c \frac{\pi^2 E}{12 (1 - \nu^2)} \left(\frac{t}{b}\right)^2
 $$
+
 where:
 - $t$ is the composite skin laminate thickness ($2.00\text{ mm}$),
 - $b$ is the unsupported chordwise/spanwise rib bay pitch,
