@@ -176,7 +176,7 @@ To verify mass matrix consistency, structural mass was evaluated via two indepen
 | **Rib Flanges (Interior & Edges)**| `SEC 6, 7, 8` (Al 7075-T6) | 6.1469 kg | 3.8738 kg | 2.9807 kg | 4.38% |
 | **Half-Span Mass ($M_{\text{volume}}$)** | Sum of Component Volumes | **140.4634 kg** | **121.8902 kg** | **113.6375 kg** | 100.00% |
 | **Half-Span Mass ($M_{\text{solver}}$)** | Solver Mass Matrix Total | **140.4634 kg** | **121.8902 kg** | **113.6375 kg** | — |
-| **Dual-Method Discrepancy $\Delta$** | $\|M_{\text{vol}} - M_{\text{slv}}\| / M_{\text{slv}}$ | **0.0000%** | **0.0000%** | **0.0000%** | **Exact Agreement** |
+| **Dual-Method Discrepancy $\Delta$** | $\Vert M_{\text{vol}} - M_{\text{slv}} \Vert / M_{\text{slv}}$ | **0.0000%** | **0.0000%** | **0.0000%** | **Exact Agreement** |
 | **Full-Span Aircraft Assembly Mass** | Bilateral HTP ($2 \times M_{\text{half}}$)| **280.9267 kg** | **243.7804 kg** | **227.2750 kg** | — |
 | **Center of Gravity $(X, Y, Z)$ [mm]** | Global Cartesian Coordinates | (1797.99, 1812.76, 222.43) | (1775.86, 1817.86, 223.04) | (1775.43, 1811.90, 222.30) | Planform Centroid |
 

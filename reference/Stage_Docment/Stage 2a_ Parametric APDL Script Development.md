@@ -254,9 +254,9 @@ Block 8 resolves both conflicting requirements via **Dual-Zone Normal Blending**
 
 $$\text{Slope}_Y = \tan(\Lambda_{\text{dihed}}) + Z_{\text{frac}} \frac{dC}{dy} \approx 0.1089 \quad (6.2^\circ - 7.8^\circ)$$
 
-$$\text{BLEND\_FAC} = \begin{cases} 0.0 & \text{for } X/C < 0.025 \quad (\text{Pure In-Plane: zero nose beak overhang}) \\ \frac{X/C - 0.025}{0.040} & \text{for } 0.025 \le X/C < 0.065 \quad (\text{Smooth } C^0/C^1 \text{ linear transition}) \\ 1.0 & \text{for } X/C \ge 0.065 \quad (\text{Full 3D Dihedral: flush against skin}) \end{cases}$$
+$$\text{BLEND}_{\text{FAC}} = \begin{cases} 0.0 & \text{for } X/C < 0.025 \quad (\text{Pure In-Plane: zero nose beak overhang}) \\ \frac{X/C - 0.025}{0.040} & \text{for } 0.025 \le X/C < 0.065 \quad (\text{Smooth } C^0/C^1 \text{ linear transition}) \\ 1.0 & \text{for } X/C \ge 0.065 \quad (\text{Full 3D Dihedral: flush against skin}) \end{cases}$$
 
-$$NY = (-NZ_{\text{ip}}) \cdot \text{Slope}_Y \cdot \text{BLEND\_FAC}$$
+$$NY = (-NZ_{\text{ip}}) \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}$$
 
 This formulation guarantees that the flange is flush across the entire aerodynamic profile with zero outer surface puncture and zero forward beak overhang, fully consistent with the outer aerodynamic mold lines shown in Figures 2a.5, 2a.10, and 2a.15.
 
@@ -332,7 +332,7 @@ During the maturation of the script from early prototypes to release `v1.4.5-sta
 | **Singular Matrix in Solver** | Boolean operations left orphaned, unattached geometry keypoints and nodes, creating unconstrained zero-stiffness blocks in the global stiffness matrix. | Placed automated node cleanup (`NSLE, S` $\to$ `NSEL, INVE` $\to$ `NDELE, ALL`) in `/PREP7` before solution initiation. |
 | **Missing Nose Rib Flanges (Ribs 1–9)** | Midpoint sagitta of the sharp NACA 0012 nose segment reached $16.19\text{ mm}$ at root, exceeding the fixed $12.0\text{ mm}$ line selection filter. | Implemented dynamic dual-zone sagitta tolerance: `DM_TOL = 22.0 mm` at nose ($X/C < 0.05$) and `12.0 mm` across the main wingbox. |
 | **Rib Flange Beak Overhang** | Calculating flange orientation keypoints using 3D cross-products coupled steep vertical profile tangent with sweep, thrusting the flange forward past the nose. | Enforced pure in-plane orientation ($NY \equiv 0.0$) at the nose apex ($X/C < 0.025$). |
-| **Rib Flange Dihedral Skin Penetration** | Setting $NY \equiv 0.0$ globally prevented the beak but stripped dihedral tilt alignment across the main wingbox, causing $40\text{ mm}$ flanges to pierce the $2\text{ mm}$ skin by $2.44\text{ mm}$. | Architected Dual-Zone Normal Blending ($NY = -NZ_{\text{ip}} \cdot \text{Slope}_Y \cdot \text{BLEND\_FAC}$) with linear transition between $X/C = 0.025$ and $0.065$. |
+| **Rib Flange Dihedral Skin Penetration** | Setting $NY \equiv 0.0$ globally prevented the beak but stripped dihedral tilt alignment across the main wingbox, causing $40\text{ mm}$ flanges to pierce the $2\text{ mm}$ skin by $2.44\text{ mm}$. | Architected Dual-Zone Normal Blending ($NY = -NZ_{\text{ip}} \cdot \text{Slope}_Y \cdot \text{BLEND}_{\text{FAC}}$) with linear transition between $X/C = 0.025$ and $0.065$. |
 | **APDL Legacy Parser Math Bug** | Spaces around math multiplication operators (`NY = (-NZ_IP) * SLOPE_Y * BLEND_FAC`) caused APDL's legacy parser to treat ` * ` as a comment delimiter, truncating evaluations. | Stripped all whitespace around arithmetic operators in APDL assignment expressions (`NY = (-NZ_IP)*SLOPE_Y*BLEND_FAC`). |
 
 ---

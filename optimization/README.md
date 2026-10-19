@@ -117,7 +117,7 @@ The complete sensitivity gradients ($\frac{\partial M}{\partial x_i}$, $\frac{\p
 
 The complete optimization results across Baseline, Regime 1A, Regime 1B, and Regime 2 are recorded in [`optimization/result/STAGE3D_FINAL_COMPARISON_TABLE.csv`](result/STAGE3D_FINAL_COMPARISON_TABLE.csv):
 
-| Config | Regime / Case | Status | $T_{\text{skin}}$ [mm] | $T_{\text{spar}}$ [mm] | $T_{\text{rib}}$ [mm] | $\text{STR}_T$ [mm] | $\text{SPAR}_{\text{FT}}$ [mm] | $\text{RIB}_{\text{FT}}$ [mm] | Total Mass [kg] | $\Delta$ Mass [%] | Tip $U_Z$ [mm] | Max DMX [mm] | Peak Stress [MPa] | Critical Comp. | Min FS | Buckling Factor $|\lambda_1|$ | Margin $MS_{\text{buckle}}$ |
+| Config | Regime / Case | Status | $T_{\text{skin}}$ [mm] | $T_{\text{spar}}$ [mm] | $T_{\text{rib}}$ [mm] | $\text{STR}_T$ [mm] | $\text{SPAR}_{\text{FT}}$ [mm] | $\text{RIB}_{\text{FT}}$ [mm] | Total Mass [kg] | $\Delta$ Mass [%] | Tip $U_Z$ [mm] | Max DMX [mm] | Peak Stress [MPa] | Critical Comp. | Min FS | Buckling Factor $\vert \lambda_1 \vert$ | Margin $MS_{\text{buckle}}$ |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Config 1**<br>*(14-3-8)* | **Baseline** | BASELINE | 2.00 | 3.00 | 2.00 | 1.60 | 2.50 | 1.00 | **140.46** | *0.00%* | -6.72 | 6.77 | 29.54 | Rib Flange | 16.25 | 2.557 | +0.70 |
 | | **Regime 1A** | OPTIMAL | 2.05 | 2.50 | 1.20 | 1.60 | 2.50 | 0.80 | **126.11** | **-10.22%** | -6.72 | 6.77 | 29.94 | Rib Flange | 16.03 | 2.489 | +0.66 |

@@ -111,7 +111,7 @@ Using the consistent unit system `(N, mm, tonne, MPa)` with $\rho_{\text{Al 7075
 | **Rib Flanges (Interior & Edge)** | `SEC 6–8` (`BEAM188`, Mat 1) | `6.1469 kg` *(4.38%)* | `3.8738 kg` *(3.18%)* | `2.9807 kg` *(2.62%)* |
 | **Half-Span Total (`ETABLE VOLU`)** | $\sum \rho_s V_s$ | **`140.4634 kg`** (`0.14046 ton`) | **`121.8902 kg`** (`0.12189 ton`) | **`113.6375 kg`** (`0.11364 ton`) |
 | **Half-Span Solver (`ELEM MTOT`)** | Solver Mass Matrix | **`140.4634 kg`** (`0.14046 ton`) | **`121.8902 kg`** (`0.12189 ton`) | **`113.6375 kg`** (`0.11364 ton`) |
-| **Dual-Method Mass Discrepancy** | $|M_{\text{vol}} - M_{\text{slv}}| / M_{\text{slv}}$ | **`0.0000%`** | **`0.0000%`** | **`0.0000%`** |
+| **Dual-Method Mass Discrepancy** | $\Vert M_{\text{vol}} - M_{\text{slv}} \Vert / M_{\text{slv}}$ | **`0.0000%`** | **`0.0000%`** | **`0.0000%`** |
 | **Full-Span HTP Mass ($2 \times M_{\text{half}}$)** | Bilateral Tailplane Assembly | **`280.9267 kg`** | **`243.7804 kg`** *(-13.22%)* | **`227.2750 kg`** *(-19.10%)* |
 | **Center of Mass $(X_{CG}, Y_{CG}, Z_{CG})$** | Global Cartesian `[mm]` | `(1798.00, 1812.76, 222.43)` | `(1775.86, 1817.86, 223.04)` | `(1775.44, 1811.90, 222.30)` |
 | **Finite Element Mesh Census** | Nodes / Elements (`SHELL` + `BEAM`) | `40,607` / `63,460` (`59,948`+`3,512`) | `25,063` / `38,251` (`36,047`+`2,204`) | `19,199` / `29,815` (`28,241`+`1,574`) |

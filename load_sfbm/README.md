@@ -240,11 +240,11 @@ Finite element static evaluation under critical aerodynamic flight load case **`
 | **Structural Mass (kg)** | **140.46 kg** (`140.4634 kg`) | **121.89 kg** (-13.22%) | **113.64 kg** (-19.10%) | Certified APDL Volume Integrals (`MTOT` = `ETAB`) |
 | **Applied Load ($F_Z$)** | -9,142.84 N | -9,142.84 N | -9,142.84 N | Target Downward Limit Load |
 | **Root Reaction ($F_Z$)** | **-9,142.84 N** | **-9,142.84 N** | **-9,142.82 N** | $\Delta < 0.001\%$ (**100.0% Equilibrium**) |
-| <td colspan="5">**DISPLACEMENTS: DMX vs. TIP_UZ**</td> |
+| **DISPLACEMENTS: DMX vs. TIP_UZ** | — | — | — | — |
 | **DMX — PowerGraphics & Full Graphics** | **6.77 mm** (6.768 mm) | **6.95 mm** (6.951 mm) | **7.10 mm** (7.096 mm) | Matches ANSYS GUI Plot Legends |
 | **TIP_UZ — PowerGraphics & Full Graphics** | **-6.72 mm** (-6.716 mm) | **-6.90 mm** (-6.898 mm) | **-7.04 mm** (-7.042 mm) | True Vertical Downward Bending |
-| **$\Delta$ (DMX vs. \|TIP_UZ\|)** | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | 3D In-plane / Poisson Coupling |
-| <td colspan="5">**EQUIVALENT VON MISES STRESS: $\sigma_{\text{vM}}$ [MPa]**</td> |
+| **$\Delta$ (DMX vs. $\vert u_{z,\text{tip}} \vert$)** | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | **0.05 mm** (0.76%) | 3D In-plane / Poisson Coupling |
+| **EQUIVALENT VON MISES STRESS ($\sigma_{\text{vM}}$)** | — | — | — | — |
 | **SMAX — PowerGraphics (`/ESHAPE, 1` Global)** | **29.54 MPa** (29.5412 MPa) | **46.78 MPa** (46.7829 MPa)\* | **59.15 MPa** (59.1507 MPa)\* | **Interior Rib Flange (`SEC 6` `BEAM188`)** |
 | **SMAX — PowerGraphics Skin (`SEC 3`)** | **12.59 MPa** (12.5948 MPa) | **19.86 MPa** (19.8587 MPa) | **25.32 MPa** (25.3180 MPa) | Unaveraged Composite Skin Peak |
 | **SMAX — PowerGraphics Spar Web (`SEC 2`)** | **18.49 MPa** (18.4858 MPa) | **23.14 MPa** (23.1440 MPa) | **28.49 MPa** (28.4858 MPa) | Unaveraged Al 7075-T6 Spar Web Peak |
@@ -268,7 +268,7 @@ Finite element static evaluation under critical aerodynamic flight load case **`
      $$\text{DMX} = \sqrt{U_X^2 + U_Y^2 + U_Z^2} \ge 0$$
      DMX is the Euclidean norm (magnitude) of the complete 3D displacement vector. It is always positive and represents the absolute displacement magnitude across all degrees of freedom.
    * **`TIP_UZ` (Tip Vertical Deflection):**
-     $$\text{TIP\_UZ} = U_Z \big|_{y = b/2} < 0$$
+     $$u_{z,\text{tip}} = U_Z \big|_{y = b/2} < 0$$
      TIP_UZ is the directional deflection along the global $Z$-axis at the wingtip rib ($y = 3,978\text{ mm}$). Under downward flight lift ($P = -9,143\text{ N}$), TIP_UZ is negative.
 
 2. **Physical Proportion:**

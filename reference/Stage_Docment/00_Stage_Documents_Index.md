@@ -110,14 +110,14 @@ A consolidated summary of structural masses, static deflections, peak stresses, 
 | **First Elastic Cantilever Mode ($f_7$)**| $55.99\text{ Hz}$ (Bending) | $57.17\text{ Hz}$ (Bending) | $54.24\text{ Hz}$ (Bending) | First out-of-plane flexure |
 | **Applied Flight Limit Shear** | $-9,142.84\text{ N}$ | $-9,142.84\text{ N}$ | $-9,142.84\text{ N}$ | Flight case $D_{\text{fwd}}$ ($V_D = 312.5\text{ kt}$) |
 | **Root Reaction Balance ($\sum R_z$)** | **-9,142.84 N** ($100.00\%$) | **-9,142.84 N** ($100.00\%$) | **-9,142.82 N** ($100.00\%$) | Static equilibrium error $< 0.001\%$ |
-| **Baseline Tip Deflection ($\text{TIP\_UZ}$)**| **-6.716 mm** | **-6.898 mm** (+2.71%) | **-7.042 mm** (+4.85%) | Vertical out-of-plane flexure |
-| **Vector Displacement Max ($\text{DMX}$)**| **6.768 mm** | **6.951 mm** | **7.096 mm** | $|\text{TIP\_UZ}| / \text{DMX} = 99.24\%$ |
+| **Baseline Tip Deflection (`TIP_UZ` / $u_{z,\text{tip}}$)**| **-6.716 mm** | **-6.898 mm** (+2.71%) | **-7.042 mm** (+4.85%) | Vertical out-of-plane flexure |
+| **Vector Displacement Max ($\text{DMX}$)**| **6.768 mm** | **6.951 mm** | **7.096 mm** | $\vert u_{z,\text{tip}} \vert / \text{DMX} = 99.24\%$ |
 | **Baseline Peak Stress (PowerGraphics)**| **29.54 MPa** (`SEC 6`) | **46.78 MPa** (`SEC 6`) | **59.15 MPa** (`SEC 6`) | Interior rib flange chordwise bending |
 | **Baseline Minimum Safety Factor** | $\text{FS} = 16.25$ | $\text{FS} = 10.26$ | $\text{FS} = 8.11$ | Enormous static strength reserve |
-| **Baseline Buckling Factor ($|\lambda_1|$)** | **2.557** ($\text{MS} = +0.70$) | **1.978** ($\text{MS} = +0.32$) | **1.326** ($\text{MS} = -0.12$) | **Config C Fails Buckling ($< 1.50$)** |
+| **Baseline Buckling Factor ($\vert \lambda_1 \vert$)** | **2.557** ($\text{MS} = +0.70$) | **1.978** ($\text{MS} = +0.32$) | **1.326** ($\text{MS} = -0.12$) | **Config C Fails Buckling ($< 1.50$)** |
 | **Regime 1A Sized Mass ($M_{\text{opt}}$)** | **126.11 kg** (-10.22%) | **114.83 kg** (-18.25%) | **112.40 kg** (**-19.98%**) | **Config C Regime 1A Selected Optimum** |
 | **Regime 1A Sized Tip Deflection** | $-6.72\text{ mm}$ | $-6.72\text{ mm}$ | **-6.69 mm** | Matches baseline stiffness ($\le 6.716\text{ mm}$) |
-| **Regime 1A Sized Buckling Factor** | $|\lambda_1| = 2.489$ | $|\lambda_1| = 2.207$ | **$|\lambda_1| = 1.601$** | **Buckling Restored ($\text{MS} = +0.07$)** |
+| **Regime 1A Sized Buckling Factor** | $\vert \lambda_1 \vert = 2.489$ | $\vert \lambda_1 \vert = 2.207$ | **$\vert \lambda_1 \vert = 1.601$** | **Buckling Restored ($\text{MS} = +0.07$)** |
 | **Sized Peak Stress (PowerGraphics)** | $29.94\text{ MPa}$ ($\text{FS} = 16.03$) | $44.64\text{ MPa}$ ($\text{FS} = 10.75$) | $51.13\text{ MPa}$ ($\text{FS} = 9.39$) | Interior rib flange hotspot |
 | **Structural Mass Saving** | $-14.35\text{ kg}$ (-10.22%) | $-25.63\text{ kg}$ (-18.25%) | **-28.06 kg** (**-19.98%**) | Half-span structural saving vs Base A |
 
@@ -167,16 +167,16 @@ The finite element model adheres strictly to the canonical aircraft Cartesian co
 | **HTP** | Horizontal Tailplane | — |
 | **$M$ / $M_{\text{tot}}$** | Total Half-Span Structural Mass | $\text{kg}$ |
 | **$\text{MS}_{\text{yield}}$** | Margin of Safety against Material Yield ($\text{FS} / 1.50 - 1.0$) | Dimensionless |
-| **$\text{MS}_{\text{buckle}}$** | Margin of Safety against Linear Eigenvalue Buckling ($|\lambda_1| / 1.50 - 1.0$) | Dimensionless |
+| **$\text{MS}_{\text{buckle}}$** | Margin of Safety against Linear Eigenvalue Buckling ($\vert \lambda_1 \vert / 1.50 - 1.0$) | Dimensionless |
 | **$N_{\text{cut}}$** | Number of Lightening Cutouts per Rib Web | Integer |
 | **RBM** | Rigid-Body Mode | — |
 | **SEC ID** | Structural Section Identifier (`SEC 1` to `SEC 8`) | Integer |
 | **SEQV / $\sigma_{\text{vM}}$** | Von Mises Equivalent Stress | $\text{MPa}$ |
 | **SFBM** | Shear Force and Bending Moment | — |
 | **$T_{\text{skin}}, T_{\text{spar}}, T_{\text{rib}}$** | Shell Component Thicknesses (Skin, Spar Web, Rib Web) | $\text{mm}$ |
-| **$\text{TIP\_UZ}$** | Vertical Out-of-Plane Tip Deflection ($U_z$ at $y = 3,978.0\text{ mm}$) | $\text{mm}$ |
+| **`TIP_UZ`** | Vertical Out-of-Plane Tip Deflection ($U_z$ at $y = 3,978.0\text{ mm}$) | $\text{mm}$ |
 | **$V_D$** | Design Dive Airspeed | $\text{kt}$ |
-| **$|\lambda_1|$** | First Linear Eigenvalue Buckling Load Factor (Bifurcation Multiplier) | Dimensionless |
+| **$\vert \lambda_1 \vert$** | First Linear Eigenvalue Buckling Load Factor (Bifurcation Multiplier) | Dimensionless |
 
 ---
 

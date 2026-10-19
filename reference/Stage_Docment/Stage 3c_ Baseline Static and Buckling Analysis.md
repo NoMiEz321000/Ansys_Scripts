@@ -22,7 +22,7 @@ Following the successful mathematical verification and boundary-mass qualificati
 
 The primary objectives of this stage are:
 1. **Application of Flight Limit Load:** Subject each baseline finite element model ($t_0$ initial sizing) to the reconstructed aerodynamic limit flight load case $D_{\text{fwd}}$ ($V_D = 312.5\text{ kt EAS}$, $n_{\max} = +2.571$, total half-tail downward load $P = -9,142.84\text{ N}$) mapped in Stage 2b.
-2. **Linear Static Stress & Deflection Evaluation:** Compute primary displacement fields (tip deflection $\text{TIP\_UZ}$ and vector sum maximum $\text{DMX}$) and resolve Von Mises equivalent stress distributions across individual components.
+2. **Linear Static Stress & Deflection Evaluation:** Compute primary displacement fields (tip deflection `TIP_UZ` ($u_{z,\text{tip}}$) and vector sum maximum `DMX`) and resolve Von Mises equivalent stress distributions across individual components.
 3. **Rigorous Stress Decomposition & Graphics Resolution:** Formulate an element-isolated extraction methodology to resolve the divergence between classical APDL nodal-averaged shell modes (`/GRAPHICS, FULL`) and 3D cross-sectional facet representations (`/GRAPHICS, POWER` with `/ESHAPE, 1`).
 4. **Boundary Singularity Assessment:** Verify stress convergence outside the clamped root boundary via a root-row exclusion filter ($y > 25\text{ mm}$).
 5. **Linear Eigenvalue Buckling Analysis:** Solve the prestressed eigenvalue problem to evaluate primary bifurcation load factors ($\lambda_1, \lambda_2$), identify critical buckling modes, and quantify margins of safety ($\text{MS}_{\text{buckle}}$).
@@ -132,33 +132,33 @@ The global static response metrics extracted from `STAGE3C_BASELINE_COMPONENT_MA
 | :--- | :---: | :---: | :---: | :--- |
 | **Total Structural Mass ($M_{\text{tot}}$)** | **140.463 kg** | **121.890 kg** (-13.22%) | **113.637 kg** (-19.10%) | Finite element mass trace |
 | **Applied Flight Load ($\sum F_z$)** | $-9,142.84\text{ N}$ | $-9,142.84\text{ N}$ | $-9,142.84\text{ N}$ | Aerodynamic limit load integration |
-| **Root Reaction Force ($\sum R_z$)** | **-9,142.84 N** | **-9,142.84 N** | **-9,142.82 N** | Equilibrium balance ($|\Delta| < 0.001\%$) |
+| **Root Reaction Force ($\sum R_z$)** | **-9,142.84 N** | **-9,142.84 N** | **-9,142.82 N** | Equilibrium balance ($\vert \Delta \vert < 0.001\%$) |
 | **Vector Displacement Max ($\text{DMX}$)** | **6.768 mm** | **6.951 mm** (+2.70%) | **7.096 mm** (+4.85%) | Global displacement vector norm |
-| **Wingtip Vertical Deflection ($\text{TIP\_UZ}$)**| **-6.716 mm** | **-6.898 mm** (+2.71%) | **-7.042 mm** (+4.85%) | Pure vertical out-of-plane bending |
-| **Deflection Ratio ($|\text{TIP\_UZ}| / \text{DMX}$)** | **99.24%** | **99.24%** | **99.24%** | Out-of-plane bending purity |
+| **Wingtip Vertical Deflection (`TIP_UZ` / $u_{z,\text{tip}}$)**| **-6.716 mm** | **-6.898 mm** (+2.71%) | **-7.042 mm** (+4.85%) | Pure vertical out-of-plane bending |
+| **Deflection Ratio ($\vert u_{z,\text{tip}} \vert / \text{DMX}$)** | **99.24%** | **99.24%** | **99.24%** | Out-of-plane bending purity |
 
 ---
 
 ### 4.1 Displacement Field Analysis: DMX vs. TIP_UZ
 
-A critical technical distinction in aerospace structural reporting concerns the difference between maximum vector displacement ($\text{DMX}$) and directional wingtip deflection ($\text{TIP\_UZ}$):
+A critical technical distinction in aerospace structural reporting concerns the difference between maximum vector displacement ($\text{DMX}$) and directional wingtip deflection `TIP_UZ` ($u_{z,\text{tip}}$):
 $$\text{DMX} = \max_{j} \sqrt{U_{x,j}^2 + U_{y,j}^2 + U_{z,j}^2}$$
-$$\text{TIP\_UZ} = U_z(x_{\text{tip}}, y_{\text{tip}}, z_{\text{tip}}) \quad \text{at } y_{\text{tip}} = 3,978.0\text{ mm}$$
+$$u_{z,\text{tip}} = U_z(x_{\text{tip}}, y_{\text{tip}}, z_{\text{tip}}) \quad \text{at } y_{\text{tip}} = 3,978.0\text{ mm}$$
 
 As documented in Table 3c.2, vertical out-of-plane bending accounts for exactly $99.24\%$ of the total displacement magnitude across all three configurations. The minute $0.76\%$ ($0.05\text{ mm}$) divergence arises from secondary structural mechanisms:
 1. **Poisson Contraction ($U_y$):** Spanwise shortening along the $Y$-axis induced by extreme tensile and compressive bending strains in the upper and lower skins.
 2. **Chordwise Dihedral Warping ($U_x$):** Minute chordwise displacement induced by the $2.0^\circ$ geometric dihedral angle and swept spar web orientation.
 
-Both values are reported: $\text{TIP\_UZ}$ serves as the primary metric for aircraft aeroelastic control and elevator surface clearance, while $\text{DMX}$ provides direct correspondence with ANSYS graphical contour palettes.
+Both values are reported: `TIP_UZ` ($u_{z,\text{tip}}$) serves as the primary metric for aircraft aeroelastic control and elevator surface clearance, while `DMX` provides direct correspondence with ANSYS graphical contour palettes.
 
 ![Configuration A Baseline Displacement Contour](figures/stage3c/fig3c_01_dmx_cfgA.png)
-*Figure 3c.1: Configuration A baseline displacement contour plot under limit load case $D_{\text{fwd}}$ ($\text{DMX} = 6.768\text{ mm}$, $\text{TIP\_UZ} = -6.716\text{ mm}$).*
+*Figure 3c.1: Configuration A baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $6.768\text{ mm}$, `TIP_UZ` = $-6.716\text{ mm}$).*
 
 ![Configuration B Baseline Displacement Contour](figures/stage3c/fig3c_02_dmx_cfgB.png)
-*Figure 3c.2: Configuration B baseline displacement contour plot under limit load case $D_{\text{fwd}}$ ($\text{DMX} = 6.951\text{ mm}$, $\text{TIP\_UZ} = -6.898\text{ mm}$).*
+*Figure 3c.2: Configuration B baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $6.951\text{ mm}$, `TIP_UZ` = $-6.898\text{ mm}$).*
 
 ![Configuration C Baseline Displacement Contour](figures/stage3c/fig3c_03_dmx_cfgC.png)
-*Figure 3c.3: Configuration C baseline displacement contour plot under limit load case $D_{\text{fwd}}$ ($\text{DMX} = 7.096\text{ mm}$, $\text{TIP\_UZ} = -7.042\text{ mm}$).*
+*Figure 3c.3: Configuration C baseline displacement contour plot under limit load case $D_{\text{fwd}}$ (`DMX` = $7.096\text{ mm}$, `TIP_UZ` = $-7.042\text{ mm}$).*
 
 ---
 
@@ -250,7 +250,7 @@ Combining the peak component stresses with linear eigenvalue buckling solutions 
 | **Rib Flange Safety Factor ($\text{FS}_{\text{RFL}}$)**| $16.25$ | $10.26$ | $8.11$ | Minimum strength safety factor |
 | **Rib Flange Margin ($\text{MS}_{\text{RFL}}$)** | $+9.83$ | $+5.84$ | $+4.41$ | Positive strength reserve across all models |
 | **First Buckling Eigenvalue ($\lambda_1$)** | **-2.5573** | **-1.9777** | **-1.3257** | Bifurcation multiplier of limit load |
-| **First Buckling Magnitude ($|\lambda_1|$)** | **2.557** | **1.978** | **1.326** | Target: $|\lambda_1| \ge 1.50$ |
+| **First Buckling Magnitude ($\vert \lambda_1 \vert$)** | **2.557** | **1.978** | **1.326** | Target: $\vert \lambda_1 \vert \ge 1.50$ |
 | **Second Buckling Eigenvalue ($\lambda_2$)** | $-2.4077$ | $-1.3131$ | $-1.1813$ | Secondary bifurcation mode |
 | **Buckling Margin of Safety ($\text{MS}_{\text{buckle}}$)**| **+0.70** | **+0.32** | **-0.12 (FAILS)** | **CS-25.303 / CS-25.305 Compliance** |
 
@@ -301,10 +301,10 @@ Baseline static and stability analyses conducted in Stage 3c confirm that:
 
 **Hand-off Deliverables to Stage 3d (Sensitivity Analysis and Sizing Optimization):**
 - **Active Optimization Constraints:** Stage 3d must formulate sizing optimization under strict active constraints:
-  - **Stiffness Constraint:** $|\text{TIP\_UZ}| \le 6.716\text{ mm}$ (matching Configuration A baseline aeroelastic stiffness).
+  - **Stiffness Constraint:** $\vert u_{z,\text{tip}} \vert \le 6.716\text{ mm}$ (`TIP_UZ`, matching Configuration A baseline aeroelastic stiffness).
   - **Stability Constraint:** $|\lambda_1| \ge 1.50$ ($\text{MS}_{\text{buckle}} \ge 0.0$ to ensure no buckling below ultimate load).
   - **Stress Constraint:** $\sigma_{\max} \le \sigma_{\text{allow}}$ (monitored as passive constraints).
-- The baseline models provide the exact benchmark metrics ($M_0, \text{TIP\_UZ}_0, \lambda_{1,0}$) for all optimization regimes.
+- The baseline models provide the exact benchmark metrics ($M_0, u_{z,\text{tip},0}, \lambda_{1,0}$) for all optimization regimes.
 
 ---
 

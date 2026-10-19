@@ -100,7 +100,7 @@ Building upon the certified baseline, Stage 3d implements an ultra-fast structur
 
 #### 2. Multi-Regime Sizing Optimization Results Summary
 
-| Configuration | Regime / Case | Total Mass [kg] | $\Delta$ Mass [%] vs. Base | Tip $U_Z$ [mm] | Max DMX [mm] | Peak Stress [MPa] | Critical Comp. | Min FS | Buckling Factor $|\lambda_1|$ | Margin $MS_{\text{buckle}}$ |
+| Configuration | Regime / Case | Total Mass [kg] | $\Delta$ Mass [%] vs. Base | Tip $U_Z$ [mm] | Max DMX [mm] | Peak Stress [MPa] | Critical Comp. | Min FS | Buckling Factor $\vert \lambda_1 \vert$ | Margin $MS_{\text{buckle}}$ |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Config 1**<br>*(14-3-8)* | Baseline | **140.46** | *0.00%* | -6.72 | 6.77 | 29.54 | Rib Flange | 16.25 | 2.557 | +0.70 |
 | | **Regime 1A (Stiff-Matched)** | **126.11** | **-10.22%** | -6.72 | 6.77 | 29.94 | Rib Flange | 16.03 | 2.489 | +0.66 |
