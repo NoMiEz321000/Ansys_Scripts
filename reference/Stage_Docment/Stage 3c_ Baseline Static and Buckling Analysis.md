@@ -55,7 +55,7 @@ $$
 [\mathbf{S}] = \int_{\Omega} [\mathbf{G}]^T [\mathbf{M}_{\sigma}] [\mathbf{G}] \, d\Omega
 $$
 
-     where $[ \mathbf{M}\_\sigma ]$ contains the initial membrane Cauchy stress components.
+where $[ \mathbf{M}\_\sigma ]$ contains the initial membrane Cauchy stress components.
 
 2. **Linear Eigenvalue Buckling Analysis (`ANTYPE, BUCKLE`):**
    - The solver transitions into the eigenvalue buckling processor using the Block Lanczos extraction algorithm (`BUCOPT, LANB, 5`, `MXPAND, 5`).
@@ -65,7 +65,7 @@ $$
 ([\mathbf{K}] + \lambda_i [\mathbf{S}]) \{\boldsymbol{\phi}_i\} = \{\mathbf{0}\}
 $$
 
-     where $\lambda\_i$ represents the $i$-th buckling load factor (eigenvalue multiplier of the applied limit load vector $\{ \mathbf{F}\_\text{limit} \}$), and $\{ \boldsymbol{\phi}\_i \}$ is the corresponding orthogonal buckling mode shape vector.
+where $\lambda\_i$ represents the $i$-th buckling load factor (eigenvalue multiplier of the applied limit load vector $\{ \mathbf{F}\_\text{limit} \}$), and $\{ \boldsymbol{\phi}\_i \}$ is the corresponding orthogonal buckling mode shape vector.
 
 ---
 
@@ -86,7 +86,7 @@ $$
 \texttt{ESEL, S, SEC, , k} \quad \longrightarrow \quad \texttt{NSLE, S} \quad \longrightarrow \quad \texttt{NSORT, S, EQV, 0, 1}
 $$
 
-     This isolates each structural component (Skin `SEC 3`, Spar Web `SEC 2`, Rib Web `SEC 1`) prior to sorting, eliminating cross-component nodal contamination.
+This isolates each structural component (Skin `SEC 3`, Spar Web `SEC 2`, Rib Web `SEC 1`) prior to sorting, eliminating cross-component nodal contamination.
 
 2. **PowerGraphics Mode (`/GRAPHICS, POWER` with `/ESHAPE, 1`):**
    - Renders 1D beam elements with their true 3D cross-sectional geometry and computes equivalent Von Mises stresses along external facet surfaces.
