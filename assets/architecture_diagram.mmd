@@ -1,0 +1,81 @@
+flowchart TD
+
+subgraph group_model["Parametric Modeling"]
+  node_parametric["HTP Model Builder<br/>[HTP_PARAMETRIC.mac]"]
+  node_configurations["HTP Configurations<br/>[HTP_PARAMETRIC.mac]"]
+end
+
+subgraph group_loads["Flight Load Processing"]
+  node_load_analysis["Aerodynamic Load Analysis"]
+  node_nodal_mapping["Nodal Force Mapping<br/>[htp_nodal_forces.m]"]
+  node_node_export["Load Node Export"]
+  node_load_cards["Mapped Load Inputs"]
+end
+
+subgraph group_verification["Model Verification"]
+  node_verification["Acceptance Gates<br/>[VERIFY_MODAL.mac]"]
+  node_modal_runs["Modal Verification"]
+end
+
+subgraph group_analysis["Advanced Analysis"]
+  node_static_extension["Static and Buckling"]
+  node_sensitivity["Sensitivity and Sizing"]
+  node_optimization_results["Sizing Results"]
+end
+
+subgraph group_visual["Visual Inspection"]
+  node_load_visuals["Load Visualization"]
+  node_rib_visuals["Rib Inspection<br/>[RENDER_RIBS.mac]"]
+  node_visual_check["Batch Visual Checks<br/>[VERIFY_VISUAL.mac]"]
+end
+
+node_engineer(("Engineer"))
+node_ansys["ANSYS MAPDL"]
+node_matlab["MATLAB"]
+
+node_engineer -->|"runs"| node_parametric
+node_parametric -->|"generates"| node_configurations
+node_parametric -->|"builds model in"| node_ansys
+node_load_analysis -->|"runs in"| node_matlab
+node_load_analysis -->|"preprocesses loads for"| node_nodal_mapping
+node_node_export -->|"exports nodes for"| node_nodal_mapping
+node_nodal_mapping -->|"produces mapped forces"| node_load_cards
+node_configurations -->|"undergoes"| node_verification
+node_verification -->|"checks modes with"| node_modal_runs
+node_configurations -->|"supports downstream analysis"| node_static_extension
+node_static_extension -.->|"informs"| node_sensitivity
+node_sensitivity -.->|"records results"| node_optimization_results
+node_engineer -->|"runs"| node_load_visuals
+node_engineer -->|"runs"| node_rib_visuals
+node_engineer -->|"runs"| node_visual_check
+node_load_visuals -->|"renders in"| node_ansys
+node_rib_visuals -->|"inspects in"| node_ansys
+node_visual_check -->|"verifies in"| node_ansys
+
+click node_parametric "https://github.com/nomiez321000/ansys_scripts/blob/main/HTP_PARAMETRIC.mac"
+click node_configurations "https://github.com/nomiez321000/ansys_scripts/blob/main/HTP_PARAMETRIC.mac"
+click node_load_analysis "https://github.com/nomiez321000/ansys_scripts/tree/main/load_sfbm/matlab"
+click node_nodal_mapping "https://github.com/nomiez321000/ansys_scripts/blob/main/load_sfbm/matlab/htp_nodal_forces.m"
+click node_node_export "https://github.com/nomiez321000/ansys_scripts/blob/main/EXPORT_LOAD_NODES.mac"
+click node_load_cards "https://github.com/nomiez321000/ansys_scripts/blob/main/load_sfbm/htp_loads_D_fwd_cfg1.inp"
+click node_verification "https://github.com/nomiez321000/ansys_scripts/blob/main/modal_analysis/VERIFY_MODAL.mac"
+click node_modal_runs "https://github.com/nomiez321000/ansys_scripts/blob/main/modal_analysis/RUN_SINGLE_MODAL.mac"
+click node_static_extension "https://github.com/nomiez321000/ansys_scripts/tree/main/load_sfbm"
+click node_sensitivity "https://github.com/nomiez321000/ansys_scripts/tree/main/optimization"
+click node_optimization_results "https://github.com/nomiez321000/ansys_scripts/tree/main/optimization/result"
+click node_load_visuals "https://github.com/nomiez321000/ansys_scripts/blob/main/RENDER_STATIC_LOADS.mac"
+click node_rib_visuals "https://github.com/nomiez321000/ansys_scripts/blob/main/RENDER_RIBS.mac"
+click node_visual_check "https://github.com/nomiez321000/ansys_scripts/blob/main/VERIFY_VISUAL.mac"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_parametric,node_configurations toneBlue
+class node_load_analysis,node_nodal_mapping,node_node_export,node_load_cards toneAmber
+class node_verification,node_modal_runs toneMint
+class node_static_extension,node_sensitivity,node_optimization_results toneRose
+class node_load_visuals,node_rib_visuals,node_visual_check,node_engineer,node_ansys,node_matlab toneIndigo
