@@ -131,54 +131,54 @@ The 10 execution blocks are organized into **four sequential engineering phases*
 ### 🗺️ Native GitHub Mermaid Execution Flowchart
 
 ```mermaid
-flowchart TD
+flowchart LR
 
   %% ==========================================
   %% PHASE I: PRE-COMPUTATION
   %% ==========================================
-  subgraph phase1["Phase I: Mathematical & Aerodynamic Pre-computation"]
+  subgraph phase1["Phase I: Pre-computation"]
     direction TB
-    b1["<b>Block 1: Parametric Inputs</b><br/>Config A/B/C selector, macro dimensions & material DVs"]
-    b2["<b>Block 2: Airfoil & Stations</b><br/>Rib positions, linear chord taper & NACA 0012 polynomial"]
-    b3["<b>Block 3: Spar-Aware Bays</b><br/>Structural bay partitioning & cutout allocation logic"]
+    b1["<b>Block 1: Parametric Inputs</b><br/>Config A/B/C selector & material DVs"]
+    b2["<b>Block 2: Airfoil & Stations</b><br/>Rib positions, taper & NACA 0012"]
+    b3["<b>Block 3: Spar-Aware Bays</b><br/>Bay partitioning & cutout logic"]
     b1 --> b2 --> b3
   end
 
   %% ==========================================
   %% PHASE II: 3D CAD MODELING
   %% ==========================================
-  subgraph phase2["Phase II: 3D CAD Solid Modeling & Boolean Consolidation"]
+  subgraph phase2["Phase II: CAD Modeling"]
     direction TB
-    b4["<b>Block 4: Keypoints & Lines</b><br/>3D airfoil keypoints, stringer traces & spar cap lines"]
-    b5["<b>Block 5: Area Generation & Cutouts</b><br/>Ribs with R10 mouseholes, lightening holes, skins, spar webs & topology merge"]
+    b4["<b>Block 4: Keypoints & Lines</b><br/>Airfoil keypoints & stringer lines"]
+    b5["<b>Block 5: Areas & Cutouts</b><br/>Ribs with R10 cutouts, skins & spars"]
     b4 --> b5
   end
 
   %% ==========================================
-  %% PHASE III: FEA DISCRETIZATION & COUPLING (SLIDE 06a)
+  %% PHASE III: FEA COUPLING (SLIDE 06a)
   %% ==========================================
-  subgraph phase3["Phase III: FEA Discretization, Physics & Direct Coupling (Slide 06a)"]
+  subgraph phase3["Phase III: FEA Coupling (Slide 06a)"]
     direction TB
-    b7["<b>Block 7: Elements, Materials & Sections</b><br/>SHELL181 + BEAM188, Al 7075 / CFRP & offset Hat/Rect sections"]
-    b8["<b>Block 8: Meshing & Direct Coupling</b><br/>Mapped/free shell mesh, oriented beam mesh & NUMMRG 6-DOF node merge"]
+    b7["<b>Block 7: Elements & Sections</b><br/>SHELL181 + BEAM188, Al / CFRP"]
+    b8["<b>Block 8: Meshing & Coupling</b><br/>Shell/beam mesh & NUMMRG 6-DOF"]
     b7 --> b8
   end
 
   %% ==========================================
   %% PHASE IV: SOLUTION & POST-PROCESS (SLIDE 06b)
   %% ==========================================
-  subgraph phase4["Phase IV: Solution, Pre-Stress & Extraction (Slide 06b)"]
+  subgraph phase4["Phase IV: Solution (Slide 06b)"]
     direction TB
-    b9["<b>Block 9: Boundary Conditions & Loads</b><br/>Clamped root cantilever at Y=0 & automated CS-25 SFBM load mapping"]
-    b10["<b>Block 10: Solve & Post-Process</b><br/>Static FEA solve, 3D visualization (/ESHAPE,1) & SMAX / Tip UZ extraction"]
+    b9["<b>Block 9: Boundary & Loads</b><br/>Clamped root & CS-25 SFBM loads"]
+    b10["<b>Block 10: Solve & Extract</b><br/>Static solve, SMAX & Tip UZ"]
     b9 --> b10
   end
 
-  %% Sequential Inter-phase Connections
-  b3 -->|"Airfoil Coordinates"| b4
+  %% Sequential Inter-phase Connections (Left to Right)
+  b3 -->|"Airfoil Coords"| b4
   b5 -->|"Watertight CAD"| b7
   b8 -->|"Conformal Mesh"| b9
-  b10 -->|"FEA Responses"| opt["<b>Downstream: Sizing Optimization</b><br/>Iterates DVs until FoS ≥ 1.50 & structural mass is minimized"]
+  b10 -->|"FEA Responses"| opt["<b>Downstream</b><br/>Sizing Optimization"]
 
   %% Class styling definitions (Soft Pastels with Clear Structural Borders)
   classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
