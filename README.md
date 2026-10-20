@@ -138,14 +138,10 @@ flowchart TD
   %% ==========================================
   subgraph phase1["Phase I: Mathematical & Aerodynamic Pre-computation"]
     direction TB
-    b1["<b>Block 1: Parametric Input Variables</b><br/><code>Lines 1–97</code><br/>• Config Selector: A (14-3-8), B (9-2-8), C (7-2-6)<br/>• Macro-Geometry: Span 3978mm, Root/Tip Chord, Dihedral 7°<br/>• Sizing DVs (Skin, Webs, Stringers, Flanges) & Allowables<br/>• Unit System: N, mm, tonne, MPa (Al 7075-T6 & Composite)"]
-    
-    b2["<b>Block 2: Station Calculation & Airfoil</b><br/><code>Lines 99–191</code><br/>• Rib Spacing & Spanwise Positions: Y_STA(I)<br/>• Tapered Linear Chord Law: C_STA(I)<br/>• Dihedral Elevation Centerline: Z_OFF(I)<br/>• NACA 0012 5th-Order Thickness: yt(x)<br/>• 25 Upper / 49 Total Closed Airfoil Coordinates"]
-    
-    b3["<b>Block 3: Spar-Aware Hole Bay Definition</b><br/><code>Lines 193–225</code><br/>• Bay 1 (LE Nose, 0.0–0.300C): BAY_HOLES = 0 (No sliver mesh)<br/>• Bay 2 (Wingbox, 0.300–0.764C): BAY_HOLES = 5–7 cutouts<br/>• Bay 3 (TE Bay, 0.764–0.827C): BAY_HOLES = 0 (Preserve shear)"]
-    
-    b1 -->|"Geometry & Config Arrays"| b2
-    b2 -->|"Airfoil Profile & Spar Stations"| b3
+    b1["<b>Block 1: Parametric Inputs</b><br/>Config A/B/C selector, macro dimensions & material DVs"]
+    b2["<b>Block 2: Airfoil & Stations</b><br/>Rib positions, linear chord taper & NACA 0012 polynomial"]
+    b3["<b>Block 3: Spar-Aware Bays</b><br/>Structural bay partitioning & cutout allocation logic"]
+    b1 --> b2 --> b3
   end
 
   %% ==========================================
@@ -153,11 +149,9 @@ flowchart TD
   %% ==========================================
   subgraph phase2["Phase II: 3D CAD Solid Modeling & Boolean Consolidation"]
     direction TB
-    b4["<b>Block 4: Keypoints & Line Generation</b><br/><code>Lines 227–315</code><br/>• 3D Airfoil Keypoints across all Ribs (Straight TE ref)<br/>• Spanwise Longitudinal Lines for Stringers & Spar Caps<br/>• Component Grouping: COMP_STR_UPPER/LOWER, COMP_FLANGE"]
-    
-    b5["<b>Block 5: Area Generation & Topological Consolidation</b><br/><code>Lines 317–594</code><br/>• Rib Solid Areas (AL) with Local Working Plane Alignment<br/>• Lightening Holes (CYL4) with Safe Web Pillar >= 14mm<br/>• Tangent Filleted Mouseholes (R=10mm) via 8-KP Areas (Kt: 2.4 -> 1.4)<br/>• Dynamic Boolean Area Subtraction (ASBA)<br/>• Lofted Aerodynamic Skins & Ruled Spar Webs<br/>• <i>Integrated Block 6 Consolidation (Lines 591–594)</i>:<br/>  NUMMRG, ALL, 1.0E-4 & NUMCMP, ALL (Watertight Solid Model)"]
-    
-    b4 -->|"Wireframe Guide Lines & Points"| b5
+    b4["<b>Block 4: Keypoints & Lines</b><br/>3D airfoil keypoints, stringer traces & spar cap lines"]
+    b5["<b>Block 5: Area Generation & Cutouts</b><br/>Ribs with R10 mouseholes, lightening holes, skins, spar webs & topology merge"]
+    b4 --> b5
   end
 
   %% ==========================================
@@ -165,11 +159,9 @@ flowchart TD
   %% ==========================================
   subgraph phase3["Phase III: FEA Discretization, Physics & Direct Coupling (Slide 06a)"]
     direction TB
-    b7["<b>Block 7: Element Types, Materials & Sections</b><br/><code>Lines 596–652</code><br/>• ET 1: SHELL181 (Keyopt 3=2 Full Integration)<br/>• ET 2: BEAM188 (Keyopt 3=3 Cubic Shape Functions)<br/>• Materials: MAT 1 (Al 7075-T6), MAT 2 (CFRP Skin)<br/>• SECTYPE Shells: SEC 1 (Rib), SEC 2 (Spar), SEC 3 (Skin)<br/>• SECTYPE Beams: SEC 4 (Hat), SEC 5 (Cap), SEC 6–8 (Flanges)<br/>• SECOFFSET: Centroidal offsets flush with skin (0mm penetration)<br/>• SAVE 'HTP_PARAMETRIC.db' Geometry Checkpoint"]
-    
-    b8["<b>Block 8: Meshing & Direct Coupling</b><br/><code>Lines 653–981</code><br/>• Mapped Quad Shell Meshing (Skins/Spars, ESIZE=100mm)<br/>• Free Unstructured Meshing on Cutout Ribs (ESIZE=15mm)<br/>• Beam Meshing with Inward Orientation KPs (L x T)<br/>• Dual-Zone Sagitta Filtering (LE Apex DM_TOL=22mm vs Box 12mm)<br/>• Dual-Zone Rib Flange Normal Blending (Apex 0° vs Wingbox 7°)<br/>• <b>Conformal Direct Node Welding: NUMMRG, NODE, 0.01 (6-DOF Match)</b>"]
-    
-    b7 -->|"Element Attributes & Cross-Sections"| b8
+    b7["<b>Block 7: Elements, Materials & Sections</b><br/>SHELL181 + BEAM188, Al 7075 / CFRP & offset Hat/Rect sections"]
+    b8["<b>Block 8: Meshing & Direct Coupling</b><br/>Mapped/free shell mesh, oriented beam mesh & NUMMRG 6-DOF node merge"]
+    b7 --> b8
   end
 
   %% ==========================================
@@ -177,18 +169,16 @@ flowchart TD
   %% ==========================================
   subgraph phase4["Phase IV: Solution, Pre-Stress & Extraction (Slide 06b)"]
     direction TB
-    b9["<b>Block 9: Boundary Conditions & Flight Loads</b><br/><code>Lines 982–1017</code><br/>• Static Structural Solver Setup (ANTYPE, 0)<br/>• Pre-Stress Activation: PSTRES, ON (Buckling Precursor)<br/>• Clamped Root Cantilever Boundary: D, ALL, ALL, 0 at Y = 0<br/>• Flight Load Mapping: /INPUT htp_loads_D_fwd_cfg%CONFIG%.inp<br/>  (Reconstructed EASA CS-25 SFBM Nodal Forces, Sum Fz = -9,142.8 N)"]
-    
-    b10["<b>Block 10: Solve & Post-Processing</b><br/><code>Lines 1019–1060</code><br/>• Safe Node Purge: NSLE -> NSEL, INVE -> NDELE (Preserves K_OR)<br/>• FE Equilibrium Solution: SOLVE<br/>• Post-Processing (/POST1): SET, LAST & /ESHAPE, 1 3D Plot<br/>• Metric Extraction: Peak Von Mises Stress (*GET SMAX)<br/>• Outboard Tip Deflection (*GET TIP_UZ at Span Station)<br/>• Write Export Summary: *VWRITE -> 'HTP_Results.txt'"]
-    
-    b9 -->|"Clamped Model with Flight Loads"| b10
+    b9["<b>Block 9: Boundary Conditions & Loads</b><br/>Clamped root cantilever at Y=0 & automated CS-25 SFBM load mapping"]
+    b10["<b>Block 10: Solve & Post-Process</b><br/>Static FEA solve, 3D visualization (/ESHAPE,1) & SMAX / Tip UZ extraction"]
+    b9 --> b10
   end
 
-  %% Sequential Inter-phase Connections (Strict Top-to-Bottom Flow)
-  b3 -->|"Pre-calculated Topology"| b4
-  b5 -->|"Watertight CAD Geometry"| b7
-  b8 -->|"Conformal 6-DOF Mesh"| b9
-  b10 -->|"FEA Responses (SMAX, TIP_UZ)"| opt["<b>Downstream Stage 3d: Sizing Optimization Loop</b><br/>Iterates DVs in Block 1 until FoS ≥ 1.50 & structural mass is minimized"]
+  %% Sequential Inter-phase Connections
+  b3 -->|"Airfoil Coordinates"| b4
+  b5 -->|"Watertight CAD"| b7
+  b8 -->|"Conformal Mesh"| b9
+  b10 -->|"FEA Responses"| opt["<b>Downstream: Sizing Optimization</b><br/>Iterates DVs until FoS ≥ 1.50 & structural mass is minimized"]
 
   %% Class styling definitions (Soft Pastels with Clear Structural Borders)
   classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
