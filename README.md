@@ -110,6 +110,139 @@ class node_load_visuals,node_rib_visuals,node_visual_check,node_engineer,node_an
 
 ---
 
+## 🔄 Parametric APDL Macro Execution Flowchart (10-Block Pipeline)
+
+The master APDL script [`Ansys_Scripts/HTP_PARAMETRIC.mac`](HTP_PARAMETRIC.mac) executes an automated, monolithic 10-block finite element modeling and solution pipeline (1,060 lines of native APDL code). It constructs the complete 3D internal structural assembly—including aerodynamic skins, 3 longitudinal spars, up to 14 transverse ribs with lightening holes and pass-through stringer mouseholes, 8 Hat-section stringers, spar caps, and dual-zone contoured rib flanges—**entirely from parametric code in pure MAPDL**.
+
+### 🏗️ Architectural Phase Organization & Block 6 Integration Narrative
+
+The 10 execution blocks are organized into **four sequential engineering phases**:
+* **Phase I: Mathematical & Aerodynamic Pre-computation (Blocks 1–3)**
+* **Phase II: 3D CAD Solid Modeling & Boolean Geometry (Blocks 4–5)**
+* **Phase III: FEA Discretization, Physics & Direct Coupling (Blocks 7–8)** — *(Featured in Presentation Slide 06a)*
+* **Phase IV: Solution, Pre-Stress & Extraction (Blocks 9–10)** — *(Featured in Presentation Slide 06b)*
+
+> [!NOTE]
+> **Clarification on Block 6 Integration:**  
+> In the preliminary conceptual architecture, solid area generation (skins/spars) and topological boundary line extraction were planned as separate execution blocks (Block 5 and Block 6). During production script hardening, **Block 6 was integrated directly into the conclusion of Block 5 (Lines 591–594)**. Executing global topological merging (`NUMMRG, ALL, 1.0E-4` and `NUMCMP, ALL`) immediately following rib boolean subtractions (`ASBA`), skin lofting, and spar creation ensures that all adjacent areas share coincident lines and keypoints, producing a watertight solid boundary before entering Section & Material attribution (Block 7).
+
+---
+
+### 🗺️ Native GitHub Mermaid Execution Flowchart
+
+```mermaid
+flowchart TD
+
+  %% ==========================================
+  %% PHASE I: PRE-COMPUTATION
+  %% ==========================================
+  subgraph phase1["Phase I: Mathematical & Aerodynamic Pre-computation"]
+    direction TB
+    b1["<b>Block 1: Parametric Input Variables</b><br/><code>Lines 1–97</code><br/>• Config Selector: A (14-3-8), B (9-2-8), C (7-2-6)<br/>• Macro-Geometry: Span 3978mm, Root/Tip Chord, Dihedral 7°<br/>• Sizing DVs (Skin, Webs, Stringers, Flanges) & Allowables<br/>• Unit System: N, mm, tonne, MPa (Al 7075-T6 & Composite)"]
+    
+    b2["<b>Block 2: Station Calculation & Airfoil</b><br/><code>Lines 99–191</code><br/>• Rib Spacing & Spanwise Positions: Y_STA(I)<br/>• Tapered Linear Chord Law: C_STA(I)<br/>• Dihedral Elevation Centerline: Z_OFF(I)<br/>• NACA 0012 5th-Order Thickness: yt(x)<br/>• 25 Upper / 49 Total Closed Airfoil Coordinates"]
+    
+    b3["<b>Block 3: Spar-Aware Hole Bay Definition</b><br/><code>Lines 193–225</code><br/>• Bay 1 (LE Nose, 0.0–0.300C): BAY_HOLES = 0 (No sliver mesh)<br/>• Bay 2 (Wingbox, 0.300–0.764C): BAY_HOLES = 5–7 cutouts<br/>• Bay 3 (TE Bay, 0.764–0.827C): BAY_HOLES = 0 (Preserve shear)"]
+    
+    b1 -->|"Geometry & Config Arrays"| b2
+    b2 -->|"Airfoil Profile & Spar Stations"| b3
+  end
+
+  %% ==========================================
+  %% PHASE II: 3D CAD MODELING
+  %% ==========================================
+  subgraph phase2["Phase II: 3D CAD Solid Modeling & Boolean Consolidation"]
+    direction TB
+    b4["<b>Block 4: Keypoints & Line Generation</b><br/><code>Lines 227–315</code><br/>• 3D Airfoil Keypoints across all Ribs (Straight TE ref)<br/>• Spanwise Longitudinal Lines for Stringers & Spar Caps<br/>• Component Grouping: COMP_STR_UPPER/LOWER, COMP_FLANGE"]
+    
+    b5["<b>Block 5: Area Generation & Topological Consolidation</b><br/><code>Lines 317–594</code><br/>• Rib Solid Areas (AL) with Local Working Plane Alignment<br/>• Lightening Holes (CYL4) with Safe Web Pillar >= 14mm<br/>• Tangent Filleted Mouseholes (R=10mm) via 8-KP Areas (Kt: 2.4 -> 1.4)<br/>• Dynamic Boolean Area Subtraction (ASBA)<br/>• Lofted Aerodynamic Skins & Ruled Spar Webs<br/>• <i>Integrated Block 6 Consolidation (Lines 591–594)</i>:<br/>  NUMMRG, ALL, 1.0E-4 & NUMCMP, ALL (Watertight Solid Model)"]
+    
+    b4 -->|"Wireframe Guide Lines & Points"| b5
+  end
+
+  %% ==========================================
+  %% PHASE III: FEA DISCRETIZATION & COUPLING (SLIDE 06a)
+  %% ==========================================
+  subgraph phase3["Phase III: FEA Discretization, Physics & Direct Coupling (Slide 06a)"]
+    direction TB
+    b7["<b>Block 7: Element Types, Materials & Sections</b><br/><code>Lines 596–652</code><br/>• ET 1: SHELL181 (Keyopt 3=2 Full Integration)<br/>• ET 2: BEAM188 (Keyopt 3=3 Cubic Shape Functions)<br/>• Materials: MAT 1 (Al 7075-T6), MAT 2 (CFRP Skin)<br/>• SECTYPE Shells: SEC 1 (Rib), SEC 2 (Spar), SEC 3 (Skin)<br/>• SECTYPE Beams: SEC 4 (Hat), SEC 5 (Cap), SEC 6–8 (Flanges)<br/>• SECOFFSET: Centroidal offsets flush with skin (0mm penetration)<br/>• SAVE 'HTP_PARAMETRIC.db' Geometry Checkpoint"]
+    
+    b8["<b>Block 8: Meshing & Direct Coupling</b><br/><code>Lines 653–981</code><br/>• Mapped Quad Shell Meshing (Skins/Spars, ESIZE=100mm)<br/>• Free Unstructured Meshing on Cutout Ribs (ESIZE=15mm)<br/>• Beam Meshing with Inward Orientation KPs (L x T)<br/>• Dual-Zone Sagitta Filtering (LE Apex DM_TOL=22mm vs Box 12mm)<br/>• Dual-Zone Rib Flange Normal Blending (Apex 0° vs Wingbox 7°)<br/>• <b>Conformal Direct Node Welding: NUMMRG, NODE, 0.01 (6-DOF Match)</b>"]
+    
+    b7 -->|"Element Attributes & Cross-Sections"| b8
+  end
+
+  %% ==========================================
+  %% PHASE IV: SOLUTION & POST-PROCESS (SLIDE 06b)
+  %% ==========================================
+  subgraph phase4["Phase IV: Solution, Pre-Stress & Extraction (Slide 06b)"]
+    direction TB
+    b9["<b>Block 9: Boundary Conditions & Flight Loads</b><br/><code>Lines 982–1017</code><br/>• Static Structural Solver Setup (ANTYPE, 0)<br/>• Pre-Stress Activation: PSTRES, ON (Buckling Precursor)<br/>• Clamped Root Cantilever Boundary: D, ALL, ALL, 0 at Y = 0<br/>• Flight Load Mapping: /INPUT htp_loads_D_fwd_cfg%CONFIG%.inp<br/>  (Reconstructed EASA CS-25 SFBM Nodal Forces, Sum Fz = -9,142.8 N)"]
+    
+    b10["<b>Block 10: Solve & Post-Processing</b><br/><code>Lines 1019–1060</code><br/>• Safe Node Purge: NSLE -> NSEL, INVE -> NDELE (Preserves K_OR)<br/>• FE Equilibrium Solution: SOLVE<br/>• Post-Processing (/POST1): SET, LAST & /ESHAPE, 1 3D Plot<br/>• Metric Extraction: Peak Von Mises Stress (*GET SMAX)<br/>• Outboard Tip Deflection (*GET TIP_UZ at Span Station)<br/>• Write Export Summary: *VWRITE -> 'HTP_Results.txt'"]
+    
+    b9 -->|"Clamped Model with Flight Loads"| b10
+  end
+
+  %% Sequential Inter-phase Connections (Strict Top-to-Bottom Flow)
+  b3 -->|"Pre-calculated Topology"| b4
+  b5 -->|"Watertight CAD Geometry"| b7
+  b8 -->|"Conformal 6-DOF Mesh"| b9
+  b10 -->|"FEA Responses (SMAX, TIP_UZ)"| opt["<b>Downstream Stage 3d: Sizing Optimization Loop</b><br/>Iterates DVs in Block 1 until FoS ≥ 1.50 & structural mass is minimized"]
+
+  %% Class styling definitions (Soft Pastels with Clear Structural Borders)
+  classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+  classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+  classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+  classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+  classDef tonePurple fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#4c1d95
+
+  class b1,b2,b3 toneAmber
+  class b4,b5 toneBlue
+  class b7,b8 toneMint
+  class b9,b10 toneRose
+  class opt tonePurple
+```
+
+---
+
+### 📊 Master 10-Block Pipeline Specification Table
+
+| Block # & Name | Line Range in `HTP_PARAMETRIC.mac` | Key APDL Commands & Syntax | Engineering Physics & Mathematical Purpose | Relevant Presentation Slide |
+| :--- | :---: | :--- | :--- | :---: |
+| **Block 1: Parametric Input Variables** | `Lines 1–97` | `/CWD`, `*IF`, `*ELSEIF`, `*ENDIF`, scalar assignments, `ACOS(-1)` | Initializes semi-span ($b/2 = 3,978\text{ mm}$), chords ($C_{\text{root}} = 3,090\text{ mm}$, $C_{\text{tip}} = 1,860\text{ mm}$), dihedral ($\Lambda = 7.0^\circ$), and config selector (A: 14-3-8, B: 9-2-8, C: 7-2-6). Declares initial sizing DVs, optimization override hook (`OPT_OVERRIDE`), and material properties in $(N, \text{mm}, \text{tonne}, \text{MPa})$ for Al 7075-T6 and CFRP. | **Slide 06b** |
+| **Block 2: Station Calculation & Airfoil** | `Lines 99–191` | `*DIM`, `*DO`, `*ENDDO`, `TAN`, `SQRT`, array indexing | Evaluates linear station spacing $Y_{\text{sta}}(i) = (i-1)\Delta Y$, chord law $C_i(y)$, and dihedral elevation $Z_{\text{off}}(y) = y \tan(7^\circ)$. Generates closed 49-point NACA 0012 thickness distribution ($t/c = 12\%$) via exact 5th-order polynomial and identifies spar/stringer chordwise fractions. | **Slide 06b** |
+| **Block 3: Spar-Aware Hole Bay Definition** | `Lines 193–225` | `*DIM`, `*DO`, `*IF`, `*ELSEIF`, `*ENDIF` | Defines structural bay boundaries: Bay 1 (LE nose, $0.0\text{–}0.300C$) disables cutouts (`BAY_HOLES=0`) to prevent sliver mesh failure; Bay 2 (wingbox torque box, $0.300\text{–}0.764C$) hosts 5–7 lightening holes; Bay 3 (TE bay) disables cutouts to preserve trailing edge shear stiffness. | **Slide 06b** |
+| **Block 4: Keypoints & Line Generation** | `Lines 227–315` | `/PREP7`, `*DO`, `K`, `L`, `*GET`, `LSEL`, `CM`, `ALLSEL` | Calculates 3D Cartesian coordinates referencing straight trailing edge ($X_{\text{offset}} = C_{\text{root}} - C_i$). Generates spanwise rib-to-rib guide lines along spar web and stringer paths; partitions into APDL components (`COMP_STR_UPPER`, `COMP_FLANGE_UPPER`, etc.). | **Slide 06b** |
+| **Block 5: Area Generation (Ribs, Cutouts, Skins, Spars)** | `Lines 317–594` | `AL`, `WPCSYS`, `WPOFFS`, `WPROTA`, `CYL4`, `A`, `ASBA`, `CM`, `NUMMRG, ALL, 1.0E-4`, `NUMCMP, ALL` | Creates solid ribs, transforms working plane per station, generates circular lightening holes with **Dynamic Safe Capping (Web Pillar $\ge 14.0\text{ mm}$)**, and builds 8-KP tangent circular filleted mouseholes ($R=10\text{ mm}$, $K_t: 2.4 \to 1.4$). Executes boolean subtraction (`ASBA`), lofts aerodynamic skins and spar webs, and **unifies solid geometry topology (historic Block 6, lines 591–594)**. | **Slide 06a & 06b** |
+| **Block 7: Element Types, Materials & Sections** | `Lines 596–652` | `ET`, `KEYOPT`, `MP`, `SECTYPE`, `SECDATA`, `*GET`, `SECOFFSET`, `SAVE` | Sets `SHELL181` (Keyopt 3=2 full integration) and `BEAM188` (Keyopt 3=3 cubic shape functions). Defines Al 7075-T6 (`MAT 1`) and CFRP skin (`MAT 2`). Assigns Hat-section stringer (`SEC 4`) and rectangular flanges (`SEC 5–8`) with **calibrated centroidal offsets (`SECOFFSET`)**, ensuring $0\text{ mm}$ skin puncture and $0\text{ mm}$ gap. Saves checkpoint `HTP_PARAMETRIC.db`. | **Slide 06a** |
+| **Block 8: Meshing & Direct Coupling** | `Lines 653–981` | `ESIZE`, `LESIZE`, `AATT`, `MSHAPE`, `MSHKEY`, `AMESH`, `SHPP, OFF/ON`, `LATT`, `LMESH`, `NUMMRG, NODE, 0.01` | Meshes skins/spars (quads, $100\text{ mm}$) and cutout ribs (unstructured triangles, $15\text{ mm}$, hole line division 6). Applies beam inward normals ($\vec{n} = \vec{L} \times \vec{T}$). Meshes rib flanges using **Dual-Zone Sagitta Filtering ($DM_{\text{tol}} = 22\text{ mm}$ vs $12\text{ mm}$)** and **Dual-Zone Normal Blending ($NY=0$ apex vs $7^\circ$ dihedral)**. Merges coincident shell-beam nodes (`NUMMRG, NODE, 0.01`) for seamless 6-DOF direct coupling. | **Slide 06a** |
+| **Block 9: Boundary Conditions & Flight Loads** | `Lines 982–1017` | `/SOLU`, `ANTYPE, 0`, `PSTRES, ON`, `NSEL`, `D, ALL, ALL, 0`, `/INPUT`, `SFA` | Sets static solution (`ANTYPE, 0`) and turns on pre-stress matrix generation (`PSTRES, ON`) for downstream buckling. Enforces fully fixed cantilever clamp ($UX=UY=UZ=ROTX=ROTY=ROTZ=0$) at root plane $Y=0$. Reads reconstructed EASA CS-25 flight load card (`htp_loads_D_fwd_cfg%CONFIG%.inp`, $\sum F_z = -9,142.84\text{ N}$) mapped onto conformal skin corner nodes. | **Slide 06b** |
+| **Block 10: Solve & Post-Process** | `Lines 1019–1060` | `/PREP7`, `NSLE`, `NSEL, INVE`, `NDELE, ALL`, `/SOLU`, `SOLVE`, `/POST1`, `SET, LAST`, `NSORT`, `*GET`, `*VWRITE` | Purges unattached floating nodes while safeguarding beam orientation nodes (`NSLE` -> `INVE` -> `NDELE`). Solves linear system $[K]\{u\} = \{F\}$. In `/POST1`, renders 3D shape (`/ESHAPE, 1`), extracts peak Von Mises stress ($\sigma_{\text{vM, max}}$) and outboard aerodynamic tip deflection ($U_{z, \text{tip}}$), and appends data to `HTP_Results.txt`. | **Slide 06b** |
+
+---
+
+### 🔬 Engineering Breakthrough Highlights Integrated in the Codebase
+
+1. **Dual-Zone Sagitta Outer Mold Line (OML) Filtering (Block 8, Lines 823–893):**  
+   Due to the extreme leading-edge curvature of the NACA 0012 section, standard endpoint proximity checks erroneously mistook internal cutout edges for the skin boundary. A 3-point mathematical filter evaluates endpoints ($D_1, D_2 < 2.0\text{ mm}$) and mid-chord sagitta $D_M$:
+   $$\text{DM\_TOL} = \begin{cases} 22.0\text{ mm} & \text{if } x/c < 0.05 \text{ (LE Apex, Max Sagitta } = 16.19\text{ mm}) \\ 12.0\text{ mm} & \text{if } x/c \ge 0.05 \text{ (Wingbox, strictly rejects cutouts } R \ge 25\text{ mm}) \end{cases}$$
+   This guarantees 100% perimeter continuity for rib caps across all 14 stations without missing segments.
+
+2. **Dual-Zone Rib Flange Normal Blending (Block 8, Lines 906–935):**  
+   * **Nose Apex ($x/c < 0.025$):** Setting pure in-plane normal ($NY = 0$, `BLEND_FAC = 0.0`) eliminates forward aerodynamic beak overhang.
+   * **Main Wingbox ($x/c \ge 0.065$):** Full 3D dihedral normal ($NY = -NZ_{\text{ip}} \cdot \text{Slope}_Y$, `BLEND_FAC = 1.0`) tilts the $40\text{ mm}$ flange by exactly $7.0^\circ$, ensuring $0\text{ mm}$ outer mold line puncture and $0\text{ mm}$ gap.
+
+3. **Dynamic Safe Web Pillar Capping (Block 5, Lines 366–479):**  
+   To prevent mesh distortion and shear web buckling pinch between lightening holes and adjacent cutouts, circular hole radii $R_H$ are dynamically capped:
+   $$R_H \le D_{\text{adj}} - 14.0\text{ mm}$$
+   guaranteeing a minimum structural ligament of $14.0\text{ mm}$ across all configurations and rib taper stations.
+
+4. **Conformal Direct Node Welding (Block 8, Lines 974–977):**  
+   By applying `NUMMRG, NODE, 0.01` followed by `NUMCMP, NODE`, coincident nodes between `SHELL181` faces and `BEAM188` axes are unified into single nodes with shared degrees of freedom. This provides native 6-DOF direct displacement and rotational transmission without introducing artificial contact elements, numerical penalty stiffness, or constraint equation (`CE`) singularities.
+
+---
+
 ## 📊 Summary of Certified Verification Results
 
 ### Acceptance Gate Performance Matrix (All 3 Configurations)
