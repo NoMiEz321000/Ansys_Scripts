@@ -19,7 +19,7 @@ This repository contains the complete computational source code, verification ma
   * Thanatchai Khunpiluke (ID: 67130036)
   * Sirasak Permsup (ID: 67130029)
   * Peeradol Singsamran (ID: 67130061)
-* **Final Report Document:** [`reference/Stage_Docment/HTP_Final_Report_v5.pdf`](reference/Stage_Docment/HTP_Final_Report_v5.pdf)
+* **Final Report Document:** [`reference/Stage_Docment/HTP_Final_Report_v7.pdf`](reference/Stage_Docment/HTP_Final_Report_v7.pdf)
 
 ---
 
@@ -136,12 +136,13 @@ class node_load_visuals,node_rib_visuals,node_visual_check,node_engineer,node_an
 Ansys_Scripts/
 │
 ├── HTP_PARAMETRIC.mac              # Master 10-Block parametric ANSYS APDL script (v1.4.5-stable)
-├── EXPORT_LOAD_NODES.mac           # Node exporter for MATLAB tributary load integration
-├── RENDER_STATIC_LOADS.mac         # Macro for high-resolution load and BC visual verification
-├── RENDER_RIBS.mac                 # Standalone rib elevation and cutout inspection macro
-├── VERIFY_VISUAL.mac               # Automated 18-view batch visual verification macro
+├── htp_loads_D_fwd_cfg1.inp        # Governing limit flight load card (Config A 14-3-8)
+├── htp_loads_D_fwd_cfg2.inp        # Governing limit flight load card (Config B 9-2-8)
+├── htp_loads_D_fwd_cfg3.inp        # Governing limit flight load card (Config C 7-2-6)
 │
-├── load_sfbm/                      # Stage 2b: Aerodynamic flight loads & SFBM pre-processing
+├── assets/                         # Vector & raster system architecture diagrams for documentation
+├── archive/                        # Auxiliary APDL macros (VERIFY_VISUAL, RENDER_RIBS, EXPORT_LOAD_NODES)
+├── load_sfbm/                      # Stage 2b: Aerodynamic flight loads & SFBM pre-processing suite
 │   ├── README.md                   # Complete mathematical derivations for V-n, BTL & Schrenk
 │   ├── matlab/                     # MATLAB pipeline scripts (vn_diagram.m, tail_load.m, etc.)
 │   ├── loads/                      # APDL input force cards (htp_loads_D_fwd_cfg1..3.inp)
@@ -156,16 +157,18 @@ Ansys_Scripts/
 │   ├── result/                     # Verification CSV tables and gate pass/fail logs
 │   └── visual_modal/               # Mode shape 1–6 displacement contour plots
 │
-├── optimization/                   # Advanced Extensions (Future Work: Stage 3c & 3d)
+├── optimization/                   # Advanced Extensions (Future Work: Stage 3c & 3d sizing optimization)
 │   ├── README.md                   # Zero-remeshing sizing optimization pipeline documentation
 │   ├── BUILD_OPT_BASES.mac         # Frozen-mesh database builder for rapid evaluations (2.5-4.2s)
 │   ├── UPDATE_SECTIONS_AND_SOLVE.mac # Fast section updater with recomputed beam offsets
 │   ├── result/                     # Sizing histories, sensitivity matrices, and trade-off tables
 │   └── visual_opt/                 # Buckling modes and post-sizing deflection plots
 │
+├── visual_log/                     # Multi-view visual verification logs, galleries, and snapshot suites
+│
 └── reference/                      # Official documentation, syllabus, and academic references
     ├── Stage_Docment/              # Milestone project reports and presentations
-    │   ├── HTP_Final_Report_v5.pdf # ★ FINAL CERTIFIED REPORT (October 21, 2026) ★
+    │   ├── HTP_Final_Report_v7.pdf # ★ FINAL CERTIFIED REPORT (October 21, 2026) ★
     │   └── 00_Stage_Documents_Index.md # Index of stage documents
     │
     └── Resources/                  # Full-text textbooks and regulatory certification standards
